@@ -1,1 +1,109 @@
-/* Main CSS file */
+.mainBody {
+    margin-left: 120px;
+}
+
+.title {
+    font-size: 35px;
+    font-weight: bold;
+}
+
+.instructions {
+    max-width: 600px;
+    word-wrap: break-spaces;
+    font-size: 20px;
+}
+
+.topicInput {
+    color: #000000;
+    font-size:14px;
+    width:500px;
+    height:300px;
+    border: solid 1px #000000;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    resize: none;
+}
+
+.topicView {
+    margin-top: 50px;
+    margin-left: 100px;
+}
+
+.numReservations {
+    width: 50px;
+}
+
+.card {
+    border: solid 2px #cccccc;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    width: 500px;
+    margin-top: 10px;
+}
+
+.topicName {
+    font-weight: bold;
+    color: #666666;
+    margin-left: 10px;
+}
+
+.settings {
+    float: right;
+    margin-right: 5px;
+    margin-top: 3.5px;
+}
+
+
+.sidebar {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+}
+
+.sidebar a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidebar a:hover {
+    color: #f1f1f1;
+}
+
+.sidebar .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+.openbtn {
+    font-size: 20px;
+    cursor: pointer;
+    background-color: #818181;
+    color: white;
+    padding: 5px 15px;
+    border: none;
+}
+
+.openbtn:hover {
+    background-color: #444;
+}
+
+#main {
+    transition: margin-left .5s;
+    padding: 16px;
+}
