@@ -55,6 +55,14 @@
     margin-top: 3.5px;
 }
 
+.popTitle {
+    margin-left: 80px;
+}
+
+.btn-default {
+    width: 250px;
+}
+
 
 .sidebar {
     height: 100%;

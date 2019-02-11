@@ -53,6 +53,8 @@ $OUTPUT->header();
     <!-- Our main css file that overrides default Tsugi styling -->
     <link rel="stylesheet" type="text/css" href="styles/main.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
     <script>
         function openNav() {
             document.getElementById("mySidebar").style.width = "250px";
@@ -105,6 +107,20 @@ $OUTPUT->flashMessages();
                                 $num=implode('',$tempNum[0]);
                                 $topicText = str_replace(array('0','1','2','3','4','5','6','7','8','9',','), '',$tops);
                                 ?>
+                                <script type="text/javascript">
+                                    $(document).ready(function() {
+                                        $('[data-toggle="popover"]').popover({
+                                            trigger: 'focus',
+                                            placement: 'right',
+                                            html: true,
+                                            title : '<h3 class="popTitle">Settings</h3>',
+                                            content : '<a type="button" class="btn btn-default" href="assignStu.php?top=<?=$tops?>">Assign Student(s)</a>' +
+                                                '<a type="button" class="btn btn-default" href="unassignStu.php?top=<?=$tops?>">Unassign Student(s)</a>' +
+                                                '<a type="button" class="btn btn-default" href="allowStu.php?num=<?=$num?>&top=<?=$tops?>">Allow Additional Students</a>' +
+                                                '<a type="button" class="btn btn-default" href="emailStu.php?top=<?=$tops?>">Email Student(s)</a>'
+                                        });
+                                    });
+                                </script>
                                 <div class="card">
                                     <div class="card-header" role="tab">
                                         <form method="post">
@@ -114,16 +130,27 @@ $OUTPUT->flashMessages();
                                                 <button type="submit" class="btn btn-success reserveButton">Reserve</button>
                                                 <span class="topicName"><?=$topicText?></span>
                                             </span>
-                                            <span>
-                                                <a class="settings" role="button"><i class="fa fa-cog fa-2x"></i></a>
-                                            </span>
+                                            <a href="#" data-toggle="popover" data-trigger="focus" class="settings" role="button"><i class="fa fa-cog fa-2x"></i></a>
                                         </form>
-
                                     </div>
                                 </div>
                                 <?php
                             } else {
                                 ?>
+                                <script>
+                                    $(document).ready(function() {
+                                        $('[data-toggle="popover"]').popover({
+                                            trigger: 'focus',
+                                            placement: 'right',
+                                            html: true,
+                                            title : '<h3 class="popTitle">Settings</h3>',
+                                            content : '<a type="button" class="btn btn-default" href="assignStu.php?top=<?=$tops?>">Assign Student(s)</a>' +
+                                                '<a type="button" class="btn btn-default" href="unassignStu.php?top=<?=$tops?>">Unassign Student(s)</a>' +
+                                                '<a type="button" class="btn btn-default" href="allowStu.php?top=<?=$tops?>">Allow Additional Students</a>' +
+                                                '<a type="button" class="btn btn-default" href="emailStu.php?top=<?=$tops?>">Email Student(s)</a>'
+                                        });
+                                    });
+                                </script>
                                 <div class="card">
                                     <div class="card-header" role="tab">
                                         <form method="post">
@@ -133,9 +160,7 @@ $OUTPUT->flashMessages();
                                                 <button type="submit" class="btn btn-success">Reserve</button>
                                                 <span class="topicName"><?=$tops?></span>
                                             </span>
-                                            <span>
-                                                <a class="settings" role="button"><i class="fa fa-cog fa-2x"></i></a>
-                                            </span>
+                                            <a href="#" data-toggle="popover" data-trigger="focus" class="settings" role="button"><i class="fa fa-cog fa-2x"></i></a>
                                         </form>
                                     </div>
                                 </div>
@@ -150,7 +175,15 @@ $OUTPUT->flashMessages();
                 header('Location: ' . addSession('newTopics.php'));
             }
         } else {
+            if($topicList) {
 
+            } else {
+                ?>
+                    <div class="container">
+
+                    </div>
+                <?php
+            }
         }
 
         ?>
