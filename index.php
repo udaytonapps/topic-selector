@@ -27,23 +27,26 @@ $topicsST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkI
 $topicsST->execute(array(":linkId" => $LINK->id));
 $topics = $topicsST->fetch(PDO::FETCH_ASSOC);
 
+$topicST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE list_id = :listId");
+$topicST->execute(array(":listId" => $topics['list_id']));
+$topic = $topicST->fetchAll(PDO::FETCH_ASSOC);
+
 $stuReserve = isset($_POST["reservations"]) ? 1 : 0;
 $stuAllow = isset($_POST["allow"]) ? 1 : 0;
 $numTopics = isset($_POST["numReservations"]) ? $_POST["numReservations"] : " ";
 $topicInput = isset($_POST["topic_list"]) ? $_POST["topic_list"] : " ";
 
-if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
-
-    $newList = $PDOX->prepare("INSERT INTO {$p}topic_list (link_id, num_topics, topic_list, stu_reserve, allow_stu) 
-                                        values (:linkId, :numTopics, :topicList, :stuReserve, :allowStu)");
-    $newList->execute(array(
-        ":linkId" => $LINK->id,
-        ":numTopics" => $numTopics,
-        ":topicList" => $topicInput,
-        ":stuReserve" => $stuReserve,
-        ":allowStu" => $stuAllow,
+if($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $topicId = isset($_POST["topicId"]) ? $_POST["topicId"] : " ";
+    $stuId = isset($_POST["studentId"]) ? $_POST["studentId"] : " ";
+    $newTopic = $PDOX->prepare("UPDATE {$p} topic SET user_id=:userId, date_selected=:selectDate WHERE list_id = :listId AND topic_id = :topicId");
+    $newTopic->execute(array(
+        ":listId" => $topics['list_id'],
+        ":topicId" => $topicId,
+        ":userId" => $stuId,
+        ":selectDate" => $currentTime,
     ));
-    $_SESSION['success'] = 'Topics saved successfully.';
+    $_SESSION['success'] = 'Topic saved successfully.';
     header('Location: ' . addSession('index.php'));
 }
 
@@ -102,68 +105,29 @@ $OUTPUT->flashMessages();
                     <p class="instructions">Students are able to reserve their topics from the list you created.</p>
                     <div class="container topicView">
                         <?php
-                        foreach(preg_split("/((\r?\n)|(\r\n?))/", $topics['topic_list']) as $tops) {
-                            if(preg_match_all('!\d+!', $tops, $tempNum)) {
-                                $num=implode('',$tempNum[0]);
-                                $topicText = str_replace(array('0','1','2','3','4','5','6','7','8','9',','), '',$tops);
-                                ?>
-                                <script type="text/javascript">
-                                    $(document).ready(function() {
-                                        $('[data-toggle="popover"]').popover({
-                                            trigger: 'focus',
-                                            placement: 'right',
-                                            html: true,
-                                            title : '<h3 class="popTitle">Settings</h3>',
-                                            content : '<a type="button" class="btn btn-default" href="assignStu.php?top=<?=$tops['topic_id']?>">Assign Student(s)</a>' +
-                                                '<a type="button" class="btn btn-default" href="unassignStu.php?top=<?=$tops['topic_id']?>">Unassign Student(s)</a>' +
-                                                '<a type="button" class="btn btn-default" href="allowStu.php?num=<?=$num?>&top=<?=$tops['topic_id']?>">Allow Additional Students</a>' +
-                                                '<a type="button" class="btn btn-default" href="emailStu.php?top=<?=$tops['topic_id']?>">Email Student(s)</a>'
-                                        });
+                        foreach($topic as $tops) {
+                            ?>
+                            <script>
+                                $(document).ready(function() {
+                                    $('[data-toggle="popover"]').popover({
+                                        trigger: 'focus',
+                                        placement: 'right',
+                                        html: true,
+                                        title : '<h3 class="popTitle">Settings</h3>',
+                                        content : '<a type="button" class="btn btn-default" href="assignStu.php?top=<?=$tops['topic_text']?>">Assign Student(s)</a>' +
+                                            '<a type="button" class="btn btn-default" href="unassignStu.php?top=<?=$tops['topic_text']?>">Unassign Student(s)</a>' +
+                                            '<a type="button" class="btn btn-default" href="allowStu.php?top=<?=$tops['topic_text']?>">Allow Additional Students</a>' +
+                                            '<a type="button" class="btn btn-default" href="emailStu.php?top=<?=$tops['topic_text']?>">Email Student(s)</a>'
                                     });
-                                </script>
-                                <div class="card">
-                                    <div class="card-header" role="tab">
-                                        <form method="post">
-                                            <span class="topicBox">
-                                                <input class="topicText" id="topicText" type="hidden" value="<?=$topicText?>">
-                                                <input class="studentId" id="studentId" type="hidden" value="<?=$USER->id?>">
-                                                <span class="topicName"><?=$topicText?></span>
-                                            </span>
-                                            <a href="#" data-toggle="popover" data-trigger="focus" class="settings" role="button"><i class="fa fa-cog fa-2x"></i></a>
-                                        </form>
-                                    </div>
+                                });
+                            </script>
+                            <div class="card">
+                                <div class="card-header" role="tab">
+                                    <span class="topicName"><?=$tops['topic_text']?></span>
+                                    <a href="#" data-toggle="popover" data-trigger="focus" class="settings" role="button"><i class="fa fa-cog fa-2x"></i></a>
                                 </div>
-                                <?php
-                            } else {
-                                ?>
-                                <script>
-                                    $(document).ready(function() {
-                                        $('[data-toggle="popover"]').popover({
-                                            trigger: 'focus',
-                                            placement: 'right',
-                                            html: true,
-                                            title : '<h3 class="popTitle">Settings</h3>',
-                                            content : '<a type="button" class="btn btn-default" href="assignStu.php?top=<?=$tops?>">Assign Student(s)</a>' +
-                                                '<a type="button" class="btn btn-default" href="unassignStu.php?top=<?=$tops?>">Unassign Student(s)</a>' +
-                                                '<a type="button" class="btn btn-default" href="allowStu.php?top=<?=$tops?>">Allow Additional Students</a>' +
-                                                '<a type="button" class="btn btn-default" href="emailStu.php?top=<?=$tops?>">Email Student(s)</a>'
-                                        });
-                                    });
-                                </script>
-                                <div class="card">
-                                    <div class="card-header" role="tab">
-                                        <form method="post">
-                                            <span class="topicBox">
-                                                <input class="topicText" id="topicText" type="hidden" value="<?=$tops?>">
-                                                <input class="studentId" id="studentId" type="hidden" value="<?=$USER->id?>">
-                                                <span class="topicName"><?=$tops?></span>
-                                            </span>
-                                            <a href="#" data-toggle="popover" data-trigger="focus" class="settings" role="button"><i class="fa fa-cog fa-2x"></i></a>
-                                        </form>
-                                    </div>
-                                </div>
-                                <?php
-                            }
+                            </div>
+                            <?php
                         }
                         ?>
                     </div>
@@ -180,40 +144,21 @@ $OUTPUT->flashMessages();
                     <p class="instructions"></p>
                     <div class="container topicView">
                         <?php
-                        foreach(preg_split("/((\r?\n)|(\r\n?))/", $topics['topic_list']) as $tops) {
-                            if(preg_match_all('!\d+!', $tops, $tempNum)) {
-                                $num=implode('',$tempNum[0]);
-                                $topicText = str_replace(array('0','1','2','3','4','5','6','7','8','9',','), '',$tops);
-                                ?>
-                                <div class="card">
-                                    <div class="card-header" role="tab">
-                                        <form method="post">
-                                            <span class="topicBox">
-                                                <input class="topicText" id="topicText" type="hidden" value="<?=$topicText?>">
-                                                <input class="studentId" id="studentId" type="hidden" value="<?=$USER->id?>">
-                                                <button type="submit" class="btn btn-success reserveButton">Reserve</button>
-                                                <span class="topicName"><?=$topicText?></span>
-                                            </span>
-                                        </form>
-                                    </div>
+                        foreach($topic as $tops) {
+                            ?>
+                            <div class="card">
+                                <div class="card-header" role="tab">
+                                    <form method="post">
+                                        <span class="topicBox">
+                                            <input class="topicId" id="topicId" name="topicId" value="<?=$tops['topic_id']?>" hidden>
+                                            <input class="studentId" id="studentId" name="studentId" value="<?=$USER->id?>" hidden>
+                                            <button type="submit" class="btn btn-success">Reserve</button>
+                                            <span class="topicName"><?=$tops['topic_text']?></span>
+                                        </span>
+                                    </form>
                                 </div>
-                                <?php
-                            } else {
-                                ?>
-                                <div class="card">
-                                    <div class="card-header" role="tab">
-                                        <form method="post">
-                                            <span class="topicBox">
-                                                <input class="topicText" id="topicText" type="hidden" value="<?=$tops?>">
-                                                <input class="studentId" id="studentId" type="hidden" value="<?=$USER->id?>">
-                                                <button type="submit" class="btn btn-success">Reserve</button>
-                                                <span class="topicName"><?=$tops?></span>
-                                            </span>
-                                        </form>
-                                    </div>
-                                </div>
-                                <?php
-                            }
+                            </div>
+                            <?php
                         }
                         ?>
                     </div>
