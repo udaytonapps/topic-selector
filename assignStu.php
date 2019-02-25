@@ -111,13 +111,12 @@ $OUTPUT->flashMessages();
                                 if ($hasRosters) {
                                     $rosterData = $GLOBALS['ROSTER']->data;
                                     foreach ($rosterData as $roster){
-                                        if($roster["roles"] != "Learner"){
-                                            unset($rosterData[$x]);
-                                        }
-                                        $name = $rosterData[0]["person_name_full"];
-                                        ?>
+                                        if($roster["roles"] == "Learner"){
+                                            $name = $rosterData[0]["person_name_full"];
+                                            ?>
                                             <li value="<?=$name?>"><a href="#"><?=$name?></a></li>
-                                        <?php
+                                            <?php
+                                        }
                                         $x++;
                                     }
                                 } else {
