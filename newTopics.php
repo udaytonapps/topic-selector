@@ -21,8 +21,9 @@ function findDisplayName($user_id, $PDOX, $p) {
 
 $stuReserve = isset($_POST["reservations"]) ? 1 : 0;
 $stuAllow = isset($_POST["allow"]) ? 1 : 0;
-$numTopics = isset($_POST["numReservations"]) ? $_POST["numReservations"] : " ";
+$numTopics = isset($_POST["numReservations"]) ? $_POST["numReservations"] : 1;
 $topicInput = isset($_POST["topic_list"]) ? $_POST["topic_list"] : " ";
+$dateSelected = "1";
 
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
 
@@ -35,6 +36,39 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
         ":stuReserve" => $stuReserve,
         ":allowStu" => $stuAllow,
     ));
+
+    $topicsST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkId");
+    $topicsST->execute(array(":linkId" => $LINK->id));
+    $topics = $topicsST->fetch(PDO::FETCH_ASSOC);
+
+    foreach(preg_split("/((\r?\n)|(\r\n?))/", $topics['topic_list']) as $tops) {
+        if(preg_match_all('!\d+!', $tops, $tempNum)) {
+            $num=implode('',$tempNum[0]);
+            $topicText = str_replace(array('0','1','2','3','4','5','6','7','8','9',','), '',$tops);
+
+            $newTopic = $PDOX->prepare("INSERT INTO {$p}topic (list_id, user_id, date_selected, topic_text, num_reserve) 
+                                        values (:listId, :userID, :dateSelected, :topicText, :numReserve)");
+            $newTopic->execute(array(
+                ":listId" => $topics['list_id'],
+                ":userID" => $USER->id,
+                ":dateSelected" => $currentTime,
+                ":topicText" => $topicText,
+                ":numReserve" => $num,
+            ));
+        } else {
+            $num = 1;
+            $newTopic = $PDOX->prepare("INSERT INTO {$p}topic (list_id, user_id, date_selected, topic_text, num_reserve) 
+                                        values (:listId, :userID, :dateSelected, :topicText, :numReserve)");
+            $newTopic->execute(array(
+                ":listId" => $topics['list_id'],
+                ":userID" => $USER->id,
+                ":dateSelected" => $currentTime,
+                ":topicText" => $tops,
+                ":numReserve" => $num,
+            ));
+        }
+    }
+
     $_SESSION['success'] = 'Topics saved successfully.';
     header('Location: ' . addSession('index.php'));
 }

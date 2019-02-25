@@ -8,9 +8,15 @@
 }
 
 .instructions {
-    max-width: 600px;
+    max-width: 750px;
     word-wrap: break-spaces;
     font-size: 20px;
+}
+
+.instructions2 {
+    max-width: 750px;
+    word-wrap: break-spaces;
+    font-size: 16px;
 }
 
 .topicInput {
@@ -43,6 +49,10 @@
     margin-top: 10px;
 }
 
+.card-header {
+    height: 34px;
+}
+
 .topicName {
     font-weight: bold;
     color: #666666;
@@ -61,6 +71,30 @@
 
 .btn-default {
     width: 250px;
+}
+
+.dropdown {
+    margin-left: 30px;
+    margin-top: 50px;
+}
+
+.dropdown-toggle {
+    width: 250px;
+}
+
+.assignButtons {
+    margin-top: 50px;
+}
+
+.numRes {
+    margin-top: 50px;
+}
+
+.numReservations {
+    font-size: 30px;
+    font-weight: bold;
+    height: 35px;
+    width: 100px;
 }
 
 

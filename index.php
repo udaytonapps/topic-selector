@@ -79,12 +79,12 @@ $OUTPUT->flashMessages();
 
     <div id="mySidebar" class="sidebar">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
-        <a href="#"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
-        <a href="#"><span class="fa fa-print" aria-hidden="true"></span> Print View</a>
         <a href="index.php"><span class="fa fa-home" aria-hidden="true"></span> Home</a>
         <?php
         if($USER->instructor){
             ?>
+            <a href="#"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
+            <a href="#"><span class="fa fa-print" aria-hidden="true"></span> Print View</a>
             <a href="clearTopics.php" onclick="return confirmResetTool();"><span class="fa fa-trash" aria-hidden="true"></span> Clear All</a>
             <?php
         }
@@ -114,10 +114,10 @@ $OUTPUT->flashMessages();
                                             placement: 'right',
                                             html: true,
                                             title : '<h3 class="popTitle">Settings</h3>',
-                                            content : '<a type="button" class="btn btn-default" href="assignStu.php?top=<?=$tops?>">Assign Student(s)</a>' +
-                                                '<a type="button" class="btn btn-default" href="unassignStu.php?top=<?=$tops?>">Unassign Student(s)</a>' +
-                                                '<a type="button" class="btn btn-default" href="allowStu.php?num=<?=$num?>&top=<?=$tops?>">Allow Additional Students</a>' +
-                                                '<a type="button" class="btn btn-default" href="emailStu.php?top=<?=$tops?>">Email Student(s)</a>'
+                                            content : '<a type="button" class="btn btn-default" href="assignStu.php?top=<?=$tops['topic_id']?>">Assign Student(s)</a>' +
+                                                '<a type="button" class="btn btn-default" href="unassignStu.php?top=<?=$tops['topic_id']?>">Unassign Student(s)</a>' +
+                                                '<a type="button" class="btn btn-default" href="allowStu.php?num=<?=$num?>&top=<?=$tops['topic_id']?>">Allow Additional Students</a>' +
+                                                '<a type="button" class="btn btn-default" href="emailStu.php?top=<?=$tops['topic_id']?>">Email Student(s)</a>'
                                         });
                                     });
                                 </script>
@@ -127,7 +127,6 @@ $OUTPUT->flashMessages();
                                             <span class="topicBox">
                                                 <input class="topicText" id="topicText" type="hidden" value="<?=$topicText?>">
                                                 <input class="studentId" id="studentId" type="hidden" value="<?=$USER->id?>">
-                                                <button type="submit" class="btn btn-success reserveButton">Reserve</button>
                                                 <span class="topicName"><?=$topicText?></span>
                                             </span>
                                             <a href="#" data-toggle="popover" data-trigger="focus" class="settings" role="button"><i class="fa fa-cog fa-2x"></i></a>
@@ -157,7 +156,6 @@ $OUTPUT->flashMessages();
                                             <span class="topicBox">
                                                 <input class="topicText" id="topicText" type="hidden" value="<?=$tops?>">
                                                 <input class="studentId" id="studentId" type="hidden" value="<?=$USER->id?>">
-                                                <button type="submit" class="btn btn-success">Reserve</button>
                                                 <span class="topicName"><?=$tops?></span>
                                             </span>
                                             <a href="#" data-toggle="popover" data-trigger="focus" class="settings" role="button"><i class="fa fa-cog fa-2x"></i></a>
@@ -176,7 +174,51 @@ $OUTPUT->flashMessages();
             }
         } else {
             if($topicList) {
-
+                ?>
+                <div class="container mainBody">
+                    <h2 class="title">Topic Selector</h2>
+                    <p class="instructions"></p>
+                    <div class="container topicView">
+                        <?php
+                        foreach(preg_split("/((\r?\n)|(\r\n?))/", $topics['topic_list']) as $tops) {
+                            if(preg_match_all('!\d+!', $tops, $tempNum)) {
+                                $num=implode('',$tempNum[0]);
+                                $topicText = str_replace(array('0','1','2','3','4','5','6','7','8','9',','), '',$tops);
+                                ?>
+                                <div class="card">
+                                    <div class="card-header" role="tab">
+                                        <form method="post">
+                                            <span class="topicBox">
+                                                <input class="topicText" id="topicText" type="hidden" value="<?=$topicText?>">
+                                                <input class="studentId" id="studentId" type="hidden" value="<?=$USER->id?>">
+                                                <button type="submit" class="btn btn-success reserveButton">Reserve</button>
+                                                <span class="topicName"><?=$topicText?></span>
+                                            </span>
+                                        </form>
+                                    </div>
+                                </div>
+                                <?php
+                            } else {
+                                ?>
+                                <div class="card">
+                                    <div class="card-header" role="tab">
+                                        <form method="post">
+                                            <span class="topicBox">
+                                                <input class="topicText" id="topicText" type="hidden" value="<?=$tops?>">
+                                                <input class="studentId" id="studentId" type="hidden" value="<?=$USER->id?>">
+                                                <button type="submit" class="btn btn-success">Reserve</button>
+                                                <span class="topicName"><?=$tops?></span>
+                                            </span>
+                                        </form>
+                                    </div>
+                                </div>
+                                <?php
+                            }
+                        }
+                        ?>
+                    </div>
+                </div>
+                <?php
             } else {
                 ?>
                     <div class="container">
