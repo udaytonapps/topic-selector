@@ -77,12 +77,12 @@ $OUTPUT->flashMessages();
 
     <div id="mySidebar" class="sidebar">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
-        <a href="#"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
-        <a href="#"><span class="fa fa-print" aria-hidden="true"></span> Print View</a>
         <a href="index.php"><span class="fa fa-home" aria-hidden="true"></span> Home</a>
         <?php
         if($USER->instructor){
             ?>
+            <a href="#"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
+            <a href="#"><span class="fa fa-print" aria-hidden="true"></span> Print View</a>
             <a href="clearTopics.php" onclick="return confirmResetTool();"><span class="fa fa-trash" aria-hidden="true"></span> Clear All</a>
             <?php
         }

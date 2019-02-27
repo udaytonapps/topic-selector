@@ -23,9 +23,9 @@ $topicListST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :li
 $topicListST->execute(array(":linkId" => $LINK->id));
 $topicList = $topicListST->fetchAll(PDO::FETCH_ASSOC);
 
-$topicsST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkId");
-$topicsST->execute(array(":linkId" => $LINK->id));
-$topics = $topicsST->fetch(PDO::FETCH_ASSOC);
+$topicST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE topic_id = :topicId");
+$topicST->execute(array(":topicId" => $_GET['top']));
+$topic = $topicST->fetch(PDO::FETCH_ASSOC);
 
 $stuReserve = isset($_POST["reservations"]) ? 1 : 0;
 $stuAllow = isset($_POST["allow"]) ? 1 : 0;
@@ -77,12 +77,12 @@ $OUTPUT->flashMessages();
 
     <div id="mySidebar" class="sidebar">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
-        <a href="#"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
-        <a href="#"><span class="fa fa-print" aria-hidden="true"></span> Print View</a>
         <a href="index.php"><span class="fa fa-home" aria-hidden="true"></span> Home</a>
         <?php
         if($USER->instructor){
             ?>
+            <a href="#"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
+            <a href="#"><span class="fa fa-print" aria-hidden="true"></span> Print View</a>
             <a href="clearTopics.php" onclick="return confirmResetTool();"><span class="fa fa-trash" aria-hidden="true"></span> Clear All</a>
             <?php
         }
@@ -96,7 +96,7 @@ $OUTPUT->flashMessages();
             ?>
             <div class="container mainBody">
                 <h2 class="title">Topic Selector - Unassign Student</h2>
-                <p class="instructions">Which student would you like to unassign from the topic, "<?=$_GET['top']?>?"</p>
+                <p class="instructions">Which student would you like to unassign from the topic, "<?=$topic['topic_text']?>?"</p>
                 <div class="container">
                     <form method="post">
                         <div class="dropdown">

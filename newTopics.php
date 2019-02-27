@@ -24,6 +24,7 @@ $stuAllow = isset($_POST["allow"]) ? 1 : 0;
 $numTopics = isset($_POST["numReservations"]) ? $_POST["numReservations"] : 1;
 $topicInput = isset($_POST["topic_list"]) ? $_POST["topic_list"] : " ";
 $dateSelected = "1";
+$numReserved = 0;
 
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
 
@@ -46,25 +47,23 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
             $num=implode('',$tempNum[0]);
             $topicText = str_replace(array('0','1','2','3','4','5','6','7','8','9',','), '',$tops);
 
-            $newTopic = $PDOX->prepare("INSERT INTO {$p}topic (list_id, user_id, date_selected, topic_text, num_reserve) 
-                                        values (:listId, :userID, :dateSelected, :topicText, :numReserve)");
+            $newTopic = $PDOX->prepare("INSERT INTO {$p}topic (list_id, topic_text, num_allowed, num_reserved) 
+                                        values (:listId, :topicText, :numAllowed, :numReserved)");
             $newTopic->execute(array(
                 ":listId" => $topics['list_id'],
-                ":userID" => $USER->id,
-                ":dateSelected" => $currentTime,
                 ":topicText" => $topicText,
-                ":numReserve" => $num,
+                ":numAllowed" => $num,
+                ":numReserved" => $numReserved,
             ));
         } else {
             $num = 1;
-            $newTopic = $PDOX->prepare("INSERT INTO {$p}topic (list_id, user_id, date_selected, topic_text, num_reserve) 
-                                        values (:listId, :userID, :dateSelected, :topicText, :numReserve)");
+            $newTopic = $PDOX->prepare("INSERT INTO {$p}topic (list_id, topic_text, num_allowed, num_reserved) 
+                                        values (:listId, :topicText, :numAllowed, :numReserved)");
             $newTopic->execute(array(
                 ":listId" => $topics['list_id'],
-                ":userID" => $USER->id,
-                ":dateSelected" => $currentTime,
                 ":topicText" => $tops,
-                ":numReserve" => $num,
+                ":numAllowed" => $num,
+                ":numReserved" => $numReserved,
             ));
         }
     }
@@ -103,10 +102,16 @@ $OUTPUT->flashMessages();
 
     <div id="mySidebar" class="sidebar">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
-        <a href="#"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
-        <a href="#"><span class="fa fa-print" aria-hidden="true"></span> Print View</a>
         <a href="index.php"><span class="fa fa-home" aria-hidden="true"></span> Home</a>
-        <a href="clearTopics.php" onclick="return confirmResetTool();"><span class="fa fa-trash" aria-hidden="true"></span> Clear All</a>
+        <?php
+        if($USER->instructor){
+            ?>
+            <a href="#"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
+            <a href="#"><span class="fa fa-print" aria-hidden="true"></span> Print View</a>
+            <a href="clearTopics.php" onclick="return confirmResetTool();"><span class="fa fa-trash" aria-hidden="true"></span> Clear All</a>
+            <?php
+        }
+        ?>
     </div>
 
     <div id="main">

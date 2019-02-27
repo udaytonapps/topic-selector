@@ -38,13 +38,25 @@ $topicInput = isset($_POST["topic_list"]) ? $_POST["topic_list"] : " ";
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
     $topicId = isset($_POST["topicId"]) ? $_POST["topicId"] : " ";
-    $stuId = isset($_POST["studentId"]) ? $_POST["studentId"] : " ";
-    $newTopic = $PDOX->prepare("UPDATE {$p} topic SET user_id=:userId, date_selected=:selectDate WHERE list_id = :listId AND topic_id = :topicId");
+    $topic2ST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE list_id = :listId AND topic_id = :topicId");
+    $topic2ST->execute(array(":listId" => $topics['list_id'], ":topicId" => $topicId));
+    $topic2 = $topic2ST->fetch(PDO::FETCH_ASSOC);
+    $numReserved = $topic2['num_reserved'];
+    $numReserved = $numReserved + 1;
+
+    $newTopic = $PDOX->prepare("UPDATE {$p} topic SET num_reserved=:numReserved WHERE list_id = :listId AND topic_id = :topicId");
     $newTopic->execute(array(
         ":listId" => $topics['list_id'],
         ":topicId" => $topicId,
-        ":userId" => $stuId,
-        ":selectDate" => $currentTime,
+        ":numReserved" => $numReserved,
+    ));
+
+    $newSelect = $PDOX->prepare("INSERT INTO {$p}selection (topic_id, user_id, date_selected) 
+                                        values (:topicId, :userId, :dateSelected)");
+    $newSelect->execute(array(
+        ":topicId" => $topicId,
+        ":userId" => $USER->id,
+        ":dateSelected" => $currentTime,
     ));
     $_SESSION['success'] = 'Topic saved successfully.';
     header('Location: ' . addSession('index.php'));
@@ -73,6 +85,10 @@ $OUTPUT->header();
     <script>
         function confirmResetTool() {
             return confirm("Are you sure that you want to clear all topics? This cannot be undone.");
+        }
+
+        function confirmRemoveSelectTool() {
+            return confirm("Are you sure that you want to remove yourself from this topic?");
         }
     </script>
 <?php
@@ -106,6 +122,9 @@ $OUTPUT->flashMessages();
                     <div class="container topicView">
                         <?php
                         foreach($topic as $tops) {
+                            $selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
+                            $selectionST->execute(array(":topicId" => $tops['topic_id']));
+                            $selections = $selectionST->fetchAll(PDO::FETCH_ASSOC);
                             ?>
                             <script>
                                 $(document).ready(function() {
@@ -114,16 +133,33 @@ $OUTPUT->flashMessages();
                                         placement: 'right',
                                         html: true,
                                         title : '<h3 class="popTitle">Settings</h3>',
-                                        content : '<a type="button" class="btn btn-default" href="assignStu.php?top=<?=$tops['topic_text']?>">Assign Student(s)</a>' +
-                                            '<a type="button" class="btn btn-default" href="unassignStu.php?top=<?=$tops['topic_text']?>">Unassign Student(s)</a>' +
-                                            '<a type="button" class="btn btn-default" href="allowStu.php?top=<?=$tops['topic_text']?>">Allow Additional Students</a>' +
-                                            '<a type="button" class="btn btn-default" href="emailStu.php?top=<?=$tops['topic_text']?>">Email Student(s)</a>'
+                                        content : '<a type="button" class="btn btn-default" href="assignStu.php?top=<?=$tops['topic_id']?>">Assign Student(s)</a>' +
+                                            '<a type="button" class="btn btn-default" href="unassignStu.php?top=<?=$tops['topic_id']?>">Unassign Student(s)</a>' +
+                                            '<a type="button" class="btn btn-default" href="allowStu.php?top=<?=$tops['topic_id']?>">Allow Additional Students</a>' +
+                                            '<a type="button" class="btn btn-default" href="emailStu.php?top=<?=$tops['topic_id']?>">Email Student(s)</a>'
                                     });
                                 });
                             </script>
                             <div class="card">
                                 <div class="card-header" role="tab">
                                     <span class="topicName"><?=$tops['topic_text']?></span>
+                                    <?php
+                                    if($topics['allow_stu'] == 1) {
+                                        $count = 0;
+                                        foreach($selections as $select) {
+                                            if($count > 0) {
+                                                ?>
+                                                <span class="registeredStu">, <?=findDisplayName($select['user_id'], $PDOX, $p)?></span>
+                                                <?php
+                                            } else {
+                                                ?>
+                                                <span class="registeredStu"><?=findDisplayName($select['user_id'], $PDOX, $p)?></span>
+                                                <?php
+                                            }
+                                            $count++;
+                                        }
+                                    }
+                                    ?>
                                     <a href="#" data-toggle="popover" data-trigger="focus" class="settings" role="button"><i class="fa fa-cog fa-2x"></i></a>
                                 </div>
                             </div>
@@ -137,6 +173,15 @@ $OUTPUT->flashMessages();
                 header('Location: ' . addSession('newTopics.php'));
             }
         } else {
+            $selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection");
+            $selectionST->execute(array());
+            $selections = $selectionST->fetchAll(PDO::FETCH_ASSOC);
+            $numSelected = 0;
+            foreach($selections as $select) {
+                if($select['user_id'] == $USER-> id) {
+                    $numSelected++;
+                }
+            }
             if($topicList) {
                 ?>
                 <div class="container mainBody">
@@ -145,6 +190,15 @@ $OUTPUT->flashMessages();
                     <div class="container topicView">
                         <?php
                         foreach($topic as $tops) {
+                            $selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
+                            $selectionST->execute(array(":topicId" => $tops['topic_id']));
+                            $selections = $selectionST->fetchAll(PDO::FETCH_ASSOC);
+                            $userExists = false;
+                            foreach($selections as $select) {
+                                if($select['user_id'] == $USER-> id) {
+                                    $userExists = true;
+                                }
+                            }
                             ?>
                             <div class="card">
                                 <div class="card-header" role="tab">
@@ -152,8 +206,42 @@ $OUTPUT->flashMessages();
                                         <span class="topicBox">
                                             <input class="topicId" id="topicId" name="topicId" value="<?=$tops['topic_id']?>" hidden>
                                             <input class="studentId" id="studentId" name="studentId" value="<?=$USER->id?>" hidden>
-                                            <button type="submit" class="btn btn-success">Reserve</button>
+                                            <?php
+                                            if($userExists == true || $numSelected >= $topics['num_topics'] || $tops['num_reserved'] >= $tops['num_allowed'] || $topics['stu_reserve'] == 0) {
+                                                ?>
+                                                <button type="submit" class="btn btn-success" disabled>Reserve</button>
+                                                <?php
+                                            } else {
+                                                ?>
+                                                <button type="submit" class="btn btn-success">Reserve</button>
+                                                <?php
+                                            }
+                                            ?>
                                             <span class="topicName"><?=$tops['topic_text']?></span>
+                                            <?php
+                                            if($topics['allow_stu'] == 1) {
+                                                $count = 0;
+                                                foreach($selections as $select) {
+                                                    if($count > 0) {
+                                                        ?>
+                                                        <span class="registeredStu">, <?=findDisplayName($select['user_id'], $PDOX, $p)?></span>
+                                                        <?php
+                                                    } else {
+                                                        ?>
+                                                        <span class="registeredStu"><?=findDisplayName($select['user_id'], $PDOX, $p)?></span>
+                                                        <?php
+                                                    }
+                                                    $count++;
+                                                }
+                                            }
+                                            foreach($selections as $select) {
+                                                if($select['user_id'] == $USER->id) {
+                                                    ?>
+                                                    <a class="removeSelect" onclick="confirmRemoveSelectTool()" href="deleteSelection.php?topic=<?=$select['topic_id']?>&user=<?=$select['user_id']?>"><i class="fa fa-trash fa-2x"></i></a>
+                                                    <?php
+                                                }
+                                            }
+                                            ?>
                                         </span>
                                     </form>
                                 </div>
@@ -167,7 +255,9 @@ $OUTPUT->flashMessages();
             } else {
                 ?>
                     <div class="container">
-
+                        <?php
+                        //Something about no list available yet
+                        ?>
                     </div>
                 <?php
             }

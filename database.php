@@ -21,10 +21,9 @@ $DATABASE_INSTALL = array(
         "create table {$CFG->dbprefix}topic (
     topic_id          INTEGER NOT NULL AUTO_INCREMENT,
     list_id           INTEGER NOT NULL,
-    user_id           INTEGER NOT NULL,
-    date_selected     datetime NOT NULL,
     topic_text        TEXT NULL,
-    num_reserve       INTEGER NOT NULL,
+    num_allowed       INTEGER NOT NULL,
+    num_reserved      INTEGER NOT NULL,
 
     CONSTRAINT `{$CFG->dbprefix}topic`
         FOREIGN KEY (`list_id`)
@@ -32,5 +31,19 @@ $DATABASE_INSTALL = array(
         ON DELETE CASCADE,
 
     PRIMARY KEY(topic_id)
+) ENGINE = InnoDB DEFAULT CHARSET=utf8"),
+    array( "{$CFG->dbprefix}selection",
+        "create table {$CFG->dbprefix}selection (
+    select_id         INTEGER NOT NULL AUTO_INCREMENT,
+    topic_id          INTEGER NOT NULL,
+    user_id           INTEGER NOT NULL,
+    date_selected     datetime NOT NULL,
+
+    CONSTRAINT `{$CFG->dbprefix}selection`
+        FOREIGN KEY (`topic_id`)
+        REFERENCES `{$CFG->dbprefix}topic` (`topic_id`)
+        ON DELETE CASCADE,
+
+    PRIMARY KEY(select_id)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8")
 );

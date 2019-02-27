@@ -97,6 +97,19 @@
     width: 100px;
 }
 
+.registeredStu {
+    font-style: italic;
+    font-size: 10px;
+    color: #666666;
+    margin-right: -0.8%;
+}
+
+.removeSelect {
+    float: right;
+    margin-right: 1%;
+    margin-top: 0.4%;
+}
+
 
 .sidebar {
     height: 100%;
