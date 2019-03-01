@@ -9,8 +9,8 @@ $LAUNCH = LTIX::requireData();
 
 $OUTPUT->bodyStart();
 
-$selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection");
-$selectionST->execute(array());
+$selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
+$selectionST->execute(array(":topicId" => $_GET['topic']));
 $selection = $selectionST->fetch(PDO::FETCH_ASSOC);
 
 $topicST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE topic_id = :topicId");
@@ -26,8 +26,8 @@ $newTopic->execute(array(
     ":numReserved" => $numReserved,
 ));
 
-$delSelections = $PDOX->prepare("DELETE FROM {$p}selection WHERE topic_id = :topicId AND user_id = :userId");
-$delSelections->execute(array(":topicId" => $_GET['topic'], ":userId" => $_GET['user']));
+$delSelections = $PDOX->prepare("DELETE FROM {$p}selection WHERE user_id = :userId");
+$delSelections->execute(array(":userId" => $_GET['user']));
 
 
 header('Location: ' . addSession('index.php'));

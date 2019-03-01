@@ -68,8 +68,6 @@ $OUTPUT->header();
     <!-- Our main css file that overrides default Tsugi styling -->
     <link rel="stylesheet" type="text/css" href="styles/main.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
     <script>
         function openNav() {
             document.getElementById("mySidebar").style.width = "250px";
@@ -91,6 +89,7 @@ $OUTPUT->header();
             return confirm("Are you sure that you want to remove yourself from this topic?");
         }
     </script>
+
 <?php
 $OUTPUT->bodyStart();
 $OUTPUT->flashMessages();
@@ -109,7 +108,6 @@ $OUTPUT->flashMessages();
         }
         ?>
     </div>
-
     <div id="main">
         <button class="openbtn" onclick="openNav()">☰ Menu</button>
         <?php
@@ -118,31 +116,19 @@ $OUTPUT->flashMessages();
                 ?>
                 <div class="container mainBody">
                     <h2 class="title">Topic Selector</h2>
-                    <p class="instructions">Students are able to reserve their topics from the list you created.</p>
+                    <p class="instructions">Students are able to reserve their topics from the list you created. The number of students allowed per topic is
+                    indicated in parenthesis next to the topic name. These can be changed in settings.</p>
                     <div class="container topicView">
                         <?php
+                        $count1=0;
                         foreach($topic as $tops) {
                             $selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
                             $selectionST->execute(array(":topicId" => $tops['topic_id']));
                             $selections = $selectionST->fetchAll(PDO::FETCH_ASSOC);
                             ?>
-                            <script>
-                                $(document).ready(function() {
-                                    $('[data-toggle="popover"]').popover({
-                                        trigger: 'focus',
-                                        placement: 'right',
-                                        html: true,
-                                        title : '<h3 class="popTitle">Settings</h3>',
-                                        content : '<a type="button" class="btn btn-default" href="assignStu.php?top=<?=$tops['topic_id']?>">Assign Student(s)</a>' +
-                                            '<a type="button" class="btn btn-default" href="unassignStu.php?top=<?=$tops['topic_id']?>">Unassign Student(s)</a>' +
-                                            '<a type="button" class="btn btn-default" href="allowStu.php?top=<?=$tops['topic_id']?>">Allow Additional Students</a>' +
-                                            '<a type="button" class="btn btn-default" href="emailStu.php?top=<?=$tops['topic_id']?>">Email Student(s)</a>'
-                                    });
-                                });
-                            </script>
                             <div class="card">
                                 <div class="card-header" role="tab">
-                                    <span class="topicName"><?=$tops['topic_text']?></span>
+                                    <span class="topicName"><?=$tops['topic_text']?> (<?=$tops['num_allowed']?>)</span>
                                     <?php
                                     if($topics['allow_stu'] == 1) {
                                         $count = 0;
@@ -160,10 +146,20 @@ $OUTPUT->flashMessages();
                                         }
                                     }
                                     ?>
-                                    <a href="#" data-toggle="popover" data-trigger="focus" class="settings" role="button"><i class="fa fa-cog fa-2x"></i></a>
+                                    <div class="dropdown settings">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cog fa-2x"></i></a>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="assignStu.php?top=<?=$tops['topic_id']?>">Assign Student(s)</a></li>
+                                            <li><a href="unassignStu.php?top=<?=$tops['topic_id']?>">Unassign Student(s)</a></li>
+                                            <li><a href="allowStu.php?top=<?=$tops['topic_id']?>">Allow Additional Students</a></li>
+                                            <li><a href="emailStu.php?top=<?=$tops['topic_id']?>">Email Student(s)</a></li>
+                                        </ul>
+                                    </div>
+
                                 </div>
                             </div>
                             <?php
+                            $count1++;
                         }
                         ?>
                     </div>

@@ -33,18 +33,11 @@ $numTopics = isset($_POST["numReservations"]) ? $_POST["numReservations"] : " ";
 $topicInput = isset($_POST["topic_list"]) ? $_POST["topic_list"] : " ";
 
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
+    $stuReserve = isset($_POST["stuReserve"]) ? $_POST["stuReserve"] : " ";
+    $url = 'deleteSelection.php?topic=' . $_GET['top'] . '&user=' . $stuReserve;
+    var_dump($url);
 
-    $newAssign = $PDOX->prepare("INSERT INTO {$p}topic_list (link_id, num_topics, topic_list, stu_reserve, allow_stu) 
-                                        values (:linkId, :numTopics, :topicList, :stuReserve, :allowStu)");
-    $newAssign->execute(array(
-        ":linkId" => $LINK->id,
-        ":numTopics" => $numTopics,
-        ":topicList" => $topicInput,
-        ":stuReserve" => $stuReserve,
-        ":allowStu" => $stuAllow,
-    ));
-    $_SESSION['success'] = 'Topics saved successfully.';
-    header('Location: ' . addSession('index.php'));
+    header('Location: ' . addSession($url));
 }
 
 // Start of the output
@@ -68,6 +61,9 @@ $OUTPUT->header();
     <script>
         function confirmResetTool() {
             return confirm("Are you sure that you want to clear all topics? This cannot be undone.");
+        }
+        function confirmRemoveStuTool() {
+            return confirm("Art you sure you want to remove this student from the topic?")
         }
     </script>
 <?php
@@ -93,33 +89,55 @@ $OUTPUT->flashMessages();
         <button class="openbtn" onclick="openNav()">☰ Menu</button>
         <?php
         if($USER->instructor) {
+            $selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
+            $selectionST->execute(array(":topicId" => $_GET['top']));
+            $selections = $selectionST->fetchAll(PDO::FETCH_ASSOC);
             ?>
             <div class="container mainBody">
                 <h2 class="title">Topic Selector - Unassign Student</h2>
                 <p class="instructions">Which student would you like to unassign from the topic, "<?=$topic['topic_text']?>?"</p>
                 <div class="container">
                     <form method="post">
-                        <div class="dropdown">
-                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Unassign Student
-                                <span class="caret"></span></button>
-                            <ul class="dropdown-menu" id="stuReserve">
-                                <?php
-                                foreach($USER->id as $user) {
-                                    ?>
-                                    <li value="<?=$user?>"><a href="#"><?=findDisplayName($user,$PDOX,$p)?></a></li>
+                        <?php
+                        if($selections) {
+                            ?>
+                            <div class="dropdown unassignDrop">
+                                <select class="dropdown" id="stuReserve" name="stuReserve">
                                     <?php
-                                }
-                                ?>
-                            </ul>
-                        </div>
-                        <div class="container assignButtons">
-                            <div class="col-sm-1">
-                                <button class="btn btn-success" type="submit">Save</button>
+                                    foreach($selections as $select) {
+                                        ?>
+                                        <option value="<?=$select['user_id']?>"><?=findDisplayName($select['user_id'],$PDOX,$p)?></option>
+                                        <?php
+                                    }
+                                    ?>
+                                </select>
                             </div>
-                            <div class="col-sm-1">
-                                <a class="btn btn-danger" href="index.php">Cancel</a>
+                            <div class="container assignButtons">
+                                <div class="col-sm-1">
+                                    <button class="btn btn-success" type="submit" onclick="return confirmRemoveStuTool()">Save</button>
+                                </div>
+                                <div class="col-sm-1">
+                                    <a class="btn btn-danger" href="index.php">Cancel</a>
+                                </div>
                             </div>
-                        </div>
+                        <?php
+                        } else {
+                            ?>
+                            <div class="container noAssignment">
+                                <p>No students are assigned to this topic.</p>
+                            </div>
+                            <div class="container assignButtons">
+                                <div class="col-sm-1">
+                                    <button class="btn btn-success" type="submit" disabled>Save</button>
+                                </div>
+                                <div class="col-sm-1">
+                                    <a class="btn btn-danger" href="index.php">Cancel</a>
+                                </div>
+                            </div>
+                        <?php
+                        }
+                        ?>
+
 
                     </form>
                 </div>

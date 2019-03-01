@@ -9,41 +9,24 @@ $LTI = LTIX::requireData();
 $p = $CFG->dbprefix;
 $displayname = $USER->displayname;
 
-$currentTime = new DateTime('now', new DateTimeZone($CFG->timezone));
-$currentTime = $currentTime->format("Y-m-d H:i:s");
-
-function findDisplayName($user_id, $PDOX, $p) {
-    $nameST = $PDOX->prepare("SELECT displayname FROM {$p}lti_user WHERE user_id = :user_id");
-    $nameST->execute(array(":user_id" => $user_id));
-    $name = $nameST->fetch(PDO::FETCH_ASSOC);
-    return $name["displayname"];
-}
-
-$topicListST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkId");
-$topicListST->execute(array(":linkId" => $LINK->id));
-$topicList = $topicListST->fetchAll(PDO::FETCH_ASSOC);
-
 $topicsST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkId");
 $topicsST->execute(array(":linkId" => $LINK->id));
 $topics = $topicsST->fetch(PDO::FETCH_ASSOC);
 
-$stuReserve = isset($_POST["reservations"]) ? 1 : 0;
-$stuAllow = isset($_POST["allow"]) ? 1 : 0;
-$numTopics = isset($_POST["numReservations"]) ? $_POST["numReservations"] : " ";
-$topicInput = isset($_POST["topic_list"]) ? $_POST["topic_list"] : " ";
+$topicST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE topic_id = :topicId");
+$topicST->execute(array(":topicId" => $_GET['top']));
+$topic = $topicST->fetch(PDO::FETCH_ASSOC);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
-
-    $newAssign = $PDOX->prepare("INSERT INTO {$p}topic_list (link_id, num_topics, topic_list, stu_reserve, allow_stu) 
-                                        values (:linkId, :numTopics, :topicList, :stuReserve, :allowStu)");
-    $newAssign->execute(array(
-        ":linkId" => $LINK->id,
-        ":numTopics" => $numTopics,
-        ":topicList" => $topicInput,
-        ":stuReserve" => $stuReserve,
-        ":allowStu" => $stuAllow,
+    $numAllowed = isset($_POST["numReservations"]) ? $_POST["numReservations"] : " ";
+    $numAllowed = $numAllowed + $topic['num_allowed'];
+    $newTopic = $PDOX->prepare("UPDATE {$p} topic SET num_allowed=:numAllowed WHERE list_id = :listId AND topic_id = :topicId");
+    $newTopic->execute(array(
+        ":listId" => $topics['list_id'],
+        ":topicId" => $_GET['top'],
+        ":numAllowed" => $numAllowed,
     ));
-    $_SESSION['success'] = 'Topics saved successfully.';
+    $_SESSION['success'] = 'New allowance saved successfully.';
     header('Location: ' . addSession('index.php'));
 }
 
@@ -96,8 +79,9 @@ $OUTPUT->flashMessages();
             ?>
             <div class="container mainBody">
                 <h2 class="title">Topic Selector - Allow Additional Student(s)</h2>
-                <p class="instructions">How many additional students would you like to reserve the topic, "<?=$_GET['top']?>?"</p>
+                <p class="instructions">How many additional students would you like to reserve the topic, "<?=$topic['topic_text']?>?"</p>
                 <div class="container">
+                    <h4 class="curNum"><i>Current number allowed: <?=$topic['num_allowed']?></i></h4>
                     <form method="post">
                         <div class="container numRes">
                             <div class="col-sm-2">

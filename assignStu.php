@@ -27,6 +27,10 @@ $topicsST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkI
 $topicsST->execute(array(":linkId" => $LINK->id));
 $topics = $topicsST->fetch(PDO::FETCH_ASSOC);
 
+$topicST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE topic_id = :topicId");
+$topicST->execute(array(":topicId" => $_GET['top']));
+$topic = $topicST->fetch(PDO::FETCH_ASSOC);
+
 $stuReserve = isset($_POST["reservations"]) ? 1 : 0;
 $stuAllow = isset($_POST["allow"]) ? 1 : 0;
 $numTopics = isset($_POST["numReservations"]) ? $_POST["numReservations"] : " ";
@@ -96,7 +100,7 @@ $OUTPUT->flashMessages();
             ?>
             <div class="container mainBody">
                 <h2 class="title">Topic Selector - Assign Student</h2>
-                <p class="instructions">Which student would you like to assign to the topic, "<?=$_GET['top']?>?"</p>
+                <p class="instructions">Which student would you like to assign to the topic, "<?=$topic['topic_text']?>?"</p>
                 <p class="instructions2"><i>Students already assigned to a topic are not available to be selected.
                     You must first unassign students from already selected topics.</i></p>
                 <div class="container">
