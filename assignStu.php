@@ -19,25 +19,26 @@ function findDisplayName($user_id, $PDOX, $p) {
     return $name["displayname"];
 }
 
-$topicListST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkId");
-$topicListST->execute(array(":linkId" => $LINK->id));
-$topicList = $topicListST->fetchAll(PDO::FETCH_ASSOC);
-
-$topicsST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkId");
-$topicsST->execute(array(":linkId" => $LINK->id));
-$topics = $topicsST->fetch(PDO::FETCH_ASSOC);
-
-$topicST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE topic_id = :topicId");
-$topicST->execute(array(":topicId" => $_GET['top']));
-$topic = $topicST->fetch(PDO::FETCH_ASSOC);
-
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
-    $userId = isset($_POST["stuReserve"]) ? $_POST["stuReserve"] : " ";
-    $newSelect = $PDOX->prepare("INSERT INTO {$p}selection (topic_id, user_id, date_selected) 
-                                        values (:topicId, :userId, :dateSelected)");
+    $userEmail = isset($_POST["stuReserve"]) ? $_POST["stuReserve"] : " ";
+    $userFirstName = "";
+    $userLastName = "";
+    $rosterData = $GLOBALS['ROSTER']->data;
+    foreach ($rosterData as $roster){
+        if($rosterData["person_contact_email_primary"] == $userEmail){
+            $userFirstName = $rosterData[$x]["person_name_given"];
+            $userLastName = $rosterData[$x]["person_name_family"];
+            break;
+        }
+        $x++;
+    }
+    $newSelect = $PDOX->prepare("INSERT INTO {$p}selection (topic_id, user_email, user_first_name, user_last_name, date_selected) 
+                                        values (:topicId, :userEmail, :userFirstName, :userLastName, :dateSelected)");
     $newSelect->execute(array(
         ":topicId" => $_GET['top'],
-        ":userId" => $userId,
+        ":userEmail" => $userEmail,
+        ":userFirstName" => $userFirstName,
+        ":userLastName" => $userLastName,
         ":dateSelected" => $currentTime,
     ));
 
@@ -107,14 +108,14 @@ $OUTPUT->flashMessages();
                                 $y = 0;
                                 if ($hasRosters) {
                                     $rosterData = $GLOBALS['ROSTER']->data;
-                                    sort($rosterData);
+                                    sort($rosterData["person_name_family"]);
                                     foreach ($rosterData as $roster){
                                         if($roster["roles"] == "Learner"){
-                                            $name = $rosterData[$x]["person_name_full"];
+                                            $name1 = $rosterData[$x]["person_name_given"];
+                                            $name2 = $rosterData[$x]["person_name_family"];
                                             ?>
-                                            <option value="<?=$rosterData[$x]['user_id']?>"><?=$name?></option>
+                                            <option value="<?=$rosterData[$x]['person_contact_email_primary']?>"><?=$name1?> <?=$name2?></option>
                                             <?php
-                                            var_dump($rosterData[$x]);
                                             $y++;
                                         }
                                         $x++;

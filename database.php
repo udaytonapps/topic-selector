@@ -36,7 +36,9 @@ $DATABASE_INSTALL = array(
         "create table {$CFG->dbprefix}selection (
     select_id         INTEGER NOT NULL AUTO_INCREMENT,
     topic_id          INTEGER NOT NULL,
-    user_id           INTEGER NOT NULL,
+    user_email        TEXT NULL,
+    user_first_name   TEXT NULL,
+    user_last_name    TEXT NULL,
     date_selected     datetime NOT NULL,
 
     CONSTRAINT `{$CFG->dbprefix}selection`

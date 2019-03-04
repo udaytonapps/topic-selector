@@ -106,7 +106,7 @@ $OUTPUT->flashMessages();
                                     <?php
                                     foreach($selections as $select) {
                                         ?>
-                                        <option value="<?=$select['user_id']?>"><?=findDisplayName($select['user_id'],$PDOX,$p)?></option>
+                                        <option value="<?=$select['user_email']?>"><?=$select['user_first_name']?> <?=$select['user_last_name']?></option>
                                         <?php
                                     }
                                     ?>

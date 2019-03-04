@@ -12,13 +12,6 @@ $displayname = $USER->displayname;
 $currentTime = new DateTime('now', new DateTimeZone($CFG->timezone));
 $currentTime = $currentTime->format("Y-m-d H:i:s");
 
-function findDisplayName($user_id, $PDOX, $p) {
-    $nameST = $PDOX->prepare("SELECT displayname FROM {$p}lti_user WHERE user_id = :user_id");
-    $nameST->execute(array(":user_id" => $user_id));
-    $name = $nameST->fetch(PDO::FETCH_ASSOC);
-    return $name["displayname"];
-}
-
 $topicListST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkId");
 $topicListST->execute(array(":linkId" => $LINK->id));
 $topicList = $topicListST->fetchAll(PDO::FETCH_ASSOC);
@@ -51,11 +44,25 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         ":numReserved" => $numReserved,
     ));
 
-    $newSelect = $PDOX->prepare("INSERT INTO {$p}selection (topic_id, user_id, date_selected) 
-                                        values (:topicId, :userId, :dateSelected)");
+    $userEmail = isset($_POST["studentEmail"]) ? $_POST["studentEmail"] : " ";
+    $userFirstName = "";
+    $userLastName = "";
+    $rosterData = $GLOBALS['ROSTER']->data;
+    foreach ($rosterData as $roster){
+        if($rosterData["person_contact_email_primary"] == $userEmail){
+            $userFirstName = $rosterData[$x]["person_name_given"];
+            $userLastName = $rosterData[$x]["person_name_family"];
+            break;
+        }
+        $x++;
+    }
+    $newSelect = $PDOX->prepare("INSERT INTO {$p}selection (topic_id, user_email, user_first_name, user_last_name, date_selected) 
+                                        values (:topicId, :userEmail, :userFirstName, :userLastName, :dateSelected)");
     $newSelect->execute(array(
         ":topicId" => $topicId,
-        ":userId" => $USER->id,
+        ":userEmail" => $userEmail,
+        ":userFirstName" => $userFirstName,
+        ":userLastName" => $userLastName,
         ":dateSelected" => $currentTime,
     ));
     $_SESSION['success'] = 'Topic saved successfully.';
@@ -135,11 +142,11 @@ $OUTPUT->flashMessages();
                                         foreach($selections as $select) {
                                             if($count > 0) {
                                                 ?>
-                                                <span class="registeredStu">, <?=findDisplayName($select['user_id'], $PDOX, $p)?></span>
+                                                <span class="registeredStu">, <?=$select['user_first_name']?> <?=$select['user_last_name']?></span>
                                                 <?php
                                             } else {
                                                 ?>
-                                                <span class="registeredStu"><?=findDisplayName($select['user_id'], $PDOX, $p)?></span>
+                                                <span class="registeredStu"><?=$select['user_first_name']?> <?=$select['user_last_name']?></span>
                                                 <?php
                                             }
                                             $count++;
@@ -174,7 +181,7 @@ $OUTPUT->flashMessages();
             $selections = $selectionST->fetchAll(PDO::FETCH_ASSOC);
             $numSelected = 0;
             foreach($selections as $select) {
-                if($select['user_id'] == $USER-> id) {
+                if($select['user_email'] == $USER->email) {
                     $numSelected++;
                 }
             }
@@ -191,7 +198,7 @@ $OUTPUT->flashMessages();
                             $selections = $selectionST->fetchAll(PDO::FETCH_ASSOC);
                             $userExists = false;
                             foreach($selections as $select) {
-                                if($select['user_id'] == $USER-> id) {
+                                if($select['user_email'] == $USER->email) {
                                     $userExists = true;
                                 }
                             }
@@ -201,7 +208,7 @@ $OUTPUT->flashMessages();
                                     <form method="post">
                                         <span class="topicBox">
                                             <input class="topicId" id="topicId" name="topicId" value="<?=$tops['topic_id']?>" hidden>
-                                            <input class="studentId" id="studentId" name="studentId" value="<?=$USER->id?>" hidden>
+                                            <input class="studentEmail" id="studentEmail" name="studentEmail" value="<?=$USER->email?>" hidden>
                                             <?php
                                             if($userExists == true || $numSelected >= $topics['num_topics'] || $tops['num_reserved'] >= $tops['num_allowed'] || $topics['stu_reserve'] == 0) {
                                                 ?>
@@ -220,20 +227,20 @@ $OUTPUT->flashMessages();
                                                 foreach($selections as $select) {
                                                     if($count > 0) {
                                                         ?>
-                                                        <span class="registeredStu">, <?=findDisplayName($select['user_id'], $PDOX, $p)?></span>
+                                                        <span class="registeredStu">, <?=$select['user_first_name']?> <?=$select['user_last_name']?></span>
                                                         <?php
                                                     } else {
                                                         ?>
-                                                        <span class="registeredStu"><?=findDisplayName($select['user_id'], $PDOX, $p)?></span>
+                                                        <span class="registeredStu"><?=$select['user_first_name']?> <?=$select['user_last_name']?></span>
                                                         <?php
                                                     }
                                                     $count++;
                                                 }
                                             }
                                             foreach($selections as $select) {
-                                                if($select['user_id'] == $USER->id) {
+                                                if($select['user_email'] == $USER->email) {
                                                     ?>
-                                                    <a class="removeSelect" onclick="confirmRemoveSelectTool()" href="deleteSelection.php?topic=<?=$select['topic_id']?>&user=<?=$select['user_id']?>"><i class="fa fa-trash fa-2x"></i></a>
+                                                    <a class="removeSelect" onclick="confirmRemoveSelectTool()" href="deleteSelection.php?topic=<?=$select['topic_id']?>&user=<?=$select['user_email']?>"><i class="fa fa-trash fa-2x"></i></a>
                                                     <?php
                                                 }
                                             }
