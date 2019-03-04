@@ -12,12 +12,8 @@ $displayname = $USER->displayname;
 $currentTime = new DateTime('now', new DateTimeZone($CFG->timezone));
 $currentTime = $currentTime->format("Y-m-d H:i:s");
 
-$topicsST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkId");
-$topicsST->execute(array(":linkId" => $LINK->id));
-$topics = $topicsST->fetch(PDO::FETCH_ASSOC);
-
-$topicST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE list_id = :listId");
-$topicST->execute(array(":listId" => $topics['list_id']));
+$topicST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE topic_id = :topicId");
+$topicST->execute(array(":topicId" => $_GET['top']));
 $topic = $topicST->fetchAll(PDO::FETCH_ASSOC);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
