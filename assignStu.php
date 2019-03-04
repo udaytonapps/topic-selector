@@ -31,23 +31,16 @@ $topicST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE topic_id = :topicId");
 $topicST->execute(array(":topicId" => $_GET['top']));
 $topic = $topicST->fetch(PDO::FETCH_ASSOC);
 
-$stuReserve = isset($_POST["reservations"]) ? 1 : 0;
-$stuAllow = isset($_POST["allow"]) ? 1 : 0;
-$numTopics = isset($_POST["numReservations"]) ? $_POST["numReservations"] : " ";
-$topicInput = isset($_POST["topic_list"]) ? $_POST["topic_list"] : " ";
-
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
-
-    $newAssign = $PDOX->prepare("INSERT INTO {$p}topic_list (link_id, num_topics, topic_list, stu_reserve, allow_stu) 
-                                        values (:linkId, :numTopics, :topicList, :stuReserve, :allowStu)");
-    $newAssign->execute(array(
-        ":linkId" => $LINK->id,
-        ":numTopics" => $numTopics,
-        ":topicList" => $topicInput,
-        ":stuReserve" => $stuReserve,
-        ":allowStu" => $stuAllow,
+    $userId = isset($_POST["stuReserve"]) ? $_POST["stuReserve"] : " ";
+    $newTopic = $PDOX->prepare("INSERT INTO {$p} selection (topic_id, user_id, date_selected)
+                                              values (:topicId, :userId, :dateSelected)");
+    $newTopic->execute(array(
+        ":topicId" => $_GET['top'],
+        ":userId" => $userId,
+        ":dateSelected" => $currentTime,
     ));
-    $_SESSION['success'] = 'Topics saved successfully.';
+    $_SESSION['success'] = 'Student assigned successfully.';
     header('Location: ' . addSession('index.php'));
 }
 
