@@ -107,6 +107,7 @@ $OUTPUT->flashMessages();
                                 $y = 0;
                                 if ($hasRosters) {
                                     $rosterData = $GLOBALS['ROSTER']->data;
+                                    sort($rosterData);
                                     foreach ($rosterData as $roster){
                                         if($roster["roles"] == "Learner"){
                                             $name = $rosterData[$x]["person_name_full"];
