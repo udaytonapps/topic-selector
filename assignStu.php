@@ -114,7 +114,7 @@ $OUTPUT->flashMessages();
                                     $rosterData = $GLOBALS['ROSTER']->data;
                                     foreach ($rosterData as $roster){
                                         if($roster["roles"] == "Learner"){
-                                            $name = $roster[0]["person_name_full"];
+                                            $name = $rosterData[$x]["person_name_full"];
                                             ?>
                                             <option value="<?=$roster['user_id']?>"><?=$name?></option>
                                             <?php
