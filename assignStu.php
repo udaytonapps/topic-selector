@@ -116,7 +116,7 @@ $OUTPUT->flashMessages();
                                         if($roster["roles"] == "Learner"){
                                             $name = $rosterData[$x]["person_name_full"];
                                             ?>
-                                            <option value="<?=$roster['user_id']?>"><?=$name?></option>
+                                            <option value="<?=$rosterData[$x]['user_id']?>"><?=$name?></option>
                                             <?php
                                         }
                                         $x++;
