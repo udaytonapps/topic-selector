@@ -12,12 +12,13 @@ $displayname = $USER->displayname;
 $currentTime = new DateTime('now', new DateTimeZone($CFG->timezone));
 $currentTime = $currentTime->format("Y-m-d H:i:s");
 
-function findDisplayName($user_id, $PDOX, $p) {
-    $nameST = $PDOX->prepare("SELECT displayname FROM {$p}lti_user WHERE user_id = :user_id");
-    $nameST->execute(array(":user_id" => $user_id));
-    $name = $nameST->fetch(PDO::FETCH_ASSOC);
-    return $name["displayname"];
-}
+$topicsST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkId");
+$topicsST->execute(array(":linkId" => $LINK->id));
+$topics = $topicsST->fetch(PDO::FETCH_ASSOC);
+
+$topicST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE list_id = :listId");
+$topicST->execute(array(":listId" => $topics['list_id']));
+$topic = $topicST->fetchAll(PDO::FETCH_ASSOC);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
     $userEmail = isset($_POST["stuReserve"]) ? $_POST["stuReserve"] : " ";
