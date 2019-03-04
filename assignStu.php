@@ -114,6 +114,7 @@ $OUTPUT->flashMessages();
                                             ?>
                                             <option value="<?=$rosterData[$x]['user_id']?>"><?=$name?></option>
                                             <?php
+                                            var_dump($rosterData[$x]);
                                             $y++;
                                         }
                                         $x++;
