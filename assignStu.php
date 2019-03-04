@@ -103,6 +103,7 @@ $OUTPUT->flashMessages();
                                 <?php
                                 $hasRosters = LTIX::populateRoster(false);
                                 $x = 0;
+                                $y = 0;
                                 if ($hasRosters) {
                                     $rosterData = $GLOBALS['ROSTER']->data;
                                     foreach ($rosterData as $roster){
@@ -111,6 +112,7 @@ $OUTPUT->flashMessages();
                                             ?>
                                             <option value="<?=$rosterData[$x]['user_id']?>"><?=$name?></option>
                                             <?php
+                                            $y++;
                                         }
                                         $x++;
                                     }
@@ -127,7 +129,7 @@ $OUTPUT->flashMessages();
                         <div class="container assignButtons">
                             <div class="col-sm-1">
                                 <?php
-                                if($name = "No roster found") {
+                                if($y == 0) {
                                     ?>
                                     <button class="btn btn-success" type="submit" disabled>Save</button>
                                 <?php
