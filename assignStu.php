@@ -105,10 +105,8 @@ $OUTPUT->flashMessages();
                     You must first unassign students from already selected topics.</i></p>
                 <div class="container">
                     <form method="post">
-                        <div class="dropdown">
-                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Assign Student
-                                <span class="caret"></span></button>
-                            <ul class="dropdown-menu" id="stuReserve">
+                        <div class="dropdown unassignDrop">
+                            <select class="dropdown" id="stuReserve" name="stuReserve">
                                 <?php
                                 $hasRosters = LTIX::populateRoster(false);
                                 $x = 0;
@@ -116,9 +114,9 @@ $OUTPUT->flashMessages();
                                     $rosterData = $GLOBALS['ROSTER']->data;
                                     foreach ($rosterData as $roster){
                                         if($roster["roles"] == "Learner"){
-                                            $name = $rosterData[0]["person_name_full"];
+                                            $name = $roster[0]["person_name_full"];
                                             ?>
-                                            <li value="<?=$name?>"><a href="#"><?=$name?></a></li>
+                                            <option value="<?=$roster['user_id']?>"><?=$name?></option>
                                             <?php
                                         }
                                         $x++;
@@ -126,16 +124,27 @@ $OUTPUT->flashMessages();
                                 } else {
                                     $name = "No roster found";
                                     ?>
-                                    <li value="<?=$name?>"><a href="#"><?=$name?></a></li>
-                                <?php
+                                    <option><?=$name?></option>
+                                    <?php
                                 }
                                 ?>
-                            </ul>
+                            </select>
                         </div>
                         <input class="topicInput" id="topicInput" type="hidden" value="<?=$_GET['top']?>">
                         <div class="container assignButtons">
                             <div class="col-sm-1">
-                                <button class="btn btn-success" type="submit">Save</button>
+                                <?php
+                                if($name = "No roster found") {
+                                    ?>
+                                    <button class="btn btn-success" type="submit" disabled>Save</button>
+                                <?php
+                                } else {
+                                    ?>
+                                    <button class="btn btn-success" type="submit">Save</button>
+                                <?php
+                                }
+                                ?>
+
                             </div>
                             <div class="col-sm-1">
                                 <a class="btn btn-danger" href="index.php">Cancel</a>
