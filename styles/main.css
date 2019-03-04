@@ -78,6 +78,16 @@
     margin-top: 50px;
 }
 
+.assignDrop {
+    margin-left: 30px;
+    margin-top: 50px;
+    width: 200px;
+}
+
+.assignStu {
+    width: 175px;
+}
+
 .unassignToggle {
     width: 250px;
 }

@@ -105,8 +105,8 @@ $OUTPUT->flashMessages();
                     You must first unassign students from already selected topics.</i></p>
                 <div class="container">
                     <form method="post">
-                        <div class="dropdown unassignDrop">
-                            <select class="dropdown" id="stuReserve" name="stuReserve">
+                        <div class="dropdown assignDrop">
+                            <select class="dropdown assignStu" id="stuReserve" name="stuReserve">
                                 <?php
                                 $hasRosters = LTIX::populateRoster(false);
                                 $x = 0;
