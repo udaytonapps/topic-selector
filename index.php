@@ -45,17 +45,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     ));
 
     $userEmail = isset($_POST["studentEmail"]) ? $_POST["studentEmail"] : " ";
-    $userFirstName = "";
-    $userLastName = "";
-    $rosterData = $GLOBALS['ROSTER']->data;
-    foreach ($rosterData as $roster){
-        if($rosterData["person_contact_email_primary"] == $userEmail){
-            $userFirstName = $rosterData[$x]["person_name_given"];
-            $userLastName = $rosterData[$x]["person_name_family"];
-            break;
-        }
-        $x++;
-    }
+    $userFirstName = isset($_POST["firstName"]) ? $_POST["firstName"] : "Unknown";
+    $userLastName = isset($_POST["lastName"]) ? $_POST["lastName"] : "?";
+
     $newSelect = $PDOX->prepare("INSERT INTO {$p}selection (topic_id, user_email, user_first_name, user_last_name, date_selected) 
                                         values (:topicId, :userEmail, :userFirstName, :userLastName, :dateSelected)");
     $newSelect->execute(array(
@@ -207,9 +199,23 @@ $OUTPUT->flashMessages();
                                 <div class="card-header" role="tab">
                                     <form method="post">
                                         <span class="topicBox">
-                                            <input class="topicId" id="topicId" name="topicId" value="<?=$tops['topic_id']?>" hidden>
-                                            <input class="studentEmail" id="studentEmail" name="studentEmail" value="<?=$USER->email?>" hidden>
+                                            <input class="topicId" id="topicId" name="topicId" value="<?=$tops['topic_id']?>" type="hidden">
+                                            <input class="studentEmail" id="studentEmail" name="studentEmail" value="<?=$USER->email?>" type="hidden">
                                             <?php
+                                            $hasRosters = LTIX::populateRoster(false);
+                                            $x = 0;
+                                            if ($hasRosters) {
+                                                $rosterData = $GLOBALS['ROSTER']->data;
+                                                foreach ($rosterData as $roster){
+                                                    if($rosterData[$x]['person_contact_email_primary'] == $USER->email) {
+                                                        ?>
+                                                        <input class="firstName" id="firstName" name="firstName" value="<?=$rosterData[$x]['person_name_given']?>" type="hidden">
+                                                        <input class="lastName" id="lastName" name="lastName" value="<?=$rosterData[$x]['person_name_family']?>" type="hidden">
+                                                        <?php
+                                                    }
+                                                    $x++;
+                                                }
+                                            }
                                             if($userExists == true || $numSelected >= $topics['num_topics'] || $tops['num_reserved'] >= $tops['num_allowed'] || $topics['stu_reserve'] == 0) {
                                                 ?>
                                                 <button type="submit" class="btn btn-success" disabled>Reserve</button>
