@@ -129,22 +129,20 @@ $OUTPUT->flashMessages();
                                 <div class="card-header" role="tab">
                                     <span class="topicName"><?=$tops['topic_text']?> (<?=$tops['num_allowed']?>)</span>
                                     <?php
-                                    if($topics['allow_stu'] == 1) {
-                                        $count = 0;
-                                        foreach($selections as $select) {
-                                            var_dump($select['topic_id']);
-                                            var_dump($select['user_first_name']);
-                                            if($count > 0) {
-                                                ?>
-                                                <span class="registeredStu">, <?=$select['user_first_name']?> <?=$select['user_last_name']?> <?=$select['user_email']?></span>
-                                                <?php
-                                            } else {
-                                                ?>
-                                                <span class="registeredStu"><?=$select['user_first_name']?> <?=$select['user_last_name']?> <?=$select['user_email']?></span>
-                                                <?php
-                                            }
-                                            $count++;
+                                    $count = 0;
+                                    foreach($selections as $select) {
+                                        var_dump($select['topic_id']);
+                                        var_dump($select['user_first_name']);
+                                        if($count > 0) {
+                                            ?>
+                                            <span class="registeredStu">, <?=$select['user_first_name']?> <?=$select['user_last_name']?> <?=$select['user_email']?></span>
+                                            <?php
+                                        } else {
+                                            ?>
+                                            <span class="registeredStu"><?=$select['user_first_name']?> <?=$select['user_last_name']?> <?=$select['user_email']?></span>
+                                            <?php
                                         }
+                                        $count++;
                                     }
                                     ?>
                                     <div class="dropdown settings">
