@@ -131,15 +131,13 @@ $OUTPUT->flashMessages();
                                     <?php
                                     $count = 0;
                                     foreach($selections as $select) {
-                                        var_dump($select['topic_id']);
-                                        var_dump($select['user_first_name']);
                                         if($count > 0) {
                                             ?>
-                                            <span class="registeredStu">, <?=$select['user_first_name']?> <?=$select['user_last_name']?> <?=$select['user_email']?></span>
+                                            <span class="registeredStu">, <?=$select['user_first_name']?> <?=$select['user_last_name']?></span>
                                             <?php
                                         } else {
                                             ?>
-                                            <span class="registeredStu"><?=$select['user_first_name']?> <?=$select['user_last_name']?> <?=$select['user_email']?></span>
+                                            <span class="registeredStu"><?=$select['user_first_name']?> <?=$select['user_last_name']?></span>
                                             <?php
                                         }
                                         $count++;
@@ -231,8 +229,6 @@ $OUTPUT->flashMessages();
                                             if($topics['allow_stu'] == 1) {
                                                 $count = 0;
                                                 foreach($selections as $select) {
-                                                    var_dump($select['topic_id']);
-                                                    var_dump($select['user_first_name']);
                                                     if($count > 0) {
                                                         ?>
                                                         <span class="registeredStu">, <?=$select['user_first_name']?> <?=$select['user_last_name']?></span>
