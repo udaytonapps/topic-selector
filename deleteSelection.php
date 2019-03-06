@@ -20,7 +20,7 @@ $topic = $topicST->fetch(PDO::FETCH_ASSOC);
 $numReserved = $topic['num_reserved'];
 $numReserved--;
 
-$newTopic = $PDOX->prepare("UPDATE {$p} topic SET num_reserved=:numReserved WHERE topic_id = :topicId");
+$newTopic = $PDOX->prepare("UPDATE {$p}topic SET num_reserved=:numReserved WHERE topic_id = :topicId");
 $newTopic->execute(array(
     ":topicId" => $_GET['topic'],
     ":numReserved" => $numReserved,
