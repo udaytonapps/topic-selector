@@ -46,7 +46,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
     ));
 
     $_SESSION['success'] = 'Student assigned successfully.';
-    //header('Location: ' . addSession('index.php'));
+    header('Location: ' . addSession('index.php'));
 }
 
 // Start of the output
