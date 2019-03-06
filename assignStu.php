@@ -17,7 +17,7 @@ $topicST->execute(array(":topicId" => $_GET['top']));
 $topic = $topicST->fetch(PDO::FETCH_ASSOC);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
-    $userEmail = isset($_POST["stuReserve"]) ? $_POST["stuReserve"] : " ";
+    $userEmail = isset($_POST["stuReserve"]) ? $_POST["stuReserve"] : "johndoe@aol.com";
     $userFirstName = " ";
     $userLastName = " ";
 
@@ -119,7 +119,6 @@ $OUTPUT->flashMessages();
                                             ?>
                                             <option value="<?=$rosterData[$x]['person_contact_email_primary']?>"><?=$name1?> <?=$name2?> <?=$rosterData[$x]['person_contact_email_primary']?></option>
                                             <?php
-                                            var_dump($rosterData[$x]['person_contact_email_primary']);
                                             $y++;
                                         }
                                         $x++;

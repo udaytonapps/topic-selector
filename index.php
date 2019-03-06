@@ -136,11 +136,11 @@ $OUTPUT->flashMessages();
                                             var_dump($select['user_first_name']);
                                             if($count > 0) {
                                                 ?>
-                                                <span class="registeredStu">, <?=$select['user_first_name']?> <?=$select['user_last_name']?></span>
+                                                <span class="registeredStu">, <?=$select['user_first_name']?> <?=$select['user_last_name']?> <?=$select['user_email']?></span>
                                                 <?php
                                             } else {
                                                 ?>
-                                                <span class="registeredStu"><?=$select['user_first_name']?> <?=$select['user_last_name']?></span>
+                                                <span class="registeredStu"><?=$select['user_first_name']?> <?=$select['user_last_name']?> <?=$select['user_email']?></span>
                                                 <?php
                                             }
                                             $count++;
