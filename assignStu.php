@@ -25,11 +25,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
     $x = 0;
     if ($hasRosters) {
         $rosterData = $GLOBALS['ROSTER']->data;
-        sort($rosterData["person_name_family"]);
         foreach ($rosterData as $roster){
-            var_dump($userEmail);
-            var_dump($rosterData[$x]['person_contact_email_primary']);
             if($rosterData[$x]['person_contact_email_primary'] == $userEmail){
+                var_dump($userEmail);
+                var_dump($rosterData[$x]['person_contact_email_primary']);
                 $userFirstName = $rosterData[$x]['person_name_given'];
                 $userLastName = $rosterData[$x]['person_name_family'];
                 break;
