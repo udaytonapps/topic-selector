@@ -14,7 +14,7 @@ $currentTime = $currentTime->format("Y-m-d H:i:s");
 
 $topicST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE topic_id = :topicId");
 $topicST->execute(array(":topicId" => $_GET['top']));
-$topic = $topicST->fetchAll(PDO::FETCH_ASSOC);
+$topic = $topicST->fetch(PDO::FETCH_ASSOC);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
     $userEmail = isset($_POST["stuReserve"]) ? $_POST["stuReserve"] : " ";
