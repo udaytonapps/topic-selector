@@ -35,7 +35,6 @@ $topicInput = isset($_POST["topic_list"]) ? $_POST["topic_list"] : " ";
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
     $stuReserve = isset($_POST["stuReserve"]) ? $_POST["stuReserve"] : " ";
     $url = 'deleteSelection.php?topic=' . $_GET['top'] . '&user=' . $stuReserve;
-    var_dump($url);
 
     header('Location: ' . addSession($url));
 }
