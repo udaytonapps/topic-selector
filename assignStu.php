@@ -103,7 +103,7 @@ $OUTPUT->flashMessages();
             <div class="container mainBody">
                 <h2 class="title">Topic Selector - Assign Student</h2>
                 <p class="instructions">Which student would you like to assign to the topic, "<?=$topic['topic_text']?>?"</p>
-                <p class="instructions2"><i>Students already assigned to a topic are not available to be selected.
+                <p class="instructions2"><i>Students assigned to the maximum number of topics are not available to be selected.
                     You must first unassign students from already selected topics.</i></p>
                 <div class="container">
                     <form method="post">
@@ -169,7 +169,15 @@ $OUTPUT->flashMessages();
                                 <a class="btn btn-danger" href="index.php">Cancel</a>
                             </div>
                         </div>
-
+                        <?php
+                        if($z >= $topic['num_allowed']) {
+                            ?>
+                            <div class="container assignButtons">
+                            <p><i>The maximum number of students have been assigned to this topic.</i></p>
+                            </div>
+                        <?php
+                        }
+                        ?>
                     </form>
                 </div>
             </div>
