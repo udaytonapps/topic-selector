@@ -12,6 +12,10 @@ $displayname = $USER->displayname;
 $currentTime = new DateTime('now', new DateTimeZone($CFG->timezone));
 $currentTime = $currentTime->format("Y-m-d H:i:s");
 
+$topicListST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkId");
+$topicListST->execute(array(":linkId" => $LINK->id));
+$topicList = $topicListST->fetchAll(PDO::FETCH_ASSOC);
+
 $topicST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE topic_id = :topicId");
 $topicST->execute(array(":topicId" => $_GET['top']));
 $topic = $topicST->fetch(PDO::FETCH_ASSOC);
@@ -106,20 +110,33 @@ $OUTPUT->flashMessages();
                         <div class="dropdown assignDrop">
                             <select class="dropdown assignStu" id="stuReserve" name="stuReserve">
                                 <?php
+                                $selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
+                                $selectionST->execute(array(":topicId" => $_GET['top']));
+                                $selections = $selectionST->fetchAll(PDO::FETCH_ASSOC);
+
                                 $hasRosters = LTIX::populateRoster(false);
                                 $x = 0;
                                 $y = 0;
+                                $z = 0;
                                 if ($hasRosters) {
                                     $rosterData = $GLOBALS['ROSTER']->data;
                                     sort($rosterData['person_name_family']);
                                     foreach ($rosterData as $roster) {
-                                        if($roster["roles"] == "Learner"){
+                                        foreach($selections as $select) {
+                                            if($rosterData[$x]['person_contact_email_primary'] == $select['user_email']) {
+                                                $y++;
+                                            }
+                                            if($select['topic_id'] == $_GET['top']) {
+                                                $z++;
+                                            }
+                                        }
+                                        if($roster["roles"] == "Learner" && $y <= $topicList['num_topics']){
                                             $name1 = $rosterData[$x]["person_name_given"];
                                             $name2 = $rosterData[$x]["person_name_family"];
                                             ?>
                                             <option value="<?=$rosterData[$x]['person_contact_email_primary']?>"><?=$name1?> <?=$name2?></option>
                                             <?php
-                                            $y++;
+
                                         }
                                         $x++;
                                     }
@@ -136,7 +153,7 @@ $OUTPUT->flashMessages();
                         <div class="container assignButtons">
                             <div class="col-sm-1">
                                 <?php
-                                if($y == 0) {
+                                if($z >= $topic['num_allowed']) {
                                     ?>
                                     <button class="btn btn-success" type="submit" disabled>Save</button>
                                 <?php
