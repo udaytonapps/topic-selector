@@ -117,7 +117,7 @@ $OUTPUT->flashMessages();
                                             $name1 = $rosterData[$x]["person_name_given"];
                                             $name2 = $rosterData[$x]["person_name_family"];
                                             ?>
-                                            <option value="<?=$rosterData[$x]['person_contact_email_primary']?>"><?=$name1?> <?=$name2?></option>
+                                            <option value="<?=$rosterData[$x]['person_contact_email_primary']?>"><?=$name1?> <?=$name2?> <?=$rosterData[$x]['person_contact_email_primary']?></option>
                                             <?php
                                             var_dump($rosterData[$x]['person_contact_email_primary']);
                                             $y++;
