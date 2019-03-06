@@ -138,6 +138,7 @@ $OUTPUT->flashMessages();
                                             <?php
 
                                         }
+                                        $y=0;
                                         $x++;
                                     }
                                 } else {
