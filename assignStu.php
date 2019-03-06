@@ -18,8 +18,22 @@ $topic = $topicST->fetchAll(PDO::FETCH_ASSOC);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
     $userEmail = isset($_POST["stuReserve"]) ? $_POST["stuReserve"] : " ";
-    $userFirstName = isset($_POST["firstName"]) ? $_POST["firstName"] : "Unknown";
-    $userLastName = isset($_POST["lastName"]) ? $_POST["lastName"] : "?";
+    $userFirstName = " ";
+    $userLastName = " ";
+
+    $hasRosters = LTIX::populateRoster(false);
+    $x = 0;
+    if ($hasRosters) {
+        $rosterData = $GLOBALS['ROSTER']->data;
+        sort($rosterData["person_name_family"]);
+        foreach ($rosterData as $roster){
+            if($rosterData['person_contact_email_primary'] == $userEmail){
+                $userFirstName = $rosterData[$x]['person_name_given'];
+                $userLastName = $rosterData[$x]['person_name_family'];
+            }
+            $x++;
+        }
+    }
 
     $newSelect = $PDOX->prepare("INSERT INTO {$p}selection (topic_id, user_email, user_first_name, user_last_name, date_selected) 
                                         values (:topicId, :userEmail, :userFirstName, :userLastName, :dateSelected)");
@@ -103,10 +117,7 @@ $OUTPUT->flashMessages();
                                             $name1 = $rosterData[$x]["person_name_given"];
                                             $name2 = $rosterData[$x]["person_name_family"];
                                             ?>
-                                            <option value="<?=$rosterData[$x]['person_contact_email_primary']?>">
-                                                <input class="firstName" id="firstName" name="firstName" value="<?=$name1?>" type="hidden">
-                                                <input class="lastName" id="lastName" name="lastName" value="<?=$name2?>" type="hidden">
-                                                <?=$name1?> <?=$name2?></option>
+                                            <option value="<?=$rosterData[$x]['person_contact_email_primary']?>"><?=$name1?> <?=$name2?></option>
                                             <?php
                                             $y++;
                                         }
