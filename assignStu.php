@@ -27,9 +27,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
         $rosterData = $GLOBALS['ROSTER']->data;
         sort($rosterData["person_name_family"]);
         foreach ($rosterData as $roster){
+            var_dump($userEmail);
+            var_dump($rosterData['person_contact_email_primary']);
             if($rosterData['person_contact_email_primary'] == $userEmail){
                 $userFirstName = $rosterData[$x]['person_name_given'];
                 $userLastName = $rosterData[$x]['person_name_family'];
+                break;
             }
             $x++;
         }
@@ -46,7 +49,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
     ));
 
     $_SESSION['success'] = 'Student assigned successfully.';
-    header('Location: ' . addSession('index.php'));
+    //header('Location: ' . addSession('index.php'));
 }
 
 // Start of the output
