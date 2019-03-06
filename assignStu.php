@@ -27,8 +27,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
         $rosterData = $GLOBALS['ROSTER']->data;
         foreach ($rosterData as $roster){
             if($rosterData[$x]['person_contact_email_primary'] == $userEmail){
-                var_dump($userEmail);
-                var_dump($rosterData[$x]['person_contact_email_primary']);
+                var_dump($rosterData[$x]['person_name_given']);
                 $userFirstName = $rosterData[$x]['person_name_given'];
                 $userLastName = $rosterData[$x]['person_name_family'];
                 break;
