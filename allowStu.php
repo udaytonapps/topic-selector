@@ -20,9 +20,8 @@ $topic = $topicST->fetch(PDO::FETCH_ASSOC);
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
     $numAllowed = isset($_POST["numReservations"]) ? $_POST["numReservations"] : " ";
     $numAllowed = $numAllowed + $topic['num_allowed'];
-    $newTopic = $PDOX->prepare("UPDATE {$p} topic SET num_allowed = :numAllowed WHERE list_id = :listId AND topic_id = :topicId");
+    $newTopic = $PDOX->prepare("UPDATE {$p} topic SET num_allowed=:numAllowed WHERE topic_id = :topicId");
     $newTopic->execute(array(
-        ":listId" => $topics['list_id'],
         ":topicId" => $_GET['top'],
         ":numAllowed" => $numAllowed,
     ));

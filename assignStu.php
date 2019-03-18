@@ -20,10 +20,6 @@ $topicST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE topic_id = :topicId");
 $topicST->execute(array(":topicId" => $_GET['top']));
 $topic = $topicST->fetch(PDO::FETCH_ASSOC);
 
-$topicsST = $PDOX->prepare("SELECT * FROM {$p}topic WHERE topic_id = :topicId");
-$topicsST->execute(array(":topicId" => $_GET['top']));
-$topics = $topicsST->fetchAll(PDO::FETCH_ASSOC);
-
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
     $userEmail = isset($_POST["stuReserve"]) ? $_POST["stuReserve"] : "johndoe@aol.com";
     $userFirstName = " ";
@@ -138,7 +134,7 @@ $OUTPUT->flashMessages();
                                             $name1 = $rosterData[$x]["person_name_given"];
                                             $name2 = $rosterData[$x]["person_name_family"];
                                             ?>
-                                            <option value="<?=$rosterData[$x]['person_contact_email_primary']?>"><?=$name1?> <?=$name2?></option>
+                                            <option value="<?=$rosterData[$x]['person_contact_email_primary']?>"><?=$name1?> <?=$name2?> <?=$y?> <?=$z?></option>
                                             <?php
 
                                         }
@@ -159,7 +155,7 @@ $OUTPUT->flashMessages();
                         <div class="container assignButtons">
                             <div class="col-sm-1">
                                 <?php
-                                if($z >= $topics['num_allowed']) {
+                                if($z >= $topic['num_allowed']) {
                                     ?>
                                     <button class="btn btn-success" type="submit" disabled>Save</button>
                                 <?php
