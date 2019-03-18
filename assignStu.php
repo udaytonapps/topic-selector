@@ -14,7 +14,7 @@ $currentTime = $currentTime->format("Y-m-d H:i:s");
 
 $topicListST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkId");
 $topicListST->execute(array(":linkId" => $LINK->id));
-$topicList = $topicListST->fetchAll(PDO::FETCH_ASSOC);
+$topicList = $topicListST->fetch(PDO::FETCH_ASSOC);
 
 $topicST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE topic_id = :topicId");
 $topicST->execute(array(":topicId" => $_GET['top']));
