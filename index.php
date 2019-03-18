@@ -201,7 +201,6 @@ $OUTPUT->flashMessages();
                                             <input class="studentEmail" id="studentEmail" name="studentEmail" value="<?=$USER->email?>" type="hidden">
                                             <?php
                                             $hasRosters = LTIX::populateRoster(false);
-                                            $x = 0;
                                             if ($hasRosters) {
                                                 $rosterData = $GLOBALS['ROSTER']->data;
                                                 foreach ($rosterData as $roster){
@@ -211,10 +210,9 @@ $OUTPUT->flashMessages();
                                                         <input class="lastName" id="lastName" name="lastName" value="<?=$rosterData[$x]['person_name_family']?>" type="hidden">
                                                         <?php
                                                     }
-                                                    $x++;
                                                 }
                                             }
-                                            if($userExists == true || $numSelected >= $topics['num_topics'] || $tops['num_reserved'] >= $tops['num_allowed'] || $topics['stu_reserve'] == 0 || $x >= $topics['num_topics']) {
+                                            if($userExists == true || $numSelected >= $topics['num_topics'] || $tops['num_reserved'] >= $tops['num_allowed'] || $topics['stu_reserve'] == 0) {
                                                 ?>
                                                 <button type="submit" class="btn btn-success" disabled>Reserve</button>
                                                 <?php
