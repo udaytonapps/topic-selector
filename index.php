@@ -100,7 +100,7 @@ $OUTPUT->flashMessages();
         <?php
         if($USER->instructor){
             ?>
-            <a href="#"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
+            <a href="newTopics.php?topList=<?=$topicList['list_id']?>"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
             <a href="#"><span class="fa fa-print" aria-hidden="true"></span> Print View</a>
             <a href="clearTopics.php" onclick="return confirmResetTool();"><span class="fa fa-trash" aria-hidden="true"></span> Clear All</a>
             <?php
