@@ -130,6 +130,7 @@ $OUTPUT->flashMessages();
                                                 $z++;
                                             }
                                         }
+                                        var_dump($y);
                                         if($roster["roles"] == "Learner" && $y <= $topicList['num_topics']){
                                             $name1 = $rosterData[$x]["person_name_given"];
                                             $name2 = $rosterData[$x]["person_name_family"];
