@@ -183,6 +183,7 @@ $OUTPUT->flashMessages();
                     <div class="container topicView">
                         <?php
                         foreach($topic as $tops) {
+                            $z = 0;
                             $selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
                             $selectionST->execute(array(":topicId" => $tops['topic_id']));
                             $selections = $selectionST->fetchAll(PDO::FETCH_ASSOC);
@@ -190,6 +191,9 @@ $OUTPUT->flashMessages();
                             foreach($selections as $select) {
                                 if($select['user_email'] == $USER->email) {
                                     $userExists = true;
+                                }
+                                if($select['topic_id'] == $_GET['top']) {
+                                    $z++;
                                 }
                             }
                             ?>
@@ -214,7 +218,7 @@ $OUTPUT->flashMessages();
                                                     $x++;
                                                 }
                                             }
-                                            if($userExists == true || $numSelected >= $topics['num_topics'] || $tops['num_reserved'] >= $tops['num_allowed'] || $topics['stu_reserve'] == 0) {
+                                            if($userExists == true || $numSelected >= $topics['num_topics'] || $topics['stu_reserve'] == 0 || $z >= $tops['num_topics']) {
                                                 ?>
                                                 <button type="submit" class="btn btn-success" disabled>Reserve</button>
                                                 <?php
