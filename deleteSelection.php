@@ -26,8 +26,8 @@ $newTopic->execute(array(
     ":numReserved" => $numReserved,
 ));
 
-$delSelections = $PDOX->prepare("DELETE FROM {$p}selection WHERE user_email = :userEmail");
-$delSelections->execute(array(":userEmail" => $_GET['user']));
+$delSelections = $PDOX->prepare("DELETE FROM {$p}selection WHERE user_email = :userEmail AND topic_id = :topicId");
+$delSelections->execute(array(":userEmail" => $_GET['user'], ":topicId" => $_GET['topic']));
 
 
 header('Location: ' . addSession('index.php'));
