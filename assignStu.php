@@ -122,15 +122,19 @@ $OUTPUT->flashMessages();
                                     foreach ($rosterData as $roster) {
                                         $y = 0;
                                         $z = 0;
+                                        $w = 0;
                                         foreach($selections as $select) {
                                             if($rosterData[$x]['person_contact_email_primary'] == $select['user_email']) {
                                                 $y++;
+                                                if($select['topic_id'] == $_GET['top']) {
+                                                    $w++;
+                                                }
                                             }
                                             if($select['topic_id'] == $_GET['top']) {
                                                 $z++;
                                             }
                                         }
-                                        if($roster["roles"] == "Learner" && $y <= $topicList['num_topics']){
+                                        if($roster["roles"] == "Learner" && $y < $topicList['num_topics'] && $w == 0){
                                             $name1 = $rosterData[$x]["person_name_given"];
                                             $name2 = $rosterData[$x]["person_name_family"];
                                             ?>
