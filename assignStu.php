@@ -110,18 +110,18 @@ $OUTPUT->flashMessages();
                         <div class="dropdown assignDrop">
                             <select class="dropdown assignStu" id="stuReserve" name="stuReserve">
                                 <?php
-                                $selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
-                                $selectionST->execute(array(":topicId" => $_GET['top']));
+                                $selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection");
+                                $selectionST->execute(array());
                                 $selections = $selectionST->fetchAll(PDO::FETCH_ASSOC);
 
                                 $hasRosters = LTIX::populateRoster(false);
                                 $x = 0;
                                 $y = 0;
-                                $z = 0;
                                 if ($hasRosters) {
                                     $rosterData = $GLOBALS['ROSTER']->data;
                                     sort($rosterData['person_name_family']);
                                     foreach ($rosterData as $roster) {
+                                        $z = 0;
                                         foreach($selections as $select) {
                                             if($rosterData[$x]['person_contact_email_primary'] == $select['user_email']) {
                                                 $y++;
