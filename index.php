@@ -218,7 +218,7 @@ $OUTPUT->flashMessages();
                                                     $x++;
                                                 }
                                             }
-                                            if($userExists == true || $numSelected >= $topics['num_topics'] || $topics['stu_reserve'] == 0 || $z >= $tops['num_topics']) {
+                                            if($userExists == true || $numSelected >= $topics['num_topics'] || $topics['stu_reserve'] == 0 || $z >= $tops['num_allowed']) {
                                                 ?>
                                                 <button type="submit" class="btn btn-success" disabled>Reserve</button>
                                                 <?php
