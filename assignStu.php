@@ -20,6 +20,10 @@ $topicST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE topic_id = :topicId");
 $topicST->execute(array(":topicId" => $_GET['top']));
 $topic = $topicST->fetch(PDO::FETCH_ASSOC);
 
+$topicsST = $PDOX->prepare("SELECT * FROM {$p}topic WHERE topic_id = :topicId");
+$topicsST->execute(array(":topicId" => $_GET['top']));
+$topics = $topicsST->fetchAll(PDO::FETCH_ASSOC);
+
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
     $userEmail = isset($_POST["stuReserve"]) ? $_POST["stuReserve"] : "johndoe@aol.com";
     $userFirstName = " ";
@@ -141,6 +145,7 @@ $OUTPUT->flashMessages();
                                         $y=0;
                                         $x++;
                                     }
+
                                 } else {
                                     $name = "No roster found";
                                     ?>
@@ -154,7 +159,7 @@ $OUTPUT->flashMessages();
                         <div class="container assignButtons">
                             <div class="col-sm-1">
                                 <?php
-                                if($z >= $topic['num_allowed']) {
+                                if($z >= $topics['num_allowed']) {
                                     ?>
                                     <button class="btn btn-success" type="submit" disabled>Save</button>
                                 <?php
