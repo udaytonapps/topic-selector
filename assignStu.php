@@ -99,6 +99,7 @@ $OUTPUT->flashMessages();
         <button class="openbtn" onclick="openNav()">☰ Menu</button>
         <?php
         if($USER->instructor) {
+            var_dump($topicList['num_topics']);
             ?>
             <div class="container mainBody">
                 <h2 class="title">Topic Selector - Assign Student</h2>
