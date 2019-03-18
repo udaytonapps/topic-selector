@@ -192,7 +192,7 @@ $OUTPUT->flashMessages();
                                 if($select['user_email'] == $USER->email) {
                                     $userExists = true;
                                 }
-                                if($select['topic_id'] == $_GET['top']) {
+                                if($select['topic_id'] == $tops['topic_id']) {
                                     $z++;
                                 }
                             }
