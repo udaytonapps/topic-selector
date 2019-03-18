@@ -20,10 +20,10 @@ $topic = $topicST->fetch(PDO::FETCH_ASSOC);
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
     $numAllowed = isset($_POST["numReservations"]) ? $_POST["numReservations"] : " ";
     $numAllowed = $numAllowed + $topic['num_allowed'];
-    $newTopic = $PDOX->prepare("UPDATE {$p} topic SET num_allowed=:numAllowed WHERE topic_id = :topicId");
+    $newTopic = $PDOX->prepare("UPDATE {$p}topic SET num_allowed=:numAllowed WHERE topic_id = :topicId");
     $newTopic->execute(array(
         ":topicId" => $_GET['top'],
-        ":numAllowed" => $numAllowed,
+        ":numAllowed" => $numAllowed
     ));
     $_SESSION['success'] = 'New allowance saved successfully.';
     header('Location: ' . addSession('index.php'));

@@ -37,11 +37,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     $numReserved = $topic2['num_reserved'];
     $numReserved = $numReserved + 1;
 
-    $newTopic = $PDOX->prepare("UPDATE {$p} topic SET num_reserved=:numReserved WHERE list_id = :listId AND topic_id = :topicId");
+    $newTopic = $PDOX->prepare("UPDATE {$p}topic SET num_reserved=:numReserved WHERE list_id = :listId AND topic_id = :topicId");
     $newTopic->execute(array(
         ":listId" => $topics['list_id'],
         ":topicId" => $topicId,
-        ":numReserved" => $numReserved,
+        ":numReserved" => $numReserved
     ));
 
     $userEmail = isset($_POST["studentEmail"]) ? $_POST["studentEmail"] : " ";
