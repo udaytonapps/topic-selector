@@ -116,11 +116,11 @@ $OUTPUT->flashMessages();
 
                                 $hasRosters = LTIX::populateRoster(false);
                                 $x = 0;
-                                $y = 0;
                                 if ($hasRosters) {
                                     $rosterData = $GLOBALS['ROSTER']->data;
                                     sort($rosterData['person_name_family']);
                                     foreach ($rosterData as $roster) {
+                                        $y = 0;
                                         $z = 0;
                                         foreach($selections as $select) {
                                             if($rosterData[$x]['person_contact_email_primary'] == $select['user_email']) {
@@ -134,7 +134,7 @@ $OUTPUT->flashMessages();
                                             $name1 = $rosterData[$x]["person_name_given"];
                                             $name2 = $rosterData[$x]["person_name_family"];
                                             ?>
-                                            <option value="<?=$rosterData[$x]['person_contact_email_primary']?>"><?=$name1?> <?=$name2?> <?=$y?> <?=$z?></option>
+                                            <option value="<?=$rosterData[$x]['person_contact_email_primary']?>"><?=$name1?> <?=$name2?></option>
                                             <?php
 
                                         }
