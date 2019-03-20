@@ -149,7 +149,6 @@ $OUTPUT->flashMessages();
                                             <li><a href="assignStu.php?top=<?=$tops['topic_id']?>">Assign Student(s)</a></li>
                                             <li><a href="unassignStu.php?top=<?=$tops['topic_id']?>">Unassign Student(s)</a></li>
                                             <li><a href="allowStu.php?top=<?=$tops['topic_id']?>">Allow Additional Students</a></li>
-                                            <li><a href="emailStu.php?top=<?=$tops['topic_id']?>">Email Student(s)</a></li>
                                         </ul>
                                     </div>
 
