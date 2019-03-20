@@ -27,6 +27,12 @@ function deleteTopic($topicId, $PDOX, $p) {
     $delSelections->execute(array(":topicId" => $topicId));
 }
 
+if(isset($_GET['topList'])) {
+    $topicsST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE list_id = :listId");
+    $topicsST->execute(array(":listId" => $_GET['topList']));
+    $topics = $topicsST->fetch(PDO::FETCH_ASSOC);
+}
+
 $stuReserve = isset($_POST["reservations"]) ? 1 : 0;
 $stuAllow = isset($_POST["allow"]) ? 1 : 0;
 $numTopics = isset($_POST["numReservations"]) ? $_POST["numReservations"] : 1;
@@ -42,7 +48,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
             ":topicList" => $topicInput,
             ":numTopics" => $numTopics,
             ":stuReserve" => $stuReserve,
-            ":allowStu" => $stuAllow
+            ":allowStu" => $stuAllow,
+            ":listId" => $_GET['topList']
         ));
 
         $topicsST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkId");
@@ -56,8 +63,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
         foreach($topic as $oldTops) {
             $exists = false;
             foreach(preg_split("/((\r?\n)|(\r\n?))/", $topics['topic_list']) as $tops) {
-                if(preg_match_all('!\d+!', $tops, $tempNum)) {
-                    $topicText = str_replace(array('0','1','2','3','4','5','6','7','8','9',','), '',$tops);
+                $searchString = ",";
+                if(strpos($tops, $searchString) !== false) {
+                    $strings = array_map('trim', explode(',', $tops));
+                    $topicText = $strings[0];
 
                     if($oldTops['topic_text'] == $topicText) {
                         $exists = true;
@@ -74,9 +83,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
         }
         foreach(preg_split("/((\r?\n)|(\r\n?))/", $topics['topic_list']) as $tops) {
             $exists = false;
-            if(preg_match_all('!\d+!', $tops, $tempNum)) {
-                $num=implode('',$tempNum[0]);
-                $topicText = str_replace(array('0','1','2','3','4','5','6','7','8','9',','), '',$tops);
+            $searchString = ",";
+            if(strpos($tops, $searchString) !== false) {
+                $strings = array_map('trim', explode(',', $tops));
+                $num = $strings[1];
+                $topicText = $strings[0];
 
                 foreach($topic as $oldTops) {
                     if($oldTops['topic_text'] == $topicText) {
@@ -131,9 +142,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
         $topics = $topicsST->fetch(PDO::FETCH_ASSOC);
 
         foreach(preg_split("/((\r?\n)|(\r\n?))/", $topics['topic_list']) as $tops) {
-            if(preg_match_all('!\d+!', $tops, $tempNum)) {
-                $num=implode('',$tempNum[0]);
-                $topicText = str_replace(array('0','1','2','3','4','5','6','7','8','9',','), '',$tops);
+            $searchString = ",";
+            if(strpos($tops, $searchString) !== false) {
+                $strings = array_map('trim', explode(',', $tops));
+                $num = $strings[1];
+                $topicText = $strings[0];
 
                 $newTopic = $PDOX->prepare("INSERT INTO {$p}topic (list_id, topic_text, num_allowed, num_reserved) 
                                         values (:listId, :topicText, :numAllowed, :numReserved)");
@@ -203,7 +216,76 @@ $OUTPUT->flashMessages();
         }
         ?>
     </div>
+<?php
+if(isset($_GET['topList'])) {
+    ?>
+    <div id="main">
+        <button class="openbtn" onclick="openNav()">☰ Menu</button>
+        <div class="container mainBody">
+            <h2 class="title">Topic Selector - Edit</h2>
+            <p class="instructions">Edit the topics that students can sign up for</p>
+            <p class="instructions">Put each topic on a new line. Each topic will be open to one student by default.
+                You can enter the number of slots with a comma and a space after the topic if you want more than one.</p>
+            <br>
+            <form method="post">
+                <div class="container">
+                    <div class="col-sm-7">
+                        <textarea class="topicInput" id="topic_list" name="topic_list" ><?=$topics['topic_list']?></textarea>
+                    </div>
+                    <div class="col-sm-5">
+                        <p class="example"><u>Example:</u></p>
+                        <p class="example">Business Intelligence <br/>
+                            Marketing <br/>
+                            Accounting,2 <br/>
+                            Decision Making <br/>
+                            MIS</p>
+                    </div>
+                </div>
+                <br>
+                <div class="container">
+                    <div class="container">
+                        <?php
+                        if($topics['stu_reserve'] == 1) {
+                            ?>
+                            <input type="checkbox" class="custom-control-input" id="reservations" name="reservations" checked>
+                            <?php
+                        } else {
+                            ?>
+                            <input type="checkbox" class="custom-control-input" id="reservations" name="reservations">
+                            <?php
+                        }
+                        ?>
 
+                        <label class="custom-control-label" for="reservations"> Students can reserve
+                            <input type="number" class="numReservations" id="numReservations" name="numReservations" value="<?=$topics['num_topics']?>">
+                            <label class="custom-control-label" for="numReservations">topic(s).</label>
+                        </label>
+                    </div>
+                    <div class="container">
+                        <?php
+                        if($topics['allow_stu'] == 1) {
+                            ?>
+                            <input type="checkbox" class="custom-control-input" id="allow" name="allow" checked>
+                            <?php
+                        } else {
+                            ?>
+                            <input type="checkbox" class="custom-control-input" id="allow" name="allow">
+                            <?php
+                        }
+                        ?>
+                        <label class="custom-control-label" for="allow">Allow students to see who has reserved each topic</label>
+                    </div>
+                    <div class="container">
+                        <button type="submit" class="btn btn-success">Save</button>
+                        <a type="button" class="btn btn-danger" href="index.php">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <?php
+} else {
+    ?>
     <div id="main">
         <button class="openbtn" onclick="openNav()">☰ Menu</button>
         <div class="container mainBody">
@@ -231,7 +313,7 @@ $OUTPUT->flashMessages();
                     <div class="container">
                         <input type="checkbox" class="custom-control-input" id="reservations" name="reservations">
                         <label class="custom-control-label" for="reservations"> Students can reserve
-                            <input type="number" class="numReservations" id="numReservations" name="numReservations">
+                            <input type="number" class="numReservations" id="numReservations" name="numReservations" value="1">
                             <label class="custom-control-label" for="numReservations">topic(s).</label>
                         </label>
                     </div>
@@ -241,19 +323,13 @@ $OUTPUT->flashMessages();
                     </div>
                     <div class="container">
                         <button type="submit" class="btn btn-success">Save</button>
-                        <?php
-                        if(isset($_GET['topList'])) {
-                            ?>
-                            <a type="button" class="btn btn-danger" href="index.php">Cancel</a>
-                        <?php
-                        }
-                        ?>
                     </div>
                 </div>
             </form>
         </div>
     </div>
-<?php
+    <?php
+}
 $OUTPUT->footerStart();
 ?>
     <script src="scripts/main.js" type="text/javascript"></script>

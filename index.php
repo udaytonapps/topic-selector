@@ -46,7 +46,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $userEmail = isset($_POST["studentEmail"]) ? $_POST["studentEmail"] : " ";
     $userFirstName = isset($_POST["firstName"]) ? $_POST["firstName"] : "Unknown";
-    $userLastName = isset($_POST["lastName"]) ? $_POST["lastName"] : "?";
+    $userLastName = isset($_POST["lastName"]) ? $_POST["lastName"] : "";
 
     $newSelect = $PDOX->prepare("INSERT INTO {$p}selection (topic_id, user_email, user_first_name, user_last_name, date_selected) 
                                         values (:topicId, :userEmail, :userFirstName, :userLastName, :dateSelected)");
@@ -100,8 +100,8 @@ $OUTPUT->flashMessages();
         <?php
         if($USER->instructor){
             ?>
-            <a href="newTopics.php?topList=<?=$topicList['list_id']?>"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
-            <a href="#"><span class="fa fa-print" aria-hidden="true"></span> Print View</a>
+            <a href="newTopics.php?topList=<?=$topics['list_id']?>"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
+            <a href="#" onclick="printList()"><span class="fa fa-print" aria-hidden="true"></span> Print View</a>
             <a href="clearTopics.php" onclick="return confirmResetTool();"><span class="fa fa-trash" aria-hidden="true"></span> Clear All</a>
             <?php
         }
@@ -266,9 +266,7 @@ $OUTPUT->flashMessages();
             } else {
                 ?>
                     <div class="container">
-                        <?php
-                        //Something about no list available yet
-                        ?>
+                        <img src="styles/IsidoreDunce.png" class="noTopics" alt="No topics have been added yet.">
                     </div>
                 <?php
             }
@@ -276,9 +274,55 @@ $OUTPUT->flashMessages();
 
         ?>
     </div>
+    <div id="printArea" class="printArea" hidden>
+        <div class="container topicView">
+            <?php
+            $count1=0;
+            foreach($topic as $tops) {
+                $selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
+                $selectionST->execute(array(":topicId" => $tops['topic_id']));
+                $selections = $selectionST->fetchAll(PDO::FETCH_ASSOC);
+                ?>
+                <div class="card">
+                    <div class="card-header" role="tab">
+                        <span class="topicName"><?=$tops['topic_text']?>: </span>
+                        <?php
+                        $count = 0;
+                        foreach($selections as $select) {
+                            if($count > 0) {
+                                ?>
+                                <span class="registeredStu">, <?=$select['user_first_name']?> <?=$select['user_last_name']?></span>
+                                <?php
+                            } else {
+                                ?>
+                                <span class="registeredStu"><?=$select['user_first_name']?> <?=$select['user_last_name']?></span>
+                                <?php
+                            }
+                            $count++;
+                        }
+                        ?>
+                    </div>
+                </div>
+                <?php
+                $count1++;
+            }
+            ?>
+        </div>
+    </div>
 <?php
 $OUTPUT->footerStart();
 ?>
     <script src="scripts/main.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        function printList() {
+            var printPage = document.getElementById('printArea');
+            var printView = window.open('', '', 'width=1100, height=850');
+            printView.document.open();
+            printView.document.write(printPage.innerHTML);
+            printView.document.write('<html><link rel="stylesheet" href="styles/main.css" /></head><body onload="window.print()"></html><style type="text/css" media="print">@page { size: portrait; }</style>');
+            printView.document.close();
+        }
+    </script>
 <?php
 $OUTPUT->footerEnd();
