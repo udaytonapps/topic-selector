@@ -61,19 +61,45 @@ $OUTPUT->header();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script>
         function openNav() {
-            document.getElementById("mySidebar").style.width = "250px";
-            document.getElementById("main").style.marginLeft = "250px";
+            document.getElementById("mySidebar").style.width = "270px";
+            document.getElementById("main").style.marginLeft = "270px";
+            var v = document.getElementById("home");
+            var w = document.getElementById("edit");
+            var x = document.getElementById("print");
+            var y = document.getElementById("top");
+            var z = document.getElementById("select");
+            setTimeout(function() {
+                v.style.display = "block";
+                w.style.display = "block";
+                x.style.display = "block";
+                y.style.display = "block";
+                z.style.display = "block";
+            }, 350);
         }
 
         function closeNav() {
             document.getElementById("mySidebar").style.width = "0";
             document.getElementById("main").style.marginLeft= "0";
+            var v = document.getElementById("home");
+            var w = document.getElementById("edit");
+            var x = document.getElementById("print");
+            var y = document.getElementById("top");
+            var z = document.getElementById("select");
+            v.style.display = "none";
+            w.style.display = "none";
+            x.style.display = "none";
+            y.style.display = "none";
+            z.style.display = "none";
         }
     </script>
 
     <script>
-        function confirmResetTool() {
+        function confirmResetTopicTool() {
             return confirm("Are you sure that you want to clear all topics? This cannot be undone.");
+        }
+
+        function confirmResetSelectTool() {
+            return confirm("Are you sure that you want to clear all selections? This cannot be undone.")
         }
     </script>
 <?php
@@ -83,16 +109,11 @@ $OUTPUT->flashMessages();
 
     <div id="mySidebar" class="sidebar">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
-        <a href="index.php"><span class="fa fa-home" aria-hidden="true"></span> Home</a>
-        <?php
-        if($USER->instructor){
-            ?>
-            <a href="#"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
-            <a href="#"><span class="fa fa-print" aria-hidden="true"></span> Print View</a>
-            <a href="clearTopics.php" onclick="return confirmResetTool();"><span class="fa fa-trash" aria-hidden="true"></span> Clear All</a>
-            <?php
-        }
-        ?>
+        <a href="index.php" id="home" style="display: none"><span class="fa fa-home" aria-hidden="true"></span> Home</a>
+        <a href="newTopics.php?topList=<?=$topics['list_id']?>" id="edit" style="display: none"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
+        <a href="#" onclick="printList()" id="print" style="display: none"><span class="fa fa-print" aria-hidden="true"></span> Print View</a>
+        <a href="clearTopics.php" onclick="return confirmResetTopicTool();" id="top" style="display: none"><span class="fa fa-trash" aria-hidden="true"></span> Clear Topics</a>
+        <a href="clearSelections.php" onclick="return confirmResetSelectTool();" id="select" style="display: none"><span class="fa fa-trash" aria-hidden="true"></span> Clear Selections</a>
     </div>
 
     <div id="main">
@@ -116,6 +137,7 @@ $OUTPUT->flashMessages();
 
                                 $hasRosters = LTIX::populateRoster(false);
                                 $x = 0;
+                                $z = 0;
                                 if ($hasRosters) {
                                     $rosterData = $GLOBALS['ROSTER']->data;
                                     sort($rosterData['person_name_family']);

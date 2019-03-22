@@ -69,48 +69,68 @@ $OUTPUT->header();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script>
         function openNav() {
-            document.getElementById("mySidebar").style.width = "250px";
-            document.getElementById("main").style.marginLeft = "250px";
+            document.getElementById("mySidebar").style.width = "270px";
+            document.getElementById("main").style.marginLeft = "270px";
+            var v = document.getElementById("home");
+            var w = document.getElementById("edit");
+            var x = document.getElementById("print");
+            var y = document.getElementById("top");
+            var z = document.getElementById("select");
+            setTimeout(function() {
+                v.style.display = "block";
+                w.style.display = "block";
+                x.style.display = "block";
+                y.style.display = "block";
+                z.style.display = "block";
+            }, 350);
         }
 
         function closeNav() {
             document.getElementById("mySidebar").style.width = "0";
             document.getElementById("main").style.marginLeft= "0";
+            var v = document.getElementById("home");
+            var w = document.getElementById("edit");
+            var x = document.getElementById("print");
+            var y = document.getElementById("top");
+            var z = document.getElementById("select");
+            v.style.display = "none";
+            w.style.display = "none";
+            x.style.display = "none";
+            y.style.display = "none";
+            z.style.display = "none";
         }
     </script>
 
     <script>
-        function confirmResetTool() {
+        function confirmResetTopicTool() {
             return confirm("Are you sure that you want to clear all topics? This cannot be undone.");
         }
 
         function confirmRemoveSelectTool() {
             return confirm("Are you sure that you want to remove yourself from this topic?");
         }
+
+        function confirmResetSelectTool() {
+            return confirm("Are you sure that you want to clear all selections? This cannot be undone.")
+        }
     </script>
 
 <?php
 $OUTPUT->bodyStart();
 $OUTPUT->flashMessages();
-?>
-
+if($USER->instructor) {
+    ?>
     <div id="mySidebar" class="sidebar">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
-        <a href="index.php"><span class="fa fa-home" aria-hidden="true"></span> Home</a>
-        <?php
-        if($USER->instructor){
-            ?>
-            <a href="newTopics.php?topList=<?=$topics['list_id']?>"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
-            <a href="#" onclick="printList()"><span class="fa fa-print" aria-hidden="true"></span> Print View</a>
-            <a href="clearTopics.php" onclick="return confirmResetTool();"><span class="fa fa-trash" aria-hidden="true"></span> Clear All</a>
-            <?php
-        }
-        ?>
+        <a href="index.php" id="home" style="display: none"><span class="fa fa-home" aria-hidden="true"></span> Home</a>
+        <a href="newTopics.php?topList=<?=$topics['list_id']?>" id="edit" style="display: none"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
+        <a href="#" onclick="printList()" id="print" style="display: none"><span class="fa fa-print" aria-hidden="true"></span> Print View</a>
+        <a href="clearTopics.php" onclick="return confirmResetTopicTool();" id="top" style="display: none"><span class="fa fa-trash" aria-hidden="true"></span> Clear Topics</a>
+        <a href="clearSelections.php" onclick="return confirmResetSelectTool();" id="select" style="display: none"><span class="fa fa-trash" aria-hidden="true"></span> Clear Selections</a>
     </div>
     <div id="main">
         <button class="openbtn" onclick="openNav()">☰ Menu</button>
-        <?php
-        if($USER->instructor) {
+            <?php
             if($topicList) {
                 ?>
                 <div class="container mainBody">
@@ -148,7 +168,6 @@ $OUTPUT->flashMessages();
                                         <ul class="dropdown-menu">
                                             <li><a href="assignStu.php?top=<?=$tops['topic_id']?>">Assign Student(s)</a></li>
                                             <li><a href="unassignStu.php?top=<?=$tops['topic_id']?>">Unassign Student(s)</a></li>
-                                            <li><a href="allowStu.php?top=<?=$tops['topic_id']?>">Allow Additional Students</a></li>
                                         </ul>
                                     </div>
 
@@ -165,6 +184,9 @@ $OUTPUT->flashMessages();
                 header('Location: ' . addSession('newTopics.php'));
             }
         } else {
+        ?>
+        <div id="main">
+        <?php
             $selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection");
             $selectionST->execute(array());
             $selections = $selectionST->fetchAll(PDO::FETCH_ASSOC);
@@ -282,25 +304,15 @@ $OUTPUT->flashMessages();
                 $selectionST->execute(array(":topicId" => $tops['topic_id']));
                 $selections = $selectionST->fetchAll(PDO::FETCH_ASSOC);
                 ?>
-                <div class="card">
-                    <div class="card-header" role="tab">
-                        <span class="topicName"><?=$tops['topic_text']?>: </span>
-                        <?php
-                        $count = 0;
-                        foreach($selections as $select) {
-                            if($count > 0) {
-                                ?>
-                                <span class="registeredStu">, <?=$select['user_first_name']?> <?=$select['user_last_name']?></span>
-                                <?php
-                            } else {
-                                ?>
-                                <span class="registeredStu"><?=$select['user_first_name']?> <?=$select['user_last_name']?></span>
-                                <?php
-                            }
-                            $count++;
-                        }
+                <div class="container">
+                    <span ><b><?=$tops['topic_text']?>: </b></span>
+                    <?php
+                    foreach($selections as $select) {
                         ?>
-                    </div>
+                        <p class="printStu"><?=$select['user_first_name']?> <?=$select['user_last_name']?></p>
+                        <?php
+                    }
+                    ?>
                 </div>
                 <?php
                 $count1++;
