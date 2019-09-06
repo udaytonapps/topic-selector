@@ -1,13 +1,20 @@
 <?php
-
 require_once "../config.php";
 
 use \Tsugi\Core\LTIX;
 
-// Retrieve the launch data if present
-$LTI = LTIX::requireData();
+$LAUNCH = LTIX::requireData();
 $p = $CFG->dbprefix;
 $displayname = $USER->displayname;
+
+include("menu.php");
+
+$title = $LAUNCH->link->settingsGet("title", false);
+
+if (!$title) {
+    $LAUNCH->link->settingsSet("title", $LAUNCH->link->title);
+    $title = $LAUNCH->link->title;
+}
 
 $currentTime = new DateTime('now', new DateTimeZone($CFG->timezone));
 $currentTime = $currentTime->format("Y-m-d H:i:s");
@@ -53,76 +60,29 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
     header('Location: ' . addSession('index.php'));
 }
 
-// Start of the output
 $OUTPUT->header();
 ?>
     <!-- Our main css file that overrides default Tsugi styling -->
     <link rel="stylesheet" type="text/css" href="styles/main.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script>
-        function openNav() {
-            document.getElementById("mySidebar").style.width = "270px";
-            document.getElementById("main").style.marginLeft = "270px";
-            var v = document.getElementById("home");
-            var w = document.getElementById("edit");
-            var x = document.getElementById("print");
-            var y = document.getElementById("top");
-            var z = document.getElementById("select");
-            setTimeout(function() {
-                v.style.display = "block";
-                w.style.display = "block";
-                x.style.display = "block";
-                y.style.display = "block";
-                z.style.display = "block";
-            }, 350);
-        }
-
-        function closeNav() {
-            document.getElementById("mySidebar").style.width = "0";
-            document.getElementById("main").style.marginLeft= "0";
-            var v = document.getElementById("home");
-            var w = document.getElementById("edit");
-            var x = document.getElementById("print");
-            var y = document.getElementById("top");
-            var z = document.getElementById("select");
-            v.style.display = "none";
-            w.style.display = "none";
-            x.style.display = "none";
-            y.style.display = "none";
-            z.style.display = "none";
-        }
-    </script>
-
-    <script>
-        function confirmResetTopicTool() {
-            return confirm("Are you sure that you want to clear all topics? This cannot be undone.");
-        }
-
-        function confirmResetSelectTool() {
-            return confirm("Are you sure that you want to clear all selections? This cannot be undone.")
-        }
-    </script>
 <?php
 $OUTPUT->bodyStart();
+
+$OUTPUT->topNav($menu);
+
+echo '<div class="container-fluid">';
+
 $OUTPUT->flashMessages();
+
+$OUTPUT->pageTitle($title, false, false);
+
+echo '</div>';// end container
 ?>
-
-    <div id="mySidebar" class="sidebar">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
-        <a href="index.php" id="home" style="display: none"><span class="fa fa-home" aria-hidden="true"></span> Home</a>
-        <a href="newTopics.php?topList=<?=$topics['list_id']?>" id="edit" style="display: none"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
-        <a href="#" onclick="printList()" id="print" style="display: none"><span class="fa fa-print" aria-hidden="true"></span> Print View</a>
-        <a href="clearTopics.php" onclick="return confirmResetTopicTool();" id="top" style="display: none"><span class="fa fa-trash" aria-hidden="true"></span> Clear Topics</a>
-        <a href="clearSelections.php" onclick="return confirmResetSelectTool();" id="select" style="display: none"><span class="fa fa-trash" aria-hidden="true"></span> Clear Selections</a>
-    </div>
-
     <div id="main">
-        <button class="openbtn" onclick="openNav()">☰ Menu</button>
         <?php
         if($USER->instructor) {
             ?>
             <div class="container mainBody">
-                <h2 class="title">Topic Selector - Assign Student</h2>
                 <p class="instructions">Which student would you like to assign to the topic, "<?=$topic['topic_text']?>?"</p>
                 <p class="instructions2"><i>Students assigned to the maximum number of topics are not available to be selected.
                     You must first unassign students from already selected topics.</i></p>
@@ -181,7 +141,7 @@ $OUTPUT->flashMessages();
                         <div class="container assignButtons">
                             <div class="col-sm-1">
                                 <?php
-                                if($z >= $topic['num_allowed']) {
+                                if($z >= $topic['num_allowed'] || $name == "No roster found") {
                                     ?>
                                     <button class="btn btn-success" type="submit" disabled>Save</button>
                                 <?php

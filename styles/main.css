@@ -142,6 +142,11 @@
     font-weight: bold;
 }
 
+.printer_icon {
+    max-height: 20px;
+    max-width: 20px;
+}
+
 .sidebar {
     height: 100%;
     width: 0;

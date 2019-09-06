@@ -1,11 +1,10 @@
 <?php
-
 require_once "../config.php";
 
 use \Tsugi\Core\LTIX;
+use Tsugi\UI\SettingsForm;
 
-// Retrieve the launch data if present
-$LTI = LTIX::requireData();
+$LAUNCH = LTIX::requireData();
 $p = $CFG->dbprefix;
 $displayname = $USER->displayname;
 
@@ -27,11 +26,13 @@ function deleteTopic($topicId, $PDOX, $p) {
     $delSelections->execute(array(":topicId" => $topicId));
 }
 
-if(isset($_GET['topList'])) {
-    $topicsST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE list_id = :listId");
-    $topicsST->execute(array(":listId" => $_GET['topList']));
-    $topics = $topicsST->fetch(PDO::FETCH_ASSOC);
-}
+$topicListST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkId");
+$topicListST->execute(array(":linkId" => $LINK->id));
+$topicList = $topicListST->fetch(PDO::FETCH_ASSOC);
+
+$topicsST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE list_id = :listId");
+$topicsST->execute(array(":listId" => $topicList['list_id']));
+$topics = $topicsST->fetch(PDO::FETCH_ASSOC);
 
 $stuReserve = isset($_POST["reservations"]) ? 1 : 0;
 $stuAllow = isset($_POST["allow"]) ? 1 : 0;
@@ -42,14 +43,14 @@ $numReserved = 0;
 
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
 
-    if(isset($_GET['topList'])) {
+    if(isset($topics['list_id'])) {
         $updateList = $PDOX->prepare("UPDATE {$p}topic_list SET topic_list=:topicList, num_topics=:numTopics, stu_reserve=:stuReserve, allow_stu=:allowStu WHERE list_id = :listId");
         $updateList->execute(array(
             ":topicList" => $topicInput,
             ":numTopics" => $numTopics,
             ":stuReserve" => $stuReserve,
             ":allowStu" => $stuAllow,
-            ":listId" => $_GET['topList']
+            ":listId" => $topics['list_id']
         ));
 
         $topicsST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkId");
@@ -107,8 +108,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
                 } else {
                     $updateTopic = $PDOX->prepare("UPDATE {$p}topic SET num_allowed=:numAllowed WHERE topic_text = :topicText");
                     $updateTopic->execute(array(
-                            ":numAllowed" => $num,
-                            ":topicText" => $topicText
+                        ":numAllowed" => $num,
+                        ":topicText" => $topicText
                     ));
                 }
             } else {
@@ -187,79 +188,52 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
     header('Location: ' . addSession('index.php'));
 }
 
-// Start of the output
+if (SettingsForm::isSettingsPost()) {
+    if (!isset($_POST["title"]) || trim($_POST["title"]) === '') {
+        $_SESSION["error"] = __('Title cannot be blank.');
+    } else {
+        SettingsForm::handleSettingsPost();
+        $_SESSION["success"] = __('All settings saved.');
+    }
+    header('Location: '.addSession('index.php'));
+    return;
+}
+
+$title = $LAUNCH->link->settingsGet("title", false);
+
+if (!$title) {
+    $LAUNCH->link->settingsSet("title", $LAUNCH->link->title);
+    $title = $LAUNCH->link->title;
+}
+
+SettingsForm::start();
+SettingsForm::text('title',__('Tool Title'));
+SettingsForm::end();
+
+$title = $title . " - Edit Topics";
+
+include("menu.php");
+
 $OUTPUT->header();
+
 ?>
-    <!-- Our main css file that overrides default Tsugi styling -->
     <link rel="stylesheet" type="text/css" href="styles/main.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script>
-        function openNav() {
-            document.getElementById("mySidebar").style.width = "270px";
-            document.getElementById("main").style.marginLeft = "270px";
-            var v = document.getElementById("home");
-            var w = document.getElementById("edit");
-            var x = document.getElementById("print");
-            var y = document.getElementById("top");
-            var z = document.getElementById("select");
-            setTimeout(function() {
-                v.style.display = "block";
-                w.style.display = "block";
-                x.style.display = "block";
-                y.style.display = "block";
-                z.style.display = "block";
-            }, 350);
-        }
-
-        function closeNav() {
-            document.getElementById("mySidebar").style.width = "0";
-            document.getElementById("main").style.marginLeft= "0";
-            var v = document.getElementById("home");
-            var w = document.getElementById("edit");
-            var x = document.getElementById("print");
-            var y = document.getElementById("top");
-            var z = document.getElementById("select");
-            v.style.display = "none";
-            w.style.display = "none";
-            x.style.display = "none";
-            y.style.display = "none";
-            z.style.display = "none";
-        }
-    </script>
-
-    <script>
-        function confirmResetTopicTool() {
-            return confirm("Are you sure that you want to clear all topics? This cannot be undone.");
-        }
-
-        function confirmResetSelectTool() {
-            return confirm("Are you sure that you want to clear all selections? This cannot be undone.")
-        }
-
-        function confirmUpdateTopicsTool() {
-            return confirm("Are you sure that you want to update the topics? This may change previous topic assignments.")
-        }
-    </script>
 <?php
+
 $OUTPUT->bodyStart();
-$OUTPUT->flashMessages();
-?>
 
-    <div id="mySidebar" class="sidebar">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
-        <a href="index.php" id="home" style="display: none"><span class="fa fa-home" aria-hidden="true"></span> Home</a>
-        <a href="newTopics.php?topList=<?=$topics['list_id']?>" id="edit" style="display: none"><span class="fa fa-edit" aria-hidden="true"></span> Edit Topics</a>
-        <a href="#" onclick="printList()" id="print" style="display: none"><span class="fa fa-print" aria-hidden="true"></span> Print View</a>
-        <a href="clearTopics.php" onclick="return confirmResetTopicTool();" id="top" style="display: none"><span class="fa fa-trash" aria-hidden="true"></span> Clear Topics</a>
-        <a href="clearSelections.php" onclick="return confirmResetSelectTool();" id="select" style="display: none"><span class="fa fa-trash" aria-hidden="true"></span> Clear Selections</a>
-    </div>
-<?php
-if(isset($_GET['topList'])) {
+$OUTPUT->topNav($menu);
+
+echo '<div class="container-fluid">';
+
+$OUTPUT->flashMessages();
+
+$OUTPUT->pageTitle($title, true, false);
+if(isset($topics['list_id'])) {
     ?>
     <div id="main">
-        <button class="openbtn" onclick="openNav()">☰ Menu</button>
         <div class="container mainBody">
-            <h2 class="title">Topic Selector - Edit</h2>
             <p class="instructions">Edit the topics that students can sign up for</p>
             <p class="instructions">Put each topic on a new line. Each topic will be open to one student by default.
                 You can enter the number of slots with a comma and a space after the topic if you want more than one.</p>
@@ -322,53 +296,18 @@ if(isset($_GET['topList'])) {
     </div>
     <?php
 } else {
-    ?>
-    <div id="main">
-        <button class="openbtn" onclick="openNav()">☰ Menu</button>
-        <div class="container mainBody">
-            <h2 class="title">Topic Selector</h2>
-            <p class="instructions">Enter the topics that students can sign up for</p>
-            <p class="instructions">Put each topic on a new line. Each topic will be open to one student by default.
-                You can enter the number of slots with a comma and a space after the topic if you want more than one.</p>
-            <br>
-            <form method="post">
-                <div class="container">
-                    <div class="col-sm-7">
-                        <textarea class="topicInput" id="topic_list" name="topic_list"></textarea>
-                    </div>
-                    <div class="col-sm-5">
-                        <p class="example"><u>Example:</u></p>
-                        <p class="example">Business Intelligence <br/>
-                            Marketing <br/>
-                            Accounting,2 <br/>
-                            Decision Making <br/>
-                            MIS</p>
-                    </div>
-                </div>
-                <br>
-                <div class="container">
-                    <div class="container">
-                        <input type="checkbox" class="custom-control-input" id="reservations" name="reservations">
-                        <label class="custom-control-label" for="reservations"> Students can reserve
-                            <input type="number" class="numReservations" id="numReservations" name="numReservations" value="1">
-                            <label class="custom-control-label" for="numReservations">topic(s).</label>
-                        </label>
-                    </div>
-                    <div class="container">
-                        <input type="checkbox" class="custom-control-input" id="allow" name="allow">
-                        <label class="custom-control-label" for="allow">Allow students to see who has reserved each topic</label>
-                    </div>
-                    <div class="container">
-                        <button type="submit" class="btn btn-success">Save</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-    <?php
+    header('Location: ' . addSession('index.php'));
 }
+
+$OUTPUT->helpModal("Instructions", __('
+                        <h4>Adding Topics:</h4>
+                        <p>Add a topic to the text box and hit \'Enter\' to put the next topic on a new line. Each topic defaults to allowing 
+                            1 student to reserve it, but if you would like to increase the number of students who can reserve each topic,
+                            put a comma at the end of the topic name, followed by the number of students you would like to allow for that topic.</p>
+                        <p>After you are finished adding topics, you can choose to allow students to select multiple topics by checking the
+                           \'Students can reserve\' box and selecting how many topics you would like to allow each student to reserve. You can also
+                           check the box underneath to allow students to view who has signed up for each topic.</p>'));
+
 $OUTPUT->footerStart();
-?>
-    <script src="scripts/main.js" type="text/javascript"></script>
-<?php
+
 $OUTPUT->footerEnd();

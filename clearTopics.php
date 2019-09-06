@@ -1,35 +1,49 @@
 <?php
 require_once "../config.php";
 
-use Tsugi\Core\LTIX;
+use \Tsugi\Core\LTIX;
 
 $p = $CFG->dbprefix;
 
 $LAUNCH = LTIX::requireData();
 
+include("menu.php");
+
+$OUTPUT->header();
+
 $OUTPUT->bodyStart();
 
-$topicListST  = $PDOX->prepare("SELECT * FROM {$p}topic_list");
-$topicListST->execute(array());
-$topicList = $topicListST->fetch(PDO::FETCH_ASSOC);
+$OUTPUT->topNav($menu);
 
-$topicST  = $PDOX->prepare("SELECT * FROM {$p}topic");
-$topicST->execute(array());
-$topic = $topicST->fetch(PDO::FETCH_ASSOC);
+$OUTPUT->flashMessages();
 
-$selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection");
-$selectionST->execute(array());
-$selection = $selectionST->fetch(PDO::FETCH_ASSOC);
+if(isset($_GET['confirm'])) {
+    if(($_GET['confirm'] == 1)) {
+        $topicListST  = $PDOX->prepare("SELECT * FROM {$p}topic_list");
+        $topicListST->execute(array());
+        $topicList = $topicListST->fetch(PDO::FETCH_ASSOC);
 
-$delTopicList = $PDOX->prepare("DELETE FROM {$p}topic_list");
-$delTopicList->execute(array());
+        $topicST  = $PDOX->prepare("SELECT * FROM {$p}topic");
+        $topicST->execute(array());
+        $topic = $topicST->fetch(PDO::FETCH_ASSOC);
 
-$delTopics = $PDOX->prepare("DELETE FROM {$p}topic");
-$delTopicList->execute(array());
+        $selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection");
+        $selectionST->execute(array());
+        $selection = $selectionST->fetch(PDO::FETCH_ASSOC);
 
-$delSelections = $PDOX->prepare("DELETE FROM {$p}selection");
-$delSelections->execute(array());
+        $delTopicList = $PDOX->prepare("DELETE FROM {$p}topic_list");
+        $delTopicList->execute(array());
 
+        $delTopics = $PDOX->prepare("DELETE FROM {$p}topic");
+        $delTopicList->execute(array());
 
-header('Location: ' . addSession('index.php'));
-return;
+        $delSelections = $PDOX->prepare("DELETE FROM {$p}selection");
+        $delSelections->execute(array());
+
+        header('Location: ' . addSession('index.php'));
+        return;
+    }
+} else {
+    header('Location: ' . addSession('build.php?confirm=1'));
+    return;
+}
