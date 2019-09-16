@@ -8,10 +8,8 @@ if ($USER->instructor) {
         $menu->addRight('<span class="fas fa-user-graduate" aria-hidden="true"></span> Student View', 'student-home.php');
 
         $results = array(
-            new \Tsugi\UI\MenuEntry("Print View", "print-view.php"),
-            new \Tsugi\UI\MenuEntry("Edit Topics", "editTopics.php"),
-            new \Tsugi\UI\MenuEntry("Clear Topics", "clearTopics.php"),
-            new \Tsugi\UI\MenuEntry("Clear Selections", "clearSelections.php")
+            new \Tsugi\UI\MenuEntry("Topic Assignments", "results-assignments.php"),
+            new \Tsugi\UI\MenuEntry("Download Results", "results-download.php")
         );
 
         $menu->addRight('<span class="fas fa-poll-h" aria-hidden="true"></span> Options', $results);

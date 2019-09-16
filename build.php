@@ -1,96 +1,31 @@
 <?php
 require_once "../config.php";
+require_once('dao/TS_DAO.php');
 
 use \Tsugi\Core\LTIX;
 use \Tsugi\UI\SettingsForm;
+use \TS\DAO\TS_DAO;
 
 $LAUNCH = LTIX::requireData();
 $p = $CFG->dbprefix;
-$displayname = $USER->displayname;
 
-$currentTime = new DateTime('now', new DateTimeZone($CFG->timezone));
-$currentTime = $currentTime->format("Y-m-d H:i:s");
+$TS_DAO = new TS_DAO($PDOX, $p);
 
-function findDisplayName($user_id, $PDOX, $p) {
-    $nameST = $PDOX->prepare("SELECT displayname FROM {$p}lti_user WHERE user_id = :user_id");
-    $nameST->execute(array(":user_id" => $user_id));
-    $name = $nameST->fetch(PDO::FETCH_ASSOC);
-    return $name["displayname"];
+$t_buildST  = $PDOX->prepare("SELECT * FROM {$p}topic_build WHERE link_id = :linkId");
+$t_buildST->execute(array(":linkId" => $LINK->id));
+$t_build = $t_buildST->fetch(PDO::FETCH_ASSOC);
+
+if(!isset($t_build['list_id'])) {
+    $newList = $PDOX->prepare("INSERT INTO {$p}topic_build (link_id, stu_reserve, allow_stu) 
+                                        values (:linkId, :stuReserve, :allowStu)");
+    $newList->execute(array(
+        ":linkId" => $LINK->id,
+        ":stuReserve" => TRUE,
+        ":allowStu" => TRUE,
+    ));
 }
 
-function deleteTopic($topicId, $PDOX, $p) {
-    $delTopic = $PDOX->prepare("DELETE FROM {$p}topic WHERE topic_id = :topicId");
-    $delTopic->execute(array(":topicId" => $topicId));
-
-    $delSelections = $PDOX->prepare("DELETE FROM {$p}selection WHERE topic_id = :topicId");
-    $delSelections->execute(array(":topicId" => $topicId));
-}
-
-$topicsST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkId");
-$topicsST->execute(array(":linkId" => $LINK->id));
-$topics = $topicsST->fetch(PDO::FETCH_ASSOC);
-
-$topicST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE list_id = :listId");
-$topicST->execute(array(":listId" => $topics['list_id']));
-$topic = $topicST->fetchAll(PDO::FETCH_ASSOC);
-
-$stuReserve = isset($_POST["reservations"]) ? 1 : 0;
-$stuAllow = isset($_POST["allow"]) ? 1 : 0;
-$numTopics = isset($_POST["numReservations"]) ? $_POST["numReservations"] : 1;
-$topicInput = isset($_POST["topic_list"]) ? $_POST["topic_list"] : " ";
-$dateSelected = "1";
-$numReserved = 0;
-
-if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
-    if(!$topics) {
-        $newList = $PDOX->prepare("INSERT INTO {$p}topic_list (link_id, num_topics, topic_list, stu_reserve, allow_stu) 
-                                    values (:linkId, :numTopics, :topicList, :stuReserve, :allowStu)");
-        $newList->execute(array(
-            ":linkId" => $LINK->id,
-            ":numTopics" => $numTopics,
-            ":topicList" => $topicInput,
-            ":stuReserve" => $stuReserve,
-            ":allowStu" => $stuAllow,
-        ));
-
-        $topicsST  = $PDOX->prepare("SELECT * FROM {$p}topic_list WHERE link_id = :linkId");
-        $topicsST->execute(array(":linkId" => $LINK->id));
-        $topics = $topicsST->fetch(PDO::FETCH_ASSOC);
-
-        foreach(preg_split("/((\r?\n)|(\r\n?))/", $topics['topic_list']) as $tops) {
-            $searchString = ",";
-            if(strpos($tops, $searchString) !== false) {
-                $strings = array_map('trim', explode(',', $tops));
-                $num = $strings[1];
-                $topicText = $strings[0];
-
-                $newTopic = $PDOX->prepare("INSERT INTO {$p}topic (list_id, topic_text, num_allowed, num_reserved) 
-                                    values (:listId, :topicText, :numAllowed, :numReserved)");
-                $newTopic->execute(array(
-                    ":listId" => $topics['list_id'],
-                    ":topicText" => $topicText,
-                    ":numAllowed" => $num,
-                    ":numReserved" => $numReserved,
-                ));
-            } else {
-                $num = 1;
-                $newTopic = $PDOX->prepare("INSERT INTO {$p}topic (list_id, topic_text, num_allowed, num_reserved) 
-                                    values (:listId, :topicText, :numAllowed, :numReserved)");
-                $newTopic->execute(array(
-                    ":listId" => $topics['list_id'],
-                    ":topicText" => $tops,
-                    ":numAllowed" => $num,
-                    ":numReserved" => $numReserved,
-                ));
-            }
-        }
-
-    }
-
-
-    $_SESSION['success'] = 'Topics saved successfully.';
-    header('Location: ' . addSession('index.php'));
-}
+$topics = $TS_DAO->getTopics($t_build["list_id"]);
 
 if (SettingsForm::isSettingsPost()) {
     if (!isset($_POST["title"]) || trim($_POST["title"]) === '') {
@@ -117,12 +52,9 @@ SettingsForm::end();
 include("menu.php");
 
 $OUTPUT->header();
-
 ?>
-    <link rel="stylesheet" type="text/css" href="styles/main.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="style/topicselector.css">
 <?php
-
 $OUTPUT->bodyStart();
 
 $OUTPUT->topNav($menu);
@@ -133,139 +65,90 @@ $OUTPUT->flashMessages();
 
 $OUTPUT->pageTitle($title, true, true);
 
+echo '<p class="lead">Create the topics that students can sign up for. You can choose the number of topics each student may sign up for,
+                         as well as the number of students that may sign up for a topic.</p>';
 
-if(isset($_GET['confirm'])) {
-    if($_GET['confirm'] == "1") {
-        ?>
-        <script>
-            if(confirm('Are you sure you want to clear all topics? This cannot be undone.')) {
-                <?php
-                header('Location: ' . addSession('clearTopics.php?confirm=1'));
-                ?>
-            }
-        </script>
+?>
+    <section id="theTopics">
         <?php
-    }
-    if($_GET['confirm'] == 2) {
-        ?>
-        <script>
-            if(confirm('Are you sure you want to clear all topics? This cannot be undone.')) {
-                <?php
-                header('Location: ' . addSession('clearSelections.php?confirm=2'))
-                ?>
-            }
-        </script>
-        <?php
-    }
-}
-
-if($topics) {
-    ?>
-    <div class="container mainBody">
-        <p class="instructions">Students are able to reserve their topics from the list you created. The number of
-            students allowed per topic is
-            indicated in parenthesis next to the topic name. These can be changed in by selecting 'Edit Topics' in
-            the 'Options' drop-down menu.</p>
-        <div class="container topicView">
-            <?php
-            $count1 = 0;
-            foreach ($topic as $tops) {
-                $selectionST = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
-                $selectionST->execute(array(":topicId" => $tops['topic_id']));
-                $selections = $selectionST->fetchAll(PDO::FETCH_ASSOC);
-                ?>
-                <div class="card">
-                    <div class="card-header" role="tab">
-                        <span class="topicName"><?= $tops['topic_text'] ?> (<?= $tops['num_allowed'] ?>)</span>
-                        <?php
-                        $count = 0;
-                        foreach ($selections as $select) {
-                            if ($count > 0) {
-                                ?>
-                                <span
-                                    class="registeredStu">, <?= $select['user_first_name'] ?> <?= $select['user_last_name'] ?></span>
-                                <?php
-                            } else {
-                                ?>
-                                <span
-                                    class="registeredStu"><?= $select['user_first_name'] ?> <?= $select['user_last_name'] ?></span>
-                                <?php
-                            }
-                            $count++;
-                        }
-                        ?>
-                        <div class="dropdown settings">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i
-                                    class="fa fa-cog fa-2x"></i></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="assignStu.php?top=<?= $tops['topic_id'] ?>">Assign Student(s)</a></li>
-                                <li><a href="unassignStu.php?top=<?= $tops['topic_id'] ?>">Unassign Student(s)</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <?php
-                $count1++;
-            }
+        foreach ($topics as $topic) {
             ?>
-        </div>
-    </div>
-    <?php
-} else {
-    ?>
-    <div id="main">
-        <div class="container mainBody">
-            <p class="instructions">Enter the topics that students can sign up for</p>
-            <p class="instructions">Put each topic on a new line. Each topic will be open to one student by default.
-                You can enter the number of slots with a comma after the topic if you want more than one.</p>
-            <br>
-            <form method="post">
-                <div class="container">
-                    <div class="col-sm-7">
-                        <textarea class="topicInput" id="topic_list" name="topic_list"></textarea>
-                    </div>
-                    <div class="col-sm-5">
-                        <p class="example"><u>Example:</u></p>
-                        <p class="example">Business Intelligence <br/>
-                            Marketing <br/>
-                            Accounting,2 <br/>
-                            Decision Making <br/>
-                            MIS</p>
-                    </div>
+            <div id="topicRow<?=$topic["topic_id"]?>" class="h3 inline flx-cntnr flx-row flx-nowrap flx-start topic-row" data-topic-number="<?=$topic['topic_num']?>">
+                <div class="topic-number"><?=$topic["topic_num"]?>.</div>
+                <div class="flx-grow-all topic-text">
+                    <span class="topic-text-span" onclick="editTopicText(<?=$topic["topic_id"]?>)" id="topicText<?=$topic["topic_id"]?>" tabindex="0"><?= $topic["topic_text"] ?></span>
+                    <form id="topicTextForm<?=$topic["topic_id"]?>" onsubmit="return confirmDeleteTopicBlank(<?=$topic["topic_id"]?>)" action="actions/AddOrEditTopic.php" method="post" style="display:none;">
+                        <input type="hidden" name="topicId" value="<?=$topic["topic_id"]?>">
+                        <label for="topicTextInput<?=$topic["topic_id"]?>" class="sr-only">Topic Text</label>
+                        <input class="form-control" id="topicTextInput<?=$topic["topic_id"]?>" name="topicText" required><?=$topic["topic_text"]?>
+                    </form>
                 </div>
-                <br>
-                <div class="container">
-                    <div class="container">
-                        <input type="checkbox" class="custom-control-input" id="reservations" name="reservations">
-                        <label class="custom-control-label" for="reservations"> Students can reserve
-                            <input type="number" class="numReservations" id="numReservations" name="numReservations" value="1">
-                            <label class="custom-control-label" for="numReservations">topic(s).</label>
-                        </label>
+                <a id="topicEditAction<?=$topic["topic_id"]?>" href="javascript:void(0);" onclick="editTopicText(<?=$topic["topic_id"]?>)">
+                    <span class="fa fa-fw fa-pencil" aria-hidden="true"></span>
+                    <span class="sr-only">Edit Topic Text</span>
+                </a>
+                <a id="topicReorderAction<?=$topic["topic_id"]?>" href="javascript:void(0);" onclick="moveTopicUp(<?=$topic["topic_id"]?>)">
+                    <span class="fa fa-fw fa-chevron-circle-up" aria-hidden="true"></span>
+                    <span class="sr-only">Move Topic Up</span>
+                </a>
+                <a id="topicDeleteAction<?=$topic["topic_id"]?>" href="javascript:void(0);" onclick="deleteTopic(<?=$topic["topic_id"]?>)">
+                    <span aria-hidden="true" class="fa fa-fw fa-trash"></span>
+                    <span class="sr-only">Delete Topic</span>
+                </a>
+                <a id="topicSaveAction<?=$topic["topic_id"]?>" href="javascript:void(0);" style="display:none;">
+                    <span aria-hidden="true" class="fa fa-fw fa-save"></span>
+                    <span class="sr-only">Save Topic</span>
+                </a>
+                <a id="topicCancelAction<?=$topic["topic_id"]?>" href="javascript:void(0);" style="display: none;">
+                    <span aria-hidden="true" class="fa fa-fw fa-times"></span>
+                    <span class="sr-only">Cancel Topic</span>
+                </a>
+            </div>
+            <?php
+        }
+        ?>
+        <div id="newTopicRow" class="h3 inline flx-cntnr flx-row flx-nowrap flx-start topic-row" style="display:none;" data-topic-number="<?=$topics ? count($topics)+1 : 1?>">
+            <div id="newTopicNumber"><?=$topics ? count($topics)+1 : 1?>.</div>
+            <div class="flx-grow-all topic-text">
+                <form id="topicTextForm-1" action="actions/AddOrEditTopic.php" method="post">
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <input type="hidden" name="topicId" value="-1">
+                        <label for="topicTextInput-1" class="sr-only">Topic Text</label>
+                        <textarea class="form-control" id="topicTextInput-1" name="topicText" placeholder="Topic Title" required></textarea>
                     </div>
-                    <div class="container">
-                        <input type="checkbox" class="custom-control-input" id="allow" name="allow">
-                        <label class="custom-control-label" for="allow">Allow students to see who has reserved each topic</label>
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        <label class="form-label" for="topicStuAllowed" >Number of Students Allowed:</label>
                     </div>
-                    <div class="container">
-                        <button type="submit" class="btn btn-success">Save</button>
+                    <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+                        <input class="form-control" type="number" id="topicStuAllowed" name="num_allowed" value="1">
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
+            <a id="topicSaveAction-1" href="javascript:void(0);">
+                <span aria-hidden="true" class="fa fa-fw fa-save"></span>
+                <span class="sr-only">Save Topic</span>
+            </a>
+            <a id="topicCancelAction-1" href="javascript:void(0);">
+                <span aria-hidden="true" class="fa fa-fw fa-times"></span>
+                <span class="sr-only">Cancel Topic</span>
+            </a>
         </div>
+    </section>
+    <section id="addTopics">
+        <span class="h3"><a href="javascript:void(0);" id="addTopicLink" onclick="showNewTopicRow();" class="btn btn-success"><span class="fa fa-plus" aria-hidden="true"></span> Add Topic</a></span>
+    </section>
     </div>
-    <?php
-}
-echo '</div>';// end container
 
-$OUTPUT->helpModal("Instructions", __('
-                        <h4>Adding Topics:</h4>
-                        <p>Add a topic to the text box and hit \'Enter\' to put the next topic on a new line. Each topic defaults to allowing 
-                            1 student to reserve it, but if you would like to increase the number of students who can reserve each topic,
-                            put a comma at the end of the topic name, followed by the number of students you would like to allow for that topic.</p>
-                        <p>After you are finished adding topics, you can choose to allow students to select multiple topics by checking the
-                           \'Students can reserve\' box and selecting how many topics you would like to allow each student to reserve. You can also
-                           check the box underneath to allow students to view who has signed up for each topic.</p>'));
+    <input type="hidden" id="sess" value="<?php echo($_GET["PHPSESSID"]) ?>">
+<?php
+
+$OUTPUT->helpModal("Example Help Modal", __('
+                        <h4>Help Content</h4>
+                        <p>Use this modal to add help to the current page.</p>'));
 
 $OUTPUT->footerStart();
+?>
+<script src="scripts/topicselector.js" type="text/javascript"></script><br>
+<?php
 
 $OUTPUT->footerEnd();

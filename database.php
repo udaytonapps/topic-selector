@@ -6,12 +6,10 @@ $DATABASE_UNINSTALL = array(
 
 // The SQL to create the tables if they don't exist
 $DATABASE_INSTALL = array(
-    array( "{$CFG->dbprefix}topic_list",
-        "create table {$CFG->dbprefix}topic_list (
+    array( "{$CFG->dbprefix}topic_build",
+        "create table {$CFG->dbprefix}topic_build (
     list_id       INTEGER NOT NULL AUTO_INCREMENT,
     link_id       INTEGER NOT NULL,
-    num_topics    INTEGER NOT NULL,
-    topic_list    VARCHAR(255) NULL,
     stu_reserve   BOOL,
     allow_stu     BOOL,
     
@@ -21,13 +19,14 @@ $DATABASE_INSTALL = array(
         "create table {$CFG->dbprefix}topic (
     topic_id          INTEGER NOT NULL AUTO_INCREMENT,
     list_id           INTEGER NOT NULL,
+    topic_num         INTEGER NOT NULL,
     topic_text        TEXT NULL,
     num_allowed       INTEGER NOT NULL,
     num_reserved      INTEGER NOT NULL,
 
     CONSTRAINT `{$CFG->dbprefix}topic`
         FOREIGN KEY (`list_id`)
-        REFERENCES `{$CFG->dbprefix}topic_list` (`list_id`)
+        REFERENCES `{$CFG->dbprefix}topic_build` (`list_id`)
         ON DELETE CASCADE,
 
     PRIMARY KEY(topic_id)
