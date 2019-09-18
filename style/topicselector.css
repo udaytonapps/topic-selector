@@ -3,3 +3,22 @@
     font-weight: normal;
     float: right;
 }
+
+.topic-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.assignDrop {
+    margin-left: 30px;
+    margin-top: 50px;
+    width: 200px;
+}
+
+.assignStu {
+    width: 200px;
+}
+
+.assignButtons {
+    margin-top: 50px;
+}

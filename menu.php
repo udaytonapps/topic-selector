@@ -12,7 +12,7 @@ if ($USER->instructor) {
             new \Tsugi\UI\MenuEntry("Download Results", "results-download.php")
         );
 
-        $menu->addRight('<span class="fas fa-poll-h" aria-hidden="true"></span> Options', $results);
+        $menu->addRight('<span class="fas fa-poll-h" aria-hidden="true"></span> Results', $results);
 
         $menu->addRight('<span class="fas fa-edit" aria-hidden="true"></span> Build', 'build.php');
     } else {
