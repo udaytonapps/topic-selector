@@ -42,35 +42,47 @@ if (!$USER->instructor) {
         <h2>Topic</h2>
         <?php
         foreach ($topics as $top) {
-            if ($top['num_reserved'] < $top['num_allowed']) {
-                ?>
-                <div class="card" style="border: 1px solid #9e9e9e; margin-bottom: 5px; border-radius: 5px">
-                    <div class="container">
-                        <div class="card-header">
-                            <p class="topic-title"><?= $top['topic_text'] ?></p>
-                        </div>
-                        <div class="card-body">
-                            <a class="card-title" href="#"><span class="far fa-check-square fa-3x"></span></a>
-                            <a class="card-title" href="#"><span class="far fa-minus-square fa-3x"></span></a>
-                        </div>
-                    </div>
-                </div>
-                <?php
-            } else {
-                ?>
-                <div class="card" style="border: 1px solid #9e9e9e; margin-bottom: 5px; border-radius: 5px">
-                    <div class="container">
-                        <div class="card-header">
-                            <p class="topic-title"><?= $top['topic_text'] ?></p>
-                        </div>
-                        <div class="card-body">
-                            <a class="card-title" href="#"><span class="far fa-window-close fa-3x"
-                                                                 disabled="true" </span></a>
-                        </div>
-                    </div>
-                </div>
-                <?php
+            $remain = $top['num_allowed'] - $top['num_reserved'];
+            $selectST  = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
+            $selectST->execute(array(":topicId" => $top['topic_id']));
+            $select = $selectST->fetchAll(PDO::FETCH_ASSOC);
+            $user_exists = false;
+            foreach($select as $sel) {
+                if($sel['user_email'] == $USER->email) {
+                    $user_exists = true;
+                }
             }
+            ?>
+            <div class="card" style="border: 1px solid #9e9e9e; margin-bottom: 5px; border-radius: 5px">
+                <div class="container">
+                    <div class="card-header">
+                        <p class="topic-title"><?= $top['topic_text'] ?> (<?=$remain?>)</p>
+                    </div>
+                    <div class="card-body">
+
+                        <?php
+                        if($remain>0) {
+                            if($user_exists == true) {
+                                ?>
+                                <a class="card-title" href="actions/RemoveSelection.php?user_email=<?=$USER->email?>&topic=<?=$top['topic_id']?>">
+                                    <span class="far fa-minus-square fa-3x"></span></a>
+                                <?php
+                            } else {
+                                ?>
+                                <a class="card-title" href="actions/AddSelection.php?user_email=<?=$USER->email?>&topic=<?=$top['topic_id']?>">
+                                    <span class="far fa-check-square fa-3x"></span></a>
+                                <?php
+                            }
+                        } else {
+                            ?>
+                            <a class="card-title" href="#"><span class="far fa-window-close fa-3x" disabled="true" </span></a>
+                            <?php
+                        }
+                            ?>
+                    </div>
+                </div>
+            </div>
+            <?php
         }
         ?>
     </div>

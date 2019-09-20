@@ -76,11 +76,16 @@ echo '<p class="lead">Create the topics that students can sign up for. You can c
             <div id="topicRow<?=$topic["topic_id"]?>" class="h3 inline flx-cntnr flx-row flx-nowrap flx-start topic-row" data-topic-number="<?=$topic['topic_num']?>">
                 <div class="topic-number"><?=$topic["topic_num"]?>.</div>
                 <div class="flx-grow-all topic-text">
-                    <span class="topic-text-span" onclick="editTopicText(<?=$topic["topic_id"]?>)" id="topicText<?=$topic["topic_id"]?>" tabindex="0"><?= $topic["topic_text"] ?></span>
+                    <span class="topic-text-span" onclick="editTopicText(<?=$topic["topic_id"]?>)" id="topicText<?=$topic["topic_id"]?>" tabindex="0"><?=$topic["topic_text"]?> - <?=$topic["num_allowed"]?></span>
                     <form id="topicTextForm<?=$topic["topic_id"]?>" onsubmit="return confirmDeleteTopicBlank(<?=$topic["topic_id"]?>)" action="actions/AddOrEditTopic.php" method="post" style="display:none;">
                         <input type="hidden" name="topicId" value="<?=$topic["topic_id"]?>">
                         <label for="topicTextInput<?=$topic["topic_id"]?>" class="sr-only">Topic Text</label>
-                        <input class="form-control" id="topicTextInput<?=$topic["topic_id"]?>" name="topicText" required><?=$topic["topic_text"]?>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <input class="form-control" id="topicTextInput<?=$topic["topic_id"]?>" name="topicText" required><?=$topic["topic_text"]?> - <?=$topic["num_allowed"]?>
+                        </div>
+                        <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+                            <input class="form-control" type="number" id="topicStuAllowed" name="num_allowed" value="1">
+                        </div>
                     </form>
                 </div>
                 <a id="topicEditAction<?=$topic["topic_id"]?>" href="javascript:void(0);" onclick="editTopicText(<?=$topic["topic_id"]?>)">

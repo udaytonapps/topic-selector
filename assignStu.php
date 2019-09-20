@@ -2,6 +2,7 @@
 require_once "../config.php";
 
 use \Tsugi\Core\LTIX;
+use Tsugi\Util\LTI;
 
 $LAUNCH = LTIX::requireData();
 $p = $CFG->dbprefix;
@@ -41,7 +42,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
             $x++;
         }
     }
-
     $newSelect = $PDOX->prepare("INSERT INTO {$p}selection (topic_id, user_email, user_first_name, user_last_name, date_selected) 
                                         values (:topicId, :userEmail, :userFirstName, :userLastName, :dateSelected)");
     $newSelect->execute(array(
@@ -52,8 +52,17 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
         ":dateSelected" => $currentTime,
     ));
 
+    $numReserved = $topic['num_reserved'];
+    $numReserved++;
+
+    $updateTopic = $PDOX->prepare("UPDATE {$p}topic SET num_reserved=:numReserved WHERE topic_id = :topicId");
+    $updateTopic->execute(array(
+        ":topicId" => $_GET['top'],
+        ":numReserved" => $numReserved,
+    ));
+
     $_SESSION['success'] = 'Student assigned successfully.';
-    header('Location: ' . addSession('index.php'));
+    header('Location: ' . addSession('index.php?top=true'));
 }
 
 $OUTPUT->header();
@@ -77,6 +86,7 @@ echo '</div>';// end container
     <div id="main">
         <?php
         if($USER->instructor) {
+            $name = '';
             ?>
             <div class="container mainBody">
                 <p class="instructions">Which student would you like to assign to the topic, "<?=$topic['topic_text']?>?"</p>
@@ -95,7 +105,6 @@ echo '</div>';// end container
                                 foreach($topic as $top) {
                                     $top_num++;
                                 }
-
                                 $hasRosters = LTIX::populateRoster(false);
                                 $x = 0;
                                 $z = 0;
@@ -123,12 +132,10 @@ echo '</div>';// end container
                                             ?>
                                             <option value="<?=$rosterData[$x]['person_contact_email_primary']?>"><?=$name1?> <?=$name2?></option>
                                             <?php
-
                                         }
                                         $y=0;
                                         $x++;
                                     }
-
                                 } else {
                                     $name = "No roster found";
                                     ?>
@@ -152,7 +159,6 @@ echo '</div>';// end container
                                     <?php
                                 }
                                 ?>
-
                             </div>
                             <div class="col-sm-1">
                                 <a class="btn btn-danger" href="index.php">Cancel</a>
@@ -172,7 +178,6 @@ echo '</div>';// end container
             </div>
             <?php
         }
-
         ?>
     </div>
 <?php
