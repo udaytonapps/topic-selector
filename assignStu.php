@@ -17,6 +17,8 @@ if (!$title) {
     $title = $LAUNCH->link->title;
 }
 
+$stuTops = $LAUNCH->link->settingsGet("stu_topics", false);
+
 $currentTime = new DateTime('now', new DateTimeZone($CFG->timezone));
 $currentTime = $currentTime->format("Y-m-d H:i:s");
 
@@ -126,7 +128,7 @@ echo '</div>';// end container
                                                 $z++;
                                             }
                                         }
-                                        if($roster["roles"] == "Learner" && $y < $top_num && $w == 0){
+                                        if($roster["roles"] == "Learner" && $y < $top_num && $w == 0 && $y < $stuTops){
                                             $name1 = $rosterData[$x]["person_name_given"];
                                             $name2 = $rosterData[$x]["person_name_family"];
                                             ?>

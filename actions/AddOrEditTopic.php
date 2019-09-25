@@ -9,7 +9,6 @@ $LAUNCH = LTIX::requireData();
 
 $p = $CFG->dbprefix;
 $TS_DAO = new TS_DAO($PDOX, $p);
-
 $t_buildST  = $PDOX->prepare("SELECT * FROM {$p}topic_build WHERE link_id = :linkId");
 $t_buildST->execute(array(":linkId" => $LINK->id));
 $t_build = $t_buildST->fetch(PDO::FETCH_ASSOC);
@@ -22,12 +21,10 @@ if ($USER->instructor) {
     $topicText = $_POST["topicText"];
     $numAllowed = $_POST["num_allowed"];
 
-    $currentTime = new DateTime('now', new DateTimeZone($CFG->timezone));
-    $currentTime = $currentTime->format("Y-m-d H:i:s");
     if (isset($topicText) && trim($topicText) != '') {
         if ($topicId > -1) {
             // Existing topic
-            $TS_DAO->updateTopic($topicId, $topicText, $currentTime);
+            $TS_DAO->updateTopic($topicId, $topicText, $numAllowed);
         } else {
             // New topic
             $topicId = $TS_DAO->createTopic($t_build["list_id"], $topicText, $numAllowed);

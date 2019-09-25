@@ -11,21 +11,7 @@ $p = $CFG->dbprefix;
 
 $TS_DAO = new TS_DAO($PDOX, $p);
 
-$t_buildST  = $PDOX->prepare("SELECT * FROM {$p}topic_build WHERE link_id = :linkId");
-$t_buildST->execute(array(":linkId" => $LINK->id));
-$t_build = $t_buildST->fetch(PDO::FETCH_ASSOC);
-
-if(!isset($t_build['list_id'])) {
-    $newList = $PDOX->prepare("INSERT INTO {$p}topic_build (link_id, stu_reserve, allow_stu) 
-                                        values (:linkId, :stuReserve, :allowStu)");
-    $newList->execute(array(
-        ":linkId" => $LINK->id,
-        ":stuReserve" => TRUE,
-        ":allowStu" => TRUE,
-    ));
-}
-
-$topics = $TS_DAO->getTopics($t_build["list_id"]);
+$topics = $TS_DAO->getTopics($LINK->id);
 
 if (SettingsForm::isSettingsPost()) {
     if (!isset($_POST["title"]) || trim($_POST["title"]) === '') {
@@ -45,8 +31,17 @@ if (!$title) {
     $title = $LAUNCH->link->title;
 }
 
+$stu_topics = $LAUNCH->link->settingsGet("stu_topics", false);
+
+if(!$stu_topics) {
+    $LAUNCH->link->settingsSet("stu_topics", $LAUNCH->link->stu_topics);
+    $stuTops = $LAUNCH->link->stu_topics;
+}
+
 SettingsForm::start();
 SettingsForm::text('title',__('Tool Title'));
+SettingsForm::text('stu_topics',__('Number of Topics Each Student Can be Assigned To'));
+SettingsForm::checkbox('stu_allowed',__('Students Can Select Their Own Topics'));
 SettingsForm::end();
 
 include("menu.php");
@@ -65,8 +60,8 @@ $OUTPUT->flashMessages();
 
 $OUTPUT->pageTitle($title, true, true);
 
-echo '<p class="lead">Create the topics that students can sign up for. You can choose the number of topics each student may sign up for,
-                         as well as the number of students that may sign up for a topic.</p>';
+echo '<p class="lead">Create the topics that students can sign up for. You can choose the number of students that may sign up for a topic. 
+<br> The number of topics that a student my sign up for defaults to 1, but can be changed in Settings</p>';
 
 ?>
     <section id="theTopics">
@@ -76,15 +71,15 @@ echo '<p class="lead">Create the topics that students can sign up for. You can c
             <div id="topicRow<?=$topic["topic_id"]?>" class="h3 inline flx-cntnr flx-row flx-nowrap flx-start topic-row" data-topic-number="<?=$topic['topic_num']?>">
                 <div class="topic-number"><?=$topic["topic_num"]?>.</div>
                 <div class="flx-grow-all topic-text">
-                    <span class="topic-text-span" onclick="editTopicText(<?=$topic["topic_id"]?>)" id="topicText<?=$topic["topic_id"]?>" tabindex="0"><?=$topic["topic_text"]?> - <?=$topic["num_allowed"]?></span>
+                    <span class="topic-text-span" onclick="editTopicText(<?=$topic["topic_id"]?>)" id="topicText<?=$topic["topic_id"]?>" tabindex="0"> <?=$topic["topic_text"]?> - <?=$topic["num_allowed"]?></span>
                     <form id="topicTextForm<?=$topic["topic_id"]?>" onsubmit="return confirmDeleteTopicBlank(<?=$topic["topic_id"]?>)" action="actions/AddOrEditTopic.php" method="post" style="display:none;">
                         <input type="hidden" name="topicId" value="<?=$topic["topic_id"]?>">
                         <label for="topicTextInput<?=$topic["topic_id"]?>" class="sr-only">Topic Text</label>
                         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                            <input class="form-control" id="topicTextInput<?=$topic["topic_id"]?>" name="topicText" required><?=$topic["topic_text"]?> - <?=$topic["num_allowed"]?>
+                            <input class="form-control" id="topicTextInput<?=$topic["topic_id"]?>" name="topicText" placeholder="<?=$topic["topic_text"]?>" required>
                         </div>
                         <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-                            <input class="form-control" type="number" id="topicStuAllowed" name="num_allowed" value="1">
+                            <input class="form-control" type="number" id="topicStuAllowed<?=$topic["topic_id"]?>" name="num_allowed" value="<?=$topic["num_allowed"]?>">
                         </div>
                     </form>
                 </div>

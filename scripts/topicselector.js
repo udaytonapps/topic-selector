@@ -42,11 +42,11 @@ function showNewTopicRow() {
                     url: theForm.prop("action"),
                     data: theForm.serialize(),
                     success: function(data) {
+                        $("#newTopicRow").before(data.new_topic);
                         $("#topicTextInput-1").val('');
-                        let nextNumber = topicRow.data("topic-number") + 1;
+                        let nextNumber = $(".topic-number").last().parent().data("topic-number") + 1;
                         $("#newTopicNumber").text(nextNumber + '.');
                         topicRow.data("topic-number", nextNumber);
-                        $("#newTopicRow").before(data.new_topic);
                         $("#flashmessages").html(data.flashmessage);
                         setupAlertHide();
                         topicRow.hide();
@@ -106,7 +106,7 @@ function editTopicText(topicId) {
                         url: theForm.prop("action"),
                         data: theForm.serialize(),
                         success: function(data) {
-                            topicText.text($('#topicTextInput'+topicId).val());
+                            topicText.text($('#topicTextInput'+topicId).val() + ' - ' + $('#topicStuAllowed'+topicId).val());
                             topicText.show();
                             $("#topicDeleteAction"+topicId).show();
                             $("#topicEditAction"+topicId).show();
@@ -135,7 +135,7 @@ function editTopicText(topicId) {
                     url: theForm.prop("action"),
                     data: theForm.serialize(),
                     success: function(data) {
-                        topicText.text($('#topicTextInput'+topicId).val());
+                        topicText.text($('#topicTextInput'+topicId).val() + ' - ' + $('#topicStuAllowed'+topicId).val());
                         topicText.show();
                         $("#topicDeleteAction"+topicId).show();
                         $("#topicEditAction"+topicId).show();

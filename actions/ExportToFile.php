@@ -1,105 +1,93 @@
 <?php
 require_once "../../config.php";
 require_once "../util/PHPExcel.php";
-require_once "../dao/QW_DAO.php";
+require_once "../dao/TS_DAO.php";
 
 use \Tsugi\Core\LTIX;
-use \QW\DAO\QW_DAO;
+use \TS\DAO\TS_DAO;
 
 // Retrieve the launch data if present
 $LAUNCH = LTIX::requireData();
 
 $p = $CFG->dbprefix;
 
-$QW_DAO = new QW_DAO($PDOX, $p);
+$TS_DAO = new TS_DAO($PDOX, $p);
+
+$t_buildST  = $PDOX->prepare("SELECT * FROM {$p}topic_build WHERE link_id = :linkId");
+$t_buildST->execute(array(":linkId" => $LINK->id));
+$t_build = $t_buildST->fetch(PDO::FETCH_ASSOC);
 
 if ( $USER->instructor ) {
 
-    $qw_id = $_SESSION["qw_id"];
+    $topics = $TS_DAO->getTopics($t_build['list_id']);
 
-    $questions = $QW_DAO->getQuestions($qw_id);
 
-    $rowCounter = 1;
-
-    $questionTotal = count($questions);
-
+    $headCount1 = 0;
+    $headCount2 = -1;
+    $isDouble = false;
     $exportFile = new PHPExcel();
+    $letters = range('A', 'Z');
 
-    $exportFile->setActiveSheetIndex(0)->setCellValue('A1', 'Student');
-    $exportFile->setActiveSheetIndex(0)->setCellValue('B1', 'Username');
-    $exportFile->setActiveSheetIndex(0)->setCellValue('C1', 'Date of Submission');
+    //Loop to merge header cells and set values for all cells
+    foreach($topics as $top) {
+        $rowCount = 2;
+        if($headCount1 >= 26) {
+            $isDouble = true;
+            $headCount1 = 0;
+            $headCount2 += 1;
+        }
+        if($isDouble == false) {
+            //Merge header cells that contain topic name (for first 26 cells) and set topic name
+            $exportFile->setActiveSheetIndex(0)->mergeCells($letters[$headCount1] . '1' . ':' . $letters[$headCount1 + 1] . '1');
+            $exportFile->setActiveSheetIndex(0)->setCellValue($letters[$headCount1] . '1', $top['topic_text']);
 
-    $exportFile->getActiveSheet()->getStyle('A1')->getFont()->setBold(true);
-    $exportFile->getActiveSheet()->getStyle('B1')->getFont()->setBold(true);
-    $exportFile->getActiveSheet()->getStyle('C1')->getFont()->setBold(true);
+            $selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
+            $selectionST->execute(array(":topicId" => $top['topic_id']));
+            $selection = $selectionST->fetchAll(PDO::FETCH_ASSOC);
 
-    $exportFile->getActiveSheet()->getColumnDimension('A')->setWidth(20);
-    $exportFile->getActiveSheet()->getColumnDimension('B')->setWidth(10);
-    $exportFile->getActiveSheet()->getColumnDimension('C')->setWidth(25);
+            //Set Student and Date headers
+            $exportFile->setActiveSheetIndex(0)->setCellValue($letters[$headCount1] . $rowCount, 'Student');
+            $exportFile->setActiveSheetIndex(0)->setCellValue($letters[$headCount1 + 1] . $rowCount, 'Date Selected');
 
-    $letters = range('C','Z');
-    for($x = 1; $x<=$questionTotal; $x++){
-        $col1 = $x+2;
-        $exportFile->getActiveSheet()->setCellValueByColumnAndRow($col1, $rowCounter, "Question ".$x);
+            foreach($selection as $sel) {
+                $rowCount ++;
+                $exportFile->setActiveSheetIndex(0)->setCellValue($letters[$headCount1] . $rowCount, $sel['user_first_name'] . ' ' . $sel['user_last_name']);
+                $exportFile->setActiveSheetIndex(0)->setCellValue($letters[$headCount1 + 1] . $rowCount, $sel['date_selected']);
+            }
 
-        $cell_name = $letters[$x]."1";
-        $exportFile->getActiveSheet()->getStyle($cell_name)->getFont()->setBold(true);
-    }
+        }
+        else if($headCount2 < 26) {
+            //Merge header cells that contain topic name (for every cell after 26) and set topic name
+            //This will handle up to 351 topics, so if a professor creates more than that, then they have other issues
+            $exportFile->setActiveSheetIndex(0)->mergeCells($letters[$headCount2] . $letters[$headCount1] . '1' . ':' . $letters[$headCount2] . $letters[$headCount1 + 1] . '1');
+            $exportFile->setActiveSheetIndex(0)->setCellValue($letters[$headCount2] . $letters[$headCount1] . '1', $top['topic_text']);
 
-    $StudentList = $QW_DAO->getUsersWithAnswers($qw_id);
+            $selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
+            $selectionST->execute(array(":topicId" => $top['topic_id']));
+            $selection = $selectionST->fetchAll(PDO::FETCH_ASSOC);
 
-    $columnIterator = $exportFile->getActiveSheet()->getColumnIterator();
-    $columnIterator->next();
+            //Set Student and Date headers
+            $exportFile->setActiveSheetIndex(0)->setCellValue($letters[$headCount2] . $letters[$headCount1] . $rowCount, 'Student');
+            $exportFile->setActiveSheetIndex(0)->setCellValue($letters[$headCount2] . $letters[$headCount1 + 1] . $rowCount, 'Date Selected');
 
-    foreach ($StudentList as $student ) {
-        if (!$QW_DAO->isUserInstructor($CONTEXT->id, $student["user_id"])) {
-            $rowCounter++;
-
-            $UserID = $student["user_id"];
-
-            $Email = $QW_DAO->findEmail($UserID);
-            $UserName = explode("@",$Email);
-
-            $Modified1 = $QW_DAO->getMostRecentAnswerDate($UserID, $qw_id);
-            $Modified  =  new DateTime($Modified1);
-
-            $displayName = $QW_DAO->findDisplayName($UserID);
-            $displayName = trim($displayName);
-
-            $lastName = (strpos($displayName, ' ') === false) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $displayName);
-            $firstName = trim( preg_replace('#'.$lastName.'#', '', $displayName ) );
-
-            $exportFile->getActiveSheet()->setCellValue('A'.$rowCounter, $lastName.', '.$firstName);
-
-            $exportFile->getActiveSheet()->setCellValue('B'.$rowCounter, $UserName[0]);
-            $exportFile->getActiveSheet()->setCellValue('C'.$rowCounter, $Modified->format('m/d/y - h:i A '));
-
-            $col = 3;
-            foreach ($questions as $question ) {
-                $QID = $question["question_id"];
-                $A="";
-
-                $answer = $QW_DAO->getStudentAnswerForQuestion($QID, $UserID);
-                if ($answer) {
-                    $A = $answer["answer_txt"];
-                    $A = str_replace("&#39;", "'", $A);
-                }
-
-                $exportFile->getActiveSheet()->setCellValueByColumnAndRow($col, $rowCounter, $A);
-                $col++;
+            foreach($selection as $sel) {
+                $rowCount ++;
+                $exportFile->setActiveSheetIndex(0)->setCellValue($letters[$headCount2] . $letters[$headCount1] . $rowCount, $sel['user_first_name'] . ' ' . $sel['user_last_name']);
+                $exportFile->setActiveSheetIndex(0)->setCellValue($letters[$headCount2] . $letters[$headCount1 + 1] . $rowCount, $sel['date_selected']);
             }
         }
+        $headCount1+=2;
     }
-    $columnIterator->next();
 
-    $exportFile->getActiveSheet()->setTitle('Quick_Write');
+    $exportFile->getActiveSheet()->setTitle('Topic_Selector');
 
     foreach($exportFile->getActiveSheet()->getColumnDimension() as $col) {
         $col->setAutoSize(true);
     }
+
     $exportFile->getActiveSheet()->calculateColumnWidths();
 
-    $filename = 'QuickWrite-'.$CONTEXT->title.'-Results.xls';
+    $filename = 'TopicSelector-'.$CONTEXT->title.'-Results.xls';
 
     // Redirect output to a client’s web browser (Excel5)
     header('Content-Type: application/vnd.ms-excel');

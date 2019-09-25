@@ -11,9 +11,9 @@ class TS_DAO {
         $this->p = $p;
     }
 
-    function findTopicsForImport($user_id, $list_id) {
-        $query = "SELECT q.*, m.title as tooltitle, c.title as sitetitle FROM {$this->p}topic q join {$this->p}topic_build m on q.list_id = m.list_id join {$this->p}lti_link c on m.link_id = c.link_id WHERE m.user_id = :userId AND m.list_id != :list_id";
-        $arr = array(':userId' => $user_id, ":list_id" => $list_id);
+    function findTopicsForImport($user_id, $link_id) {
+        $query = "SELECT q.*, m.title as tooltitle, c.title as sitetitle FROM {$this->p}topic q join {$this->p}topic_build m on q.link_id = m.link_id join {$this->p}lti_link c on m.link_id = c.link_id WHERE m.user_id = :userId AND m.link_id != :link_id";
+        $arr = array(':userId' => $user_id, ":link_id" => $link_id);
         return $this->PDOX->allRowsDie($query, $arr);
     }
 
@@ -41,9 +41,9 @@ class TS_DAO {
         $this->PDOX->queryDie($query, $arr);
     }
 
-    function getTopics($list_id) {
-        $query = "SELECT * FROM {$this->p}topic WHERE list_id = :listId order by topic_num;";
-        $arr = array(':listId' => $list_id);
+    function getTopics($link_id) {
+        $query = "SELECT * FROM {$this->p}topic WHERE link_id = :linkId order by topic_num;";
+        $arr = array(':linkId' => $link_id);
         return $this->PDOX->allRowsDie($query, $arr);
     }
 
@@ -53,23 +53,23 @@ class TS_DAO {
         return $this->PDOX->rowDie($query, $arr);
     }
 
-    function createTopic($list_id, $topic_text, $num_allowed) {
-        $nextNumber = $this->getNexttopicNumber($list_id);
-        $query = "INSERT INTO {$this->p}topic (list_id, topic_num, topic_text, num_allowed, num_reserved) VALUES (:listId, :topicNum, :topicText, :numAllowed, :numReserved);";
-        $arr = array(':listId' => $list_id, ':topicNum' => $nextNumber, ':topicText' => $topic_text, ':numAllowed'=>$num_allowed, ':numReserved'=>0);
+    function createTopic($link_id, $topic_text, $num_allowed) {
+        $nextNumber = $this->getNexttopicNumber($link_id);
+        $query = "INSERT INTO {$this->p}topic (link_id, topic_num, topic_text, num_allowed, num_reserved) VALUES (:linkId, :topicNum, :topicText, :numAllowed, :numReserved);";
+        $arr = array(':linkId' => $link_id, ':topicNum' => $nextNumber, ':topicText' => $topic_text, ':numAllowed'=>$num_allowed, ':numReserved'=>0);
         $this->PDOX->queryDie($query, $arr);
         return $this->PDOX->lastInsertId();
     }
 
     function updateTopic($topic_id, $topic_text, $num_allowed) {
-        $query = "UPDATE {$this->p}topic set topic_text = :topicText num_allowed = :numAllowed WHERE topic_id = :topicId;";
+        $query = "UPDATE {$this->p}topic set topic_text = :topicText, num_allowed = :numAllowed WHERE topic_id = :topicId;";
         $arr = array(':topicId' => $topic_id, ':topicText' => $topic_text, ':numAllowed'=>$num_allowed);
         $this->PDOX->queryDie($query, $arr);
     }
 
-    function getNextTopicNumber($list_id) {
-        $query = "SELECT MAX(topic_num) as lastNum FROM {$this->p}topic WHERE list_id = :listId";
-        $arr = array(':listId' => $list_id);
+    function getNextTopicNumber($link_id) {
+        $query = "SELECT MAX(topic_num) as lastNum FROM {$this->p}topic WHERE link_id = :linkId";
+        $arr = array(':linkId' => $link_id);
         $lastNum = $this->PDOX->rowDie($query, $arr)["lastNum"];
         return $lastNum + 1;
     }
@@ -80,9 +80,9 @@ class TS_DAO {
         $this->PDOX->queryDie($query, $arr);
     }
 
-    function fixUpTopicNumbers($list_id) {
-        $query = "SET @topic_num = 0; UPDATE {$this->p}topic set topic_num = (@topic_num:=@topic_num+1) WHERE list_id = :listId ORDER BY topic_num";
-        $arr = array(':listId' => $list_id);
+    function fixUpTopicNumbers($link_id) {
+        $query = "SET @topic_num = 0; UPDATE {$this->p}topic set topic_num = (@topic_num:=@topic_num+1) WHERE link_id = :linkId ORDER BY topic_num";
+        $arr = array(':linkId' => $link_id);
         $this->PDOX->queryDie($query, $arr);
     }
 
