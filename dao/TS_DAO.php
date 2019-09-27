@@ -11,36 +11,6 @@ class TS_DAO {
         $this->p = $p;
     }
 
-    function findTopicsForImport($user_id, $link_id) {
-        $query = "SELECT q.*, m.title as tooltitle, c.title as sitetitle FROM {$this->p}topic q join {$this->p}topic_build m on q.link_id = m.link_id join {$this->p}lti_link c on m.link_id = c.link_id WHERE m.user_id = :userId AND m.link_id != :link_id";
-        $arr = array(':userId' => $user_id, ":link_id" => $link_id);
-        return $this->PDOX->allRowsDie($query, $arr);
-    }
-
-    function hasSeenSplash($ts_id) {
-        $query = "SELECT seen_splash FROM {$this->p}ts_main WHERE ts_id = :tsId";
-        $arr = array(':tsId' => $ts_id);
-        return $this->PDOX->rowDie($query, $arr)["seen_splash"];
-    }
-
-    function markAsSeen($ts_id) {
-        $query = "UPDATE {$this->p}ts_main set seen_splash = 1 WHERE ts_id = :tsId;";
-        $arr = array(':tsId' => $ts_id);
-        $this->PDOX->queryDie($query, $arr);
-    }
-
-    function getMainTitle($ts_id) {
-        $query = "SELECT title FROM {$this->p}ts_main WHERE ts_id = :tsId";
-        $arr = array(':tsId' => $ts_id);
-        return $this->PDOX->rowDie($query, $arr)["title"];
-    }
-
-    function updateMainTitle($ts_id, $title, $current_time) {
-        $query = "UPDATE {$this->p}ts_main set title = :title, modified = :currentTime WHERE ts_id = :tsId;";
-        $arr = array(':title' => $title, ':currentTime' => $current_time, ':tsId' => $ts_id);
-        $this->PDOX->queryDie($query, $arr);
-    }
-
     function getTopics($link_id) {
         $query = "SELECT * FROM {$this->p}topic WHERE link_id = :linkId order by topic_num;";
         $arr = array(':linkId' => $link_id);
@@ -92,30 +62,10 @@ class TS_DAO {
         $this->PDOX->queryDie($query, $arr);
     }
 
-    function findEmail($user_id) {
-        $query = "SELECT email FROM {$this->p}lti_user WHERE user_id = :user_id;";
-        $arr = array(':user_id' => $user_id);
-        $context = $this->PDOX->rowDie($query, $arr);
-        return $context["email"];
-    }
-
     function findDisplayName($user_id) {
         $query = "SELECT displayname FROM {$this->p}lti_user WHERE user_id = :user_id;";
         $arr = array(':user_id' => $user_id);
         $context = $this->PDOX->rowDie($query, $arr);
         return $context["displayname"];
-    }
-
-    function findInstructors($context_id) {
-        $query = "SELECT user_id FROM {$this->p}lti_membership WHERE context_id = :context_id AND role = '1000';";
-        $arr = array(':context_id' => $context_id);
-        return $this->PDOX->allRowsDie($query, $arr);
-    }
-
-    function isUserInstructor($context_id, $user_id) {
-        $query = "SELECT role FROM {$this->p}lti_membership WHERE context_id = :context_id AND user_id = :user_id;";
-        $arr = array(':context_id' => $context_id, ':user_id' => $user_id);
-        $role = $this->PDOX->rowDie($query, $arr);
-        return $role["role"] == '1000';
     }
 }

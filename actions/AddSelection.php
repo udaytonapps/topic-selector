@@ -10,12 +10,11 @@ $LAUNCH = LTIX::requireData();
 $p = $CFG->dbprefix;
 $TS_DAO = new TS_DAO($PDOX, $p);
 
-$t_buildST  = $PDOX->prepare("SELECT * FROM {$p}topic_build WHERE link_id = :linkId");
-$t_buildST->execute(array(":linkId" => $LINK->id));
-$t_build = $t_buildST->fetch(PDO::FETCH_ASSOC);
-
 $hasRosters = LTIX::populateRoster(false);
-$topics = $TS_DAO->getTopics($t_build['list_id']);
+$topics = $TS_DAO->getTopics($LINK->id);
+
+$currentTime = new DateTime('now', new DateTimeZone($CFG->timezone));
+$currentTime = $currentTime->format("Y-m-d H:i:s");
 
 $userFirstName = '';
 $userLastName = '';

@@ -6,14 +6,15 @@ use \Tsugi\Core\LTIX;
 $LAUNCH = LTIX::requireData();
 
 if ($USER->instructor) {
+    $LAUNCH->link->settingsSet("has_seen", true);
     $OUTPUT->splashPage(
-        "New UI Examples",
-        __("This app is to demo<br />some of the new UI elements."),
+        "Topic Selector",
+        __("This app allows you to create topics<br />that students can then select<br />or you can assign students to."),
         "build.php"
     );
 } else {
     $OUTPUT->splashPage(
-        "UI Example Student View",
-        __("Often students will see something different on the splash page<br/> and only when instructors haven't set it up yet.")
+        "Topic Selector",
+        __("Your instructor has not set up this tool yet.")
     );
 }

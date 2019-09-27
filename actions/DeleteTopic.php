@@ -10,10 +10,6 @@ $LAUNCH = LTIX::requireData();
 
 $p = $CFG->dbprefix;
 
-$t_buildST  = $PDOX->prepare("SELECT * FROM {$p}topic_build WHERE link_id = :linkId");
-$t_buildST->execute(array(":linkId" => $LINK->id));
-$t_build = $t_buildST->fetch(PDO::FETCH_ASSOC);
-
 $TS_DAO = new TS_DAO($PDOX, $p);
 
 $topic_id = isset($_POST["topic_id"]) ? $_POST["topic_id"] : false;
@@ -22,7 +18,7 @@ if ( $USER->instructor && $topic_id ) {
 
     $TS_DAO->deleteTopic($topic_id);
 
-    $TS_DAO->fixUpTopicNumbers($t_build['list_id']);
+    $TS_DAO->fixUpTopicNumbers($LINK->id);
 
     $_SESSION['success'] = "Topic Deleted.";
 

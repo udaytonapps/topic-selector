@@ -13,10 +13,22 @@ $TS_DAO = new TS_DAO($PDOX, $p);
 
 $topics = $TS_DAO->getTopics($LINK->id);
 
+$title = $LAUNCH->link->settingsGet("title", false);
+$stu_allowed = $LAUNCH->link->settingsGet("stu_allowed", false);
+$stu_topics = $LAUNCH->link->settingsGet("stu_topics", false);
+
 if (SettingsForm::isSettingsPost()) {
-    if (!isset($_POST["title"]) || trim($_POST["title"]) === '') {
+    if(!isset($_POST["stu_allowed"])) {
+        $LAUNCH->link->settingsSet("stu_allowed", "0");
+        $stu_allowed = $LAUNCH->link->settingsGet("stu_allowed", false);
+    }
+    else if (!isset($_POST["title"]) || trim($_POST["title"]) === '') {
         $_SESSION["error"] = __('Title cannot be blank.');
-    } else {
+    }
+    else if(!isset($_POST["stu_topics"])) {
+        $_SESSION["error"] = __('Number of topics cannot be blank.');
+    }
+    else {
         SettingsForm::handleSettingsPost();
         $_SESSION["success"] = __('All settings saved.');
     }
@@ -24,18 +36,17 @@ if (SettingsForm::isSettingsPost()) {
     return;
 }
 
-$title = $LAUNCH->link->settingsGet("title", false);
-
 if (!$title) {
     $LAUNCH->link->settingsSet("title", $LAUNCH->link->title);
     $title = $LAUNCH->link->title;
 }
 
-$stu_topics = $LAUNCH->link->settingsGet("stu_topics", false);
+if($stu_allowed == NULL) {
+    $LAUNCH->link->settingsSet("stu_allowed", "1");
+}
 
-if(!$stu_topics) {
-    $LAUNCH->link->settingsSet("stu_topics", $LAUNCH->link->stu_topics);
-    $stuTops = $LAUNCH->link->stu_topics;
+if($stu_topics == NULL) {
+    $LAUNCH->link->settingsSet("stu_topics", 1);
 }
 
 SettingsForm::start();
@@ -61,7 +72,7 @@ $OUTPUT->flashMessages();
 $OUTPUT->pageTitle($title, true, true);
 
 echo '<p class="lead">Create the topics that students can sign up for. You can choose the number of students that may sign up for a topic. 
-<br> The number of topics that a student my sign up for defaults to 1, but can be changed in Settings</p>';
+<br> The number of topics that a student may sign up for defaults to 1, and students are allowed to select a topic by default. These options can be changed in Settings</p>';
 
 ?>
     <section id="theTopics">

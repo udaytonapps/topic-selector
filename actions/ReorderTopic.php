@@ -11,14 +11,10 @@ $p = $CFG->dbprefix;
 
 $TS_DAO = new TS_DAO($PDOX, $p);
 
-$t_buildST  = $PDOX->prepare("SELECT * FROM {$p}topic_build WHERE link_id = :linkId");
-$t_buildST->execute(array(":linkId" => $LINK->id));
-$t_build = $t_buildST->fetch(PDO::FETCH_ASSOC);
-
 $topic_id = isset($_POST["topic_id"]) ? $_POST["topic_id"] : false;
 
 if ( $USER->instructor && $topic_id ) {
-    $topics = $TS_DAO->getTopics($t_build['list_id']);
+    $topics = $TS_DAO->getTopics($LINK->id);
     $prevTopic = false;
     foreach ($topics as $topic) {
         if ($topic["topic_id"] == $topic_id) {
@@ -26,7 +22,7 @@ if ( $USER->instructor && $topic_id ) {
             if($topic["topic_num"] == 1) {
                 // This was the first so put it at the end
                 $TS_DAO->updateTopicNumber($topic_id, count($topics) + 1);
-                $TS_DAO->fixUpTopicNumbers($t_build['list_id']);
+                $TS_DAO->fixUpTopicNumbers($LINK->id);
                 break;
             } else {
                 // This was one of the other topics so swap with previous

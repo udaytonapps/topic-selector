@@ -38,7 +38,17 @@ if($USER->instructor) {
             <div class="card" style="border: 1px solid #9e9e9e; margin-bottom: 5px; border-radius: 5px">
                 <div class="container">
                     <div class="card-header">
-                        <p class="topic-title"><?=$top['topic_text']?> (<?=$remain?>)</p>
+                        <?php
+                        if($remain > 0) {
+                            ?>
+                            <p class="topic-title"><?=$top['topic_text']?> (<?=$remain?>)</p>
+                            <?php
+                        } else {
+                            ?>
+                            <p class="topic-title"><?=$top['topic_text']?> (FULL)</p>
+                            <?php
+                        }
+                        ?>
                     </div>
                     <div class="card-body">
                         <?php

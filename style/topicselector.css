@@ -22,3 +22,17 @@
 .assignButtons {
     margin-top: 50px;
 }
+
+.is_disabled {
+    color: currentColor;
+    cursor: not-allowed;
+    opacity: 0.5;
+    text-decoration: none;
+}
+
+.is_disabled:hover  {
+    color: currentColor;
+    cursor: not-allowed;
+    opacity: 0.5;
+    text-decoration: none;
+}

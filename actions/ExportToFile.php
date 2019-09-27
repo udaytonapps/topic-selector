@@ -13,13 +13,9 @@ $p = $CFG->dbprefix;
 
 $TS_DAO = new TS_DAO($PDOX, $p);
 
-$t_buildST  = $PDOX->prepare("SELECT * FROM {$p}topic_build WHERE link_id = :linkId");
-$t_buildST->execute(array(":linkId" => $LINK->id));
-$t_build = $t_buildST->fetch(PDO::FETCH_ASSOC);
-
 if ( $USER->instructor ) {
 
-    $topics = $TS_DAO->getTopics($t_build['list_id']);
+    $topics = $TS_DAO->getTopics($LINK->id);
 
 
     $headCount1 = 0;
@@ -47,7 +43,7 @@ if ( $USER->instructor ) {
 
             //Set Student and Date headers
             $exportFile->setActiveSheetIndex(0)->setCellValue($letters[$headCount1] . $rowCount, 'Student');
-            $exportFile->setActiveSheetIndex(0)->setCellValue($letters[$headCount1 + 1] . $rowCount, 'Date Selected');
+            $exportFile->setActiveSheetIndex(0)->setCellValue($letters[$headCount1 + 1] . $rowCount, 'Date Assigned');
 
             foreach($selection as $sel) {
                 $rowCount ++;
