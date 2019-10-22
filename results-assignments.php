@@ -52,7 +52,7 @@ if($USER->instructor) {
                     </div>
                     <div class="card-body">
                         <?php
-                        $selectST  = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
+                        $selectST  = $PDOX->prepare("SELECT * FROM {$p}ts_selection WHERE topic_id = :topicId");
                         $selectST->execute(array(":topicId" => $top['topic_id']));
                         $select = $selectST->fetchAll(PDO::FETCH_ASSOC);
                         foreach($select as $sel) {

@@ -2,7 +2,6 @@
 require_once "../config.php";
 
 use \Tsugi\Core\LTIX;
-use Tsugi\Util\LTI;
 
 $LAUNCH = LTIX::requireData();
 $p = $CFG->dbprefix;
@@ -22,7 +21,7 @@ $stuTops = $LAUNCH->link->settingsGet("stu_topics", false);
 $currentTime = new DateTime('now', new DateTimeZone($CFG->timezone));
 $currentTime = $currentTime->format("Y-m-d H:i:s");
 
-$topicST  = $PDOX->prepare("SELECT * FROM {$p}topic WHERE topic_id = :topicId");
+$topicST  = $PDOX->prepare("SELECT * FROM {$p}ts_topic WHERE topic_id = :topicId");
 $topicST->execute(array(":topicId" => $_GET['top']));
 $topic = $topicST->fetch(PDO::FETCH_ASSOC);
 
@@ -44,7 +43,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
             $x++;
         }
     }
-    $newSelect = $PDOX->prepare("INSERT INTO {$p}selection (topic_id, user_email, user_first_name, user_last_name, date_selected) 
+    $newSelect = $PDOX->prepare("INSERT INTO {$p}ts_selection (topic_id, user_email, user_first_name, user_last_name, date_selected) 
                                         values (:topicId, :userEmail, :userFirstName, :userLastName, :dateSelected)");
     $newSelect->execute(array(
         ":topicId" => $_GET['top'],
@@ -57,7 +56,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
     $numReserved = $topic['num_reserved'];
     $numReserved++;
 
-    $updateTopic = $PDOX->prepare("UPDATE {$p}topic SET num_reserved=:numReserved WHERE topic_id = :topicId");
+    $updateTopic = $PDOX->prepare("UPDATE {$p}ts_topic SET num_reserved=:numReserved WHERE topic_id = :topicId");
     $updateTopic->execute(array(
         ":topicId" => $_GET['top'],
         ":numReserved" => $numReserved,
@@ -99,7 +98,7 @@ echo '</div>';// end container
                         <div class="dropdown assignDrop">
                             <select class="dropdown assignStu" id="stuReserve" name="stuReserve">
                                 <?php
-                                $selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection");
+                                $selectionST  = $PDOX->prepare("SELECT * FROM {$p}ts_selection");
                                 $selectionST->execute(array());
                                 $selections = $selectionST->fetchAll(PDO::FETCH_ASSOC);
 

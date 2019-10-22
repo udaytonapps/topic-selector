@@ -37,7 +37,7 @@ if ( $USER->instructor ) {
             $exportFile->setActiveSheetIndex(0)->mergeCells($letters[$headCount1] . '1' . ':' . $letters[$headCount1 + 1] . '1');
             $exportFile->setActiveSheetIndex(0)->setCellValue($letters[$headCount1] . '1', $top['topic_text']);
 
-            $selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
+            $selectionST  = $PDOX->prepare("SELECT * FROM {$p}ts_selection WHERE topic_id = :topicId");
             $selectionST->execute(array(":topicId" => $top['topic_id']));
             $selection = $selectionST->fetchAll(PDO::FETCH_ASSOC);
 
@@ -58,7 +58,7 @@ if ( $USER->instructor ) {
             $exportFile->setActiveSheetIndex(0)->mergeCells($letters[$headCount2] . $letters[$headCount1] . '1' . ':' . $letters[$headCount2] . $letters[$headCount1 + 1] . '1');
             $exportFile->setActiveSheetIndex(0)->setCellValue($letters[$headCount2] . $letters[$headCount1] . '1', $top['topic_text']);
 
-            $selectionST  = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
+            $selectionST  = $PDOX->prepare("SELECT * FROM {$p}ts_selection WHERE topic_id = :topicId");
             $selectionST->execute(array(":topicId" => $top['topic_id']));
             $selection = $selectionST->fetchAll(PDO::FETCH_ASSOC);
 

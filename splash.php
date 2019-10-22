@@ -6,11 +6,10 @@ use \Tsugi\Core\LTIX;
 $LAUNCH = LTIX::requireData();
 
 if ($USER->instructor) {
-    $LAUNCH->link->settingsSet("has_seen", true);
     $OUTPUT->splashPage(
         "Topic Selector",
-        __("This app allows you to create topics<br />that students can then select<br />or you can assign students to."),
-        "build.php"
+        __("This app allows instructors to create topics or groups<br />that students can then select or be assigned to."),
+        "actions/MarkSeenGoToBuild.php"
     );
 } else {
     $OUTPUT->splashPage(

@@ -16,7 +16,7 @@ $title = $LAUNCH->link->settingsGet("title", $LAUNCH->link->title);
 $stu_allowed = $LAUNCH->link->settingsGet("stu_allowed", false);
 $stu_topics = $LAUNCH->link->settingsGet("stu_topics", false);
 
-$assignST  = $PDOX->prepare("SELECT * FROM {$p}selection WHERE user_email = :userEmail");
+$assignST  = $PDOX->prepare("SELECT * FROM {$p}ts_selection WHERE user_email = :userEmail");
 $assignST->execute(array(":userEmail" => $USER->email));
 $assign = $assignST->fetchAll(PDO::FETCH_ASSOC);
 
@@ -59,7 +59,7 @@ if (!$USER->instructor) {
         if($topics) {
             foreach ($topics as $top) {
                 $remain = $top['num_allowed'] - $top['num_reserved'];
-                $selectST  = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
+                $selectST  = $PDOX->prepare("SELECT * FROM {$p}ts_selection WHERE topic_id = :topicId");
                 $selectST->execute(array(":topicId" => $top['topic_id']));
                 $select = $selectST->fetchAll(PDO::FETCH_ASSOC);
                 $user_exists = false;
@@ -150,7 +150,7 @@ if (!$USER->instructor) {
         if($topics) {
             foreach ($topics as $top) {
                 $remain = $top['num_allowed'] - $top['num_reserved'];
-                $selectST = $PDOX->prepare("SELECT * FROM {$p}selection WHERE topic_id = :topicId");
+                $selectST = $PDOX->prepare("SELECT * FROM {$p}ts_selection WHERE topic_id = :topicId");
                 $selectST->execute(array(":topicId" => $top['topic_id']));
                 $select = $selectST->fetchAll(PDO::FETCH_ASSOC);
                 $user_exists = false;

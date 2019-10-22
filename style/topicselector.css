@@ -1,38 +1,98 @@
-.form-label {
-    font-size: 16px;
+.flx-basis-0 {
+    flex-basis: 0;
+}
+/* Topic Selector Specific */
+.topic-row {
+    margin-top: 0;
+}
+.topic-row > a, .toolTitleAction {
+    padding: 0 8px 0 0;
     font-weight: normal;
-    float: right;
+    color: #919191;
 }
-
-.topic-title {
-    font-size: 20px;
-    font-weight: bold;
+.topic-row > a:hover,
+.topic-row > a:focus,
+.topic-row > a:active {
+    color: var(--primary);
 }
-
-.assignDrop {
-    margin-left: 30px;
-    margin-top: 50px;
-    width: 200px;
+.topic-text-span:hover {
+    background-color: #BEDCFE;
 }
-
-.assignStu {
-    width: 200px;
+.bg-highlight {
+    background-color: #BEDCFE;
 }
-
-.assignButtons {
-    margin-top: 50px;
+#addQuestions {
+    margin-top: 20px;
 }
-
-.is_disabled {
-    color: currentColor;
-    cursor: not-allowed;
-    opacity: 0.5;
-    text-decoration: none;
+.import-link {
+    padding-left: 36px;
 }
-
-.is_disabled:hover  {
-    color: currentColor;
-    cursor: not-allowed;
-    opacity: 0.5;
-    text-decoration: none;
+.import-body {
+    max-height: 600px;
+    overflow-y: auto;
+}
+.response-panel-header,
+.response-list-group-item {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+div.header-col {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.response-row {
+    border-top: 1px solid #C4C4C4;
+    background-color: #FFEDC7;
+}
+a.response-collapse-link,
+a.response-collapse-link:active,
+a.response-collapse-link:focus,
+a.response-collapse-link:hover {
+    color: #111111;
+    opacity: 1;
+}
+.selected-row {
+    background-color: #FFC54A;
+}
+.response-badge {
+    background-color: #FFC54A;
+    color: #111111;
+    font-weight: 900;
+    font-size: 14px;
+    line-height: 21px;
+}
+.selected-row .badge.response-badge {
+    background-color: #ffffff;
+}
+p.response-text {
+    margin-top: 10px;
+}
+.results-table-hdr {
+    word-break: break-word;
+}
+.rotate{
+    -moz-transition: all 200ms linear;
+    -webkit-transition: all 200ms linear;
+    transition: all 200ms linear;
+}
+.rotate.open{
+    -ms-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+@media (max-width: 525px) {
+    .import-link {
+        display: block;
+        padding-top: 10px;
+        padding-left: 0;
+    }
+    #helpButton {
+        display: block;
+        margin: 0 0 0 auto;
+        float: none !important; /* import to override pull-right class */
+    }
+}
+.h3.inline .topic-text-span {
+    line-height: 2.28rem;
 }

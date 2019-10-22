@@ -71,26 +71,38 @@ $OUTPUT->flashMessages();
 
 $OUTPUT->pageTitle($title, true, true);
 
-echo '<p class="lead">Create the topics that students can sign up for. You can choose the number of students that may sign up for a topic. 
-<br> The number of topics that a student may sign up for defaults to 1, and students are allowed to select a topic by default. These options can be changed in Settings</p>';
-
 ?>
+    <p class="lead">Create topics for students to select.</p>
+    <p>You can choose the number of students that may sign up for a topic. The number of topics that a student may sign up for defaults to 1, and students are allowed to select a topic by default. These options can be changed in Settings.</p>
     <section id="theTopics">
         <?php
         foreach ($topics as $topic) {
             ?>
             <div id="topicRow<?=$topic["topic_id"]?>" class="h3 inline flx-cntnr flx-row flx-nowrap flx-start topic-row" data-topic-number="<?=$topic['topic_num']?>">
-                <div class="topic-number"><?=$topic["topic_num"]?>.</div>
                 <div class="flx-grow-all topic-text">
-                    <span class="topic-text-span" onclick="editTopicText(<?=$topic["topic_id"]?>)" id="topicText<?=$topic["topic_id"]?>" tabindex="0"> <?=$topic["topic_text"]?> - <?=$topic["num_allowed"]?></span>
+                    <div class="flx-cntnr topic-text-span" onclick="editTopicText(<?=$topic["topic_id"]?>)" id="topicText<?=$topic["topic_id"]?>" tabindex="0">
+                        <div class="flx-grow-2 flx-basis-0">
+                            <h3 class="small-hdr"><small>Topic</small></h3>
+                            <p><?=$topic["topic_text"]?></p>
+                        </div>
+                        <div class="flx-grow-1 flx-basis-0">
+                            <h3 class="small-hdr"><small>Slots Available</small></h3>
+                            <p><?=$topic["num_allowed"]?></p>
+                        </div>
+                    </div>
                     <form id="topicTextForm<?=$topic["topic_id"]?>" onsubmit="return confirmDeleteTopicBlank(<?=$topic["topic_id"]?>)" action="actions/AddOrEditTopic.php" method="post" style="display:none;">
                         <input type="hidden" name="topicId" value="<?=$topic["topic_id"]?>">
-                        <label for="topicTextInput<?=$topic["topic_id"]?>" class="sr-only">Topic Text</label>
-                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                            <input class="form-control" id="topicTextInput<?=$topic["topic_id"]?>" name="topicText" placeholder="<?=$topic["topic_text"]?>" required>
-                        </div>
-                        <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-                            <input class="form-control" type="number" id="topicStuAllowed<?=$topic["topic_id"]?>" name="num_allowed" value="<?=$topic["num_allowed"]?>">
+                        <div class="flx-cntnr">
+                            <div class="flx-grow-2 flx-basis-0">
+                                <h3 class="small-hdr"><small>Topic</small></h3>
+                                <label for="topicTextInput<?=$topic["topic_id"]?>" class="sr-only">Topic Text</label>
+                                <input class="form-control" id="topicTextInput<?=$topic["topic_id"]?>" name="topicText" placeholder="<?=$topic["topic_text"]?>" required>
+                            </div>
+                            <div class="flx-grow-1 flx-basis-0">
+                                <h3 class="small-hdr"><small>Slots Available</small></h3>
+                                <label for="topicStuAllowed<?=$topic["topic_id"]?>" class="sr-only">Slots Available</label>
+                                <input class="form-control" type="number" id="topicStuAllowed<?=$topic["topic_id"]?>" name="num_allowed" value="<?=$topic["num_allowed"]?>">
+                            </div>
                         </div>
                     </form>
                 </div>

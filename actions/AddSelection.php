@@ -34,7 +34,7 @@ if ($hasRosters) {
     header('Location: ' . addSession('../index.php'));
 }
 
-$newSelect = $PDOX->prepare("INSERT INTO {$p}selection (topic_id, user_email, user_first_name, user_last_name, date_selected)
+$newSelect = $PDOX->prepare("INSERT INTO {$p}ts_selection (topic_id, user_email, user_first_name, user_last_name, date_selected)
                                                        values (:topicId, :userEmail, :userFirstName, :userLastName, :dateSelected)");
 $newSelect->execute(array(
     ":topicId" => $_GET['topic'],
@@ -47,7 +47,7 @@ $newSelect->execute(array(
 $numReserved = $topic['num_reserved'];
 $numReserved++;
 
-$newTopic = $PDOX->prepare("UPDATE {$p}topic SET num_reserved=:numReserved WHERE topic_id = :topicId");
+$newTopic = $PDOX->prepare("UPDATE {$p}ts_topic SET num_reserved=:numReserved WHERE topic_id = :topicId");
 $newTopic->execute(array(
     ":topicId" => $_GET['topic'],
     ":numReserved" => $numReserved,
