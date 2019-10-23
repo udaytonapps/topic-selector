@@ -45,7 +45,6 @@ function showNewTopicRow() {
                         $("#newTopicRow").before(data.new_topic);
                         $("#topicTextInput-1").val('');
                         let nextNumber = $(".topic-number").last().parent().data("topic-number") + 1;
-                        $("#newTopicNumber").text(nextNumber + '.');
                         topicRow.data("topic-number", nextNumber);
                         $("#flashmessages").html(data.flashmessage);
                         setupAlertHide();
@@ -55,6 +54,27 @@ function showNewTopicRow() {
                 });
             }
         });
+    theForm.find('#topicStuAllowed-1').off("keypress").on("keypress", function(e) {
+        if(e.which === 13) {
+            e.preventDefault();
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                url: theForm.prop("action"),
+                data: theForm.serialize(),
+                success: function(data) {
+                    $("#newTopicRow").before(data.new_topic);
+                    $("#topicTextInput-1").val('');
+                    let nextNumber = $(".topic-number").last().parent().data("topic-number") + 1;
+                    topicRow.data("topic-number", nextNumber);
+                    $("#flashmessages").html(data.flashmessage);
+                    setupAlertHide();
+                    topicRow.hide();
+                    addTopicsSection.show();
+                }
+            });
+        }
+    });
     $("#topicSaveAction-1").off("click").on("click", function(e) {
         $.ajax({
             type: "POST",
@@ -65,7 +85,6 @@ function showNewTopicRow() {
                 $("#newTopicRow").before(data.new_topic);
                 $("#topicTextInput-1").val('');
                 let nextNumber = $(".topic-number").last().parent().data("topic-number") + 1;
-                $("#newTopicNumber").text(nextNumber + '.');
                 topicRow.data("topic-number", nextNumber);
                 $("#flashmessages").html(data.flashmessage);
                 setupAlertHide();
@@ -122,6 +141,37 @@ function editTopicText(topicId) {
                 }
             }
         });
+    theForm.find('#topicStuAllowed'+topicId).off("keypress").on("keypress", function(e) {
+        if(e.which === 13) {
+            e.preventDefault();
+            if ($('#topicTextInput'+topicId).val().trim() === '') {
+                if(confirmDeleteTopicBlank(topicId)) {
+                    // User entered blank topic text and wants to delete.
+                    deleteTopic(topicId, true);
+                }
+            } else {
+                // Still has text in topic. Save it.
+                $.ajax({
+                    type: "POST",
+                    url: theForm.prop("action"),
+                    data: theForm.serialize(),
+                    success: function(data) {
+                        topicText.find(".topic-title").text($('#topicTextInput'+topicId).val());
+                        topicText.find(".topic-slots").text($('#topicStuAllowed'+topicId).val());
+                        topicText.show();
+                        $("#topicDeleteAction"+topicId).show();
+                        $("#topicEditAction"+topicId).show();
+                        $("#topicReorderAction"+topicId).show();
+                        $("#topicSaveAction"+topicId).hide();
+                        $("#topicCancelAction"+topicId).hide();
+                        theForm.hide();
+                        $("#flashmessages").html(data.flashmessage);
+                        setupAlertHide();
+                    }
+                });
+            }
+        }
+    });
     $("#topicSaveAction"+topicId).show()
         .off("click").on("click", function(e) {
             if ($('#topicTextInput'+topicId).val().trim() === '') {

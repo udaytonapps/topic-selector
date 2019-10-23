@@ -31,36 +31,68 @@ if ($USER->instructor) {
             // Create new topic markup
             ob_start();
             ?>
-            <div id="topicRow<?=$topic["topic_id"]?>" class="h3 inline flx-cntnr flx-row flx-nowrap flx-start topic-row" data-topic-number="<?=$topic["topic_num"]?>">
-                <div class="topic-number"><?=$topic["topic_num"]?>.</div>
-                <div class="flx-grow-all topic-text">
-                    <span class="topic-text-span" onclick="editTopicText(<?=$topic["topic_id"]?>)" id="topicText<?=$topic["topic_id"]?>"><?= $topic["topic_text"] ?></span>
-                    <form id="topicTextForm<?=$topic["topic_id"]?>" onsubmit="return confirmDeleteTopicBlank(<?=$topic["topic_id"]?>)" action="AddOrEditTopic.php" method="post" style="display:none;">
-                        <input type="hidden" name="topicId" value="<?=$topic["topic_id"]?>">
-                        <label for="topicTextInput<?=$topic["topic_id"]?>" class="sr-only">Topic Text</label>
-                        <textarea class="form-control" id="topicTextInput<?=$topic["topic_id"]?>" name="topicText" rows="2" required><?=$topic["topic_text"]?></textarea>
+            <div id="topicRow<?= $topic["topic_id"] ?>"
+                 class="h3 inline flx-cntnr flx-row flx-nowrap flx-start topic-row"
+                 data-topic-number="<?= $topic['topic_num'] ?>">
+                <div class="topic-text flx-basis-0" style="flex:5">
+                    <div class="flx-cntnr topic-text-span" onclick="editTopicText(<?= $topic["topic_id"] ?>)"
+                         id="topicText<?= $topic["topic_id"] ?>" tabindex="0">
+                        <div class="flx-basis-0" style="flex:3">
+                            <p class="topic-title"><?= $topic["topic_text"] ?></p>
+                        </div>
+                        <div class="flx-basis-0" style="flex:2">
+                            <p class="topic-slots"><?= $topic["num_allowed"] ?></p>
+                        </div>
+                    </div>
+                    <form id="topicTextForm<?= $topic["topic_id"] ?>"
+                          onsubmit="return confirmDeleteTopicBlank(<?= $topic["topic_id"] ?>)"
+                          action="AddOrEditTopic.php" method="post" style="display:none;">
+                        <input type="hidden" name="topicId" value="<?= $topic["topic_id"] ?>">
+                        <div class="flx-cntnr">
+                            <div class="flx-basis-0" style="flex:3">
+                                <label for="topicTextInput<?= $topic["topic_id"] ?>" class="sr-only">Topic
+                                    Text</label>
+                                <input class="form-control" style="width: 95%;"
+                                       id="topicTextInput<?= $topic["topic_id"] ?>"
+                                       name="topicText" value="<?= $topic["topic_text"] ?>" required>
+                            </div>
+                            <div class="flx-basis-0" style="flex:2">
+                                <label for="topicStuAllowed<?= $topic["topic_id"] ?>" class="sr-only">Slots
+                                    Available</label>
+                                <input class="form-control" type="number"
+                                       id="topicStuAllowed<?= $topic["topic_id"] ?>"
+                                       name="num_allowed" value="<?= $topic["num_allowed"] ?>">
+                            </div>
+                        </div>
                     </form>
                 </div>
-                <a id="topicEditAction<?=$topic["topic_id"]?>" href="javascript:void(0);" onclick="editTopicText(<?=$topic["topic_id"]?>)">
-                    <span class="fa fa-fw fa-pencil" aria-hidden="true"></span>
-                    <span class="sr-only">Edit Topic Text</span>
-                </a>
-                <a id="topicReorderAction<?=$topic["topic_id"]?>" href="javascript:void(0);" onclick="moveTopicUp(<?=$topic["topic_id"]?>)">
-                    <span class="fa fa-fw fa-chevron-circle-up" aria-hidden="true"></span>
-                    <span class="sr-only">Move Topic Up</span>
-                </a>
-                <a id="topicDeleteAction<?=$topic["topic_id"]?>" href="javascript:void(0);" onclick="deleteTopic(<?=$topic["topic_id"]?>)">
-                    <span aria-hidden="true" class="fa fa-fw fa-trash"></span>
-                    <span class="sr-only">Delete Topic</span>
-                </a>
-                <a id="topicSaveAction<?=$topic["topic_id"]?>" href="javascript:void(0);" style="display:none;">
-                    <span aria-hidden="true" class="fa fa-fw fa-save"></span>
-                    <span class="sr-only">Save Topic</span>
-                </a>
-                <a id="topicCancelAction<?=$topic["topic_id"]?>" href="javascript:void(0);" style="display: none;">
-                    <span aria-hidden="true" class="fa fa-fw fa-times"></span>
-                    <span class="sr-only">Cancel Topic</span>
-                </a>
+                <div class="actions flx-basis-0 flx-grow-1 text-right">
+                    <a id="topicEditAction<?= $topic["topic_id"] ?>" href="javascript:void(0);"
+                       onclick="editTopicText(<?= $topic["topic_id"] ?>)">
+                        <span class="fa fa-fw fa-pencil" aria-hidden="true"></span>
+                        <span class="sr-only">Edit Topic Text</span>
+                    </a>
+                    <a id="topicReorderAction<?= $topic["topic_id"] ?>" href="javascript:void(0);"
+                       onclick="moveTopicUp(<?= $topic["topic_id"] ?>)">
+                        <span class="fa fa-fw fa-chevron-circle-up" aria-hidden="true"></span>
+                        <span class="sr-only">Move Topic Up</span>
+                    </a>
+                    <a id="topicDeleteAction<?= $topic["topic_id"] ?>" href="javascript:void(0);"
+                       onclick="deleteTopic(<?= $topic["topic_id"] ?>)">
+                        <span aria-hidden="true" class="fa fa-fw fa-trash"></span>
+                        <span class="sr-only">Delete Topic</span>
+                    </a>
+                    <a id="topicSaveAction<?= $topic["topic_id"] ?>" href="javascript:void(0);"
+                       style="display:none;">
+                        <span aria-hidden="true" class="fa fa-fw fa-save"></span>
+                        <span class="sr-only">Save Topic</span>
+                    </a>
+                    <a id="topicCancelAction<?= $topic["topic_id"] ?>" href="javascript:void(0);"
+                       style="display: none;">
+                        <span aria-hidden="true" class="fa fa-fw fa-times"></span>
+                        <span class="sr-only">Cancel Topic</span>
+                    </a>
+                </div>
             </div>
             <?php
             $result["new_topic"] = ob_get_clean();
