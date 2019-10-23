@@ -5,7 +5,7 @@
 .topic-row {
     margin-top: 0;
 }
-.topic-row > a, .toolTitleAction {
+.topic-row > div.actions > a, .toolTitleAction {
     padding: 0 8px 0 0;
     font-weight: normal;
     color: #919191;
@@ -14,6 +14,9 @@
 .topic-row > a:focus,
 .topic-row > a:active {
     color: var(--primary);
+}
+.topic-row form {
+    margin-bottom: 0.5rem;
 }
 .topic-text-span:hover {
     background-color: #BEDCFE;
@@ -95,4 +98,7 @@ p.response-text {
 }
 .h3.inline .topic-text-span {
     line-height: 2.28rem;
+}
+.topic-text-span p {
+    margin-bottom: 0;
 }

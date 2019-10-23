@@ -106,7 +106,8 @@ function editTopicText(topicId) {
                         url: theForm.prop("action"),
                         data: theForm.serialize(),
                         success: function(data) {
-                            topicText.text($('#topicTextInput'+topicId).val() + ' - ' + $('#topicStuAllowed'+topicId).val());
+                            topicText.find(".topic-title").text($('#topicTextInput'+topicId).val());
+                            topicText.find(".topic-slots").text($('#topicStuAllowed'+topicId).val());
                             topicText.show();
                             $("#topicDeleteAction"+topicId).show();
                             $("#topicEditAction"+topicId).show();
@@ -135,7 +136,8 @@ function editTopicText(topicId) {
                     url: theForm.prop("action"),
                     data: theForm.serialize(),
                     success: function(data) {
-                        topicText.text($('#topicTextInput'+topicId).val() + ' - ' + $('#topicStuAllowed'+topicId).val());
+                        topicText.find(".topic-title").text($('#topicTextInput'+topicId).val());
+                        topicText.find(".topic-slots").text($('#topicStuAllowed'+topicId).val());
                         topicText.show();
                         $("#topicDeleteAction"+topicId).show();
                         $("#topicEditAction"+topicId).show();
@@ -155,68 +157,14 @@ function editTopicText(topicId) {
         let theText = $("#topicText"+topicId);
         theText.show();
         theForm.hide();
-        $("#topicTextInput"+topicId).val(theText.text());
+        $("#topicTextInput"+topicId).val(topicText.find(".topic-title").text());
+        $("#topicStuAllowed"+topicId).val(topicText.find(".topic-slots").text());
         $("#topicDeleteAction"+topicId).show();
         $("#topicEditAction"+topicId).show();
         $("#topicReorderAction"+topicId).show();
         $("#topicSaveAction"+topicId).hide();
         $("#topicCancelAction"+topicId).hide();
     });
-}
-function editTitleText() {
-    $("#toolTitle").hide();
-    let titleForm = $("#toolTitleForm");
-    titleForm.show();
-    titleForm.find("#toolTitleInput").focus()
-        .off("keypress").on("keypress", function(e) {
-        if(e.which === 13) {
-            e.preventDefault();
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                url: titleForm.prop("action"),
-                data: titleForm.serialize(),
-                success: function(data) {
-                    $(".title-text-span").text($("#toolTitleInput").val());
-                    let titleText = $("#toolTitle");
-                    titleText.show();
-                    titleForm.hide();
-                    $("#toolTitleCancelLink").hide();
-                    $("#toolTitleSaveLink").hide();
-                    $("#flashmessages").html(data.flashmessage);
-                    setupAlertHide();
-                }
-            });
-        }
-    });
-    $("#toolTitleSaveLink").show()
-        .off("click").on("click", function(e) {
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                url: titleForm.prop("action"),
-                data: titleForm.serialize(),
-                success: function(data) {
-                    $(".title-text-span").text($("#toolTitleInput").val());
-                    let titleText = $("#toolTitle");
-                    titleText.show();
-                    titleForm.hide();
-                    $("#toolTitleCancelLink").hide();
-                    $("#toolTitleSaveLink").hide();
-                    $("#flashmessages").html(data.flashmessage);
-                    setupAlertHide();
-                }
-            });
-        });
-    $("#toolTitleCancelLink").show()
-        .off("click").on("click", function(e) {
-            let titleText = $("#toolTitle");
-            titleText.show();
-            titleForm.hide();
-            $("#toolTitleInput").val($(".title-text-span").text());
-            $("#toolTitleCancelLink").hide();
-            $("#toolTitleSaveLink").hide();
-        });
 }
 function moveTopicUp(topicId) {
     $.ajax({
@@ -230,7 +178,6 @@ function moveTopicUp(topicId) {
             let theTopicMoved = $("#topicRow" + topicId);
             theTopicMoved.hide();
             let currentNumber = theTopicMoved.data("topic-number");
-            console.log('current num: ' + currentNumber);
             if (currentNumber === 1) {
                 // Move to bottom
                 $("#newTopicRow").before(theTopicMoved);
@@ -240,9 +187,8 @@ function moveTopicUp(topicId) {
             }
             // Fix up topic numbers
             let topicNum = 1;
-            $(".topic-number").each(function() {
-                $(this).text(topicNum + ".");
-                $(this).parent().data("topic-number", topicNum);
+            $(".topic-row").each(function() {
+                $(this).data("topic-number", topicNum);
                 topicNum++;
             });
 
