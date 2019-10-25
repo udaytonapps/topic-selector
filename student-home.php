@@ -52,9 +52,7 @@ if (!$USER->instructor) {
         echo '<p class="lead">These are the topics created by your instructor. Your name will be listed under the topic(s) your instructor has assigned you to.</p>';
     }
     ?>
-    <div class="col-sm-3 col-md-3 col-lg-3 col-xs-3"></div>
     <div class="col-sm-6 col-md-6 col-lg-6 col-xs-6">
-        <h2>Topic</h2>
         <?php
         if($topics) {
             foreach ($topics as $top) {
@@ -228,8 +226,6 @@ if (!$USER->instructor) {
         }
         ?>
     </div>
-    <div class="col-sm-3 col-md-3 col-lg-3 col-xs-3"></div>
-
     <?php
 }
 
