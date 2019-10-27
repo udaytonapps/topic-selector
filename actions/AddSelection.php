@@ -29,29 +29,28 @@ if ($hasRosters) {
         }
         $x++;
     }
+    $newSelect = $PDOX->prepare("INSERT INTO {$p}ts_selection (topic_id, user_email, user_first_name, user_last_name, date_selected)
+                                                       values (:topicId, :userEmail, :userFirstName, :userLastName, :dateSelected)");
+    $newSelect->execute(array(
+        ":topicId" => $_GET['topic'],
+        ":userEmail" => $_GET['user_email'],
+        ":userFirstName" => $userFirstName,
+        ":userLastName" => $userLastName,
+        ":dateSelected" => $currentTime,
+    ));
+
+    $numReserved = $topic['num_reserved'];
+    $numReserved++;
+
+    $newTopic = $PDOX->prepare("UPDATE {$p}ts_topic SET num_reserved=:numReserved WHERE topic_id = :topicId");
+    $newTopic->execute(array(
+        ":topicId" => $_GET['topic'],
+        ":numReserved" => $numReserved,
+    ));
+
+    $_SESSION['success'] = 'Student assigned successfully.';
+    header('Location: ' . addSession('../index.php'));
 } else {
     $_SESSION['error'] = 'Topic not assigned: Unable to load class roster';
     header('Location: ' . addSession('../index.php'));
 }
-
-$newSelect = $PDOX->prepare("INSERT INTO {$p}ts_selection (topic_id, user_email, user_first_name, user_last_name, date_selected)
-                                                       values (:topicId, :userEmail, :userFirstName, :userLastName, :dateSelected)");
-$newSelect->execute(array(
-    ":topicId" => $_GET['topic'],
-    ":userEmail" => $_GET['user_email'],
-    ":userFirstName" => $userFirstName,
-    ":userLastName" => $userLastName,
-    ":dateSelected" => $currentTime,
-));
-
-$numReserved = $topic['num_reserved'];
-$numReserved++;
-
-$newTopic = $PDOX->prepare("UPDATE {$p}ts_topic SET num_reserved=:numReserved WHERE topic_id = :topicId");
-$newTopic->execute(array(
-    ":topicId" => $_GET['topic'],
-    ":numReserved" => $numReserved,
-));
-
-$_SESSION['success'] = 'Student assigned successfully.';
-header('Location: ' . addSession('../index.php'));

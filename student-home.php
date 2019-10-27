@@ -2,8 +2,8 @@
 require_once "../config.php";
 require_once('dao/TS_DAO.php');
 
-use \Tsugi\Core\LTIX;
-use \TS\DAO\TS_DAO;
+use TS\DAO\TS_DAO;
+use Tsugi\Core\LTIX;
 
 $LAUNCH = LTIX::requireData();
 $p = $CFG->dbprefix;
@@ -16,14 +16,11 @@ $title = $LAUNCH->link->settingsGet("title", $LAUNCH->link->title);
 $stu_allowed = $LAUNCH->link->settingsGet("stu_allowed", false);
 $stu_topics = $LAUNCH->link->settingsGet("stu_topics", false);
 
-$assignST  = $PDOX->prepare("SELECT * FROM {$p}ts_selection WHERE user_email = :userEmail");
+$assignST = $PDOX->prepare("SELECT * FROM {$p}ts_selection WHERE user_email = :userEmail");
 $assignST->execute(array(":userEmail" => $USER->email));
 $assign = $assignST->fetchAll(PDO::FETCH_ASSOC);
 
-$num_select = 0;
-foreach($assign as $a) {
-    $num_select++;
-}
+$num_select = $assign ? count($assign) : 0;
 
 include("menu.php");
 
@@ -41,192 +38,87 @@ $OUTPUT->flashMessages();
 
 $OUTPUT->pageTitle($title, true, false);
 
-if (!$USER->instructor) {
-    if($stu_allowed == "1") {
-        if($stu_topics > 1) {
-            echo '<p class="lead">Select the topics you would like to sign up for. Your instructor has allowed each student to sign up for ' . $stu_topics . ' topics.</p>';
-        } else {
-            echo '<p class="lead">Select the topic you would like to sign up for. Your instructor has allowed each student to sign up for ' . $stu_topics . ' topic.</p>';
-        }
-    } else {
-        echo '<p class="lead">These are the topics created by your instructor. Your name will be listed under the topic(s) your instructor has assigned you to.</p>';
-    }
+if ($stu_allowed == "1") {
     ?>
-    <div class="col-sm-6 col-md-6 col-lg-6 col-xs-6">
-        <?php
-        if($topics) {
-            foreach ($topics as $top) {
-                $remain = $top['num_allowed'] - $top['num_reserved'];
-                $selectST  = $PDOX->prepare("SELECT * FROM {$p}ts_selection WHERE topic_id = :topicId");
-                $selectST->execute(array(":topicId" => $top['topic_id']));
-                $select = $selectST->fetchAll(PDO::FETCH_ASSOC);
-                $user_exists = false;
-                foreach($select as $sel) {
-                    if($sel['user_email'] == $USER->email) {
-                        $user_exists = true;
-                    }
-                }
-                ?>
-                <div class="card" style="border: 1px solid #9e9e9e; margin-bottom: 5px; border-radius: 5px">
-                    <div class="container">
-                        <div class="card-header">
-                            <?php
-                            if($remain > 0) {
-                                ?>
-                                <p class="topic-title"><?= $top['topic_text'] ?> (<?=$remain?>)</p>
-                                <?php
-                            } else {
-                                ?>
-                                <p class="topic-title"><?= $top['topic_text'] ?> (FULL)</p>
-                                <?php
-                            }
-                            ?>
-                        </div>
-                        <div class="card-body">
-                            <?php
-                            if ($stu_allowed == "1" && $remain > 0 && $num_select < $stu_topics) {
-                                if ($user_exists == true) {
-                                    ?>
-                                    <a class="card-title" href="actions/RemoveSelection.php?user_email=<?=$USER->email?>&topic=<?=$top['topic_id']?>">
-                                        <span class="far fa-minus-square fa-3x"></span></a>
-                                    <?php
-                                } else {
-                                    ?>
-                                    <a class="card-title"
-                                       href="actions/AddSelection.php?user_email=<?= $USER->email ?>&topic=<?= $top['topic_id'] ?>">
-                                        <span class="far fa-check-square fa-3x"></span></a>
-                                    <?php
-                                }
-                            } else if($stu_allowed == "1") {
-                                if ($user_exists == true) {
-                                    ?>
-                                    <a class="card-title" href="actions/RemoveSelection.php?user_email=<?=$USER->email?>&topic=<?=$top['topic_id']?>">
-                                        <span class="far fa-minus-square fa-3x"></span></a>
-                                    <?php
-                                } else {
-                                    ?>
-                                    <a class="card-title is_disabled">
-                                        <span class="far fa-check-square fa-3x"></span></a>
-                                    <?php
-                                }
-                            } else {
-                                if ($user_exists == true) {
-                                    ?>
-                                    <span><?= $sel['user_first_name'] ?> <?= $sel['user_last_name'] ?></span>
-                                    <?php
-                                } else {
-                                    ?>
-                                    <a class="card-title is_disabled">
-                                        <span class="far fa-check-square fa-3x"></span></a>
-                                    <?php
-                                }
-                            }
-                            ?>
-                        </div>
-                    </div>
-                </div>
-                <?php
-            }
-        }
-        else {
-            ?>
-            <p style="color: #6B6464"><i>No topics have yet been created.</i></p>
-            <?php
-        }
-        ?>
-    </div>
-    <div class="col-sm-3 col-md-3 col-lg-3 col-xs-3"></div>
-
+    <p class="lead">Select the topic<?= $stu_topics > 1 ? 's' : '' ?> you would like to sign up for. Your instructor has
+        allowed each student to sign up for <?= $stu_topics ?> topics.</p>
     <?php
 } else {
-    echo '<p class="lead">This is what students will see when they visit topic selector.</p>';
     ?>
-    <div class="col-sm-3 col-md-3 col-lg-3 col-xs-3"></div>
-    <div class="col-sm-6 col-md-6 col-lg-6 col-xs-6">
-        <h2>Topic</h2>
-        <?php
-        if($topics) {
-            foreach ($topics as $top) {
-                $remain = $top['num_allowed'] - $top['num_reserved'];
-                $selectST = $PDOX->prepare("SELECT * FROM {$p}ts_selection WHERE topic_id = :topicId");
-                $selectST->execute(array(":topicId" => $top['topic_id']));
-                $select = $selectST->fetchAll(PDO::FETCH_ASSOC);
-                $user_exists = false;
-                foreach ($select as $sel) {
-                    if ($sel['user_email'] == $USER->email) {
-                        $user_exists = true;
-                    }
-                }
-                ?>
-                <div class="card" style="border: 1px solid #9e9e9e; margin-bottom: 5px; border-radius: 5px">
-                    <div class="container">
-                        <div class="card-header">
-                            <?php
-                            if ($remain > 0) {
-                                ?>
-                                <p class="topic-title"><?= $top['topic_text'] ?> (<?= $remain ?>)</p>
-                                <?php
-                            } else {
-                                ?>
-                                <p class="topic-title"><?= $top['topic_text'] ?> (FULL)</p>
-                                <?php
-                            }
-                            ?>
-                        </div>
-                        <div class="card-body">
-                            <?php
-                            if ($stu_allowed == "1" && $remain > 0 && $num_select < $stu_topics) {
-                                if ($user_exists == true) {
-                                    ?>
-                                    <a class="card-title" href="actions/RemoveSelection.php?user_email=<?=$USER->email?>&topic=<?=$top['topic_id']?>">
-                                        <span class="far fa-minus-square fa-3x"></span></a>
-                                    <?php
-                                } else {
-                                    ?>
-                                    <a class="card-title"
-                                       href="actions/AddSelection.php?user_email=<?= $USER->email ?>&topic=<?= $top['topic_id'] ?>">
-                                        <span class="far fa-check-square fa-3x"></span></a>
-                                    <?php
-                                }
-                            } else if($stu_allowed == "1") {
-                                if ($user_exists == true) {
-                                    ?>
-                                    <a class="card-title" href="actions/RemoveSelection.php?user_email=<?=$USER->email?>&topic=<?=$top['topic_id']?>">
-                                        <span class="far fa-minus-square fa-3x"></span></a>
-                                    <?php
-                                } else {
-                                    ?>
-                                    <a class="card-title is_disabled">
-                                        <span class="far fa-check-square fa-3x"></span></a>
-                                    <?php
-                                }
-                            } else {
-                                if ($user_exists == true) {
-                                    ?>
-                                    <span><?= $sel['user_first_name'] ?> <?= $sel['user_last_name'] ?></span>
-                                    <?php
-                                } else {
-                                    ?>
-                                    <a class="card-title is_disabled">
-                                        <span class="far fa-check-square fa-3x"></span></a>
-                                    <?php
-                                }
-                            }
-                            ?>
-                        </div>
-                    </div>
-                </div>
-                <?php
-            }
-        }
-        else {
-            ?>
-            <p style="color: #6B6464"><i>No topics have yet been created.</i></p>
-            <?php
-        }
-        ?>
-    </div>
+    <p class="lead">These are the topics created by your instructor. Your name will be listed under the topic(s) your
+        instructor has assigned you to.</p>
     <?php
+}
+if ($topics) {
+    foreach ($topics as $top) {
+        $remain = $top['num_allowed'] - $top['num_reserved'];
+        ?>
+        <div class="row"
+             style="border-top:1px solid #ddd;padding-top:1rem;padding-bottom:1rem;margin-bottom:1rem;margin-top:1rem;">
+            <div class="col-sm-8">
+                <div style="display:flex;">
+                    <h4 style="flex:2;"><?= $top['topic_text'] ?></h4>
+                    <?php
+                    if ($remain > 0) {
+                        ?>
+                        <div style="flex:1;" class="text-right h5 text-muted"><?= $remain ?> remaining</div>
+                        <?php
+                    } else {
+                        ?>
+                        <div style="flex:1;" class="text-right h5 text-danger">FULL</div>
+                        <?php
+                    }
+                    ?>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <ul class="list-group">
+                    <?php
+                    $selectST = $PDOX->prepare("SELECT * FROM {$p}ts_selection WHERE topic_id = :topicId");
+                    $selectST->execute(array(":topicId" => $top['topic_id']));
+                    $select = $selectST->fetchAll(PDO::FETCH_ASSOC);
+                    $alreadyChoseThisTopic = false;
+                    foreach ($select as $sel) {
+                        if ($sel["user_email"] == $USER->email) {
+                            $alreadyChoseThisTopic = true;
+                            ?>
+                            <li class="list-group-item list-group-item-success">
+                                <a href="actions/RemoveSelection.php?user_email=<?= $USER->email ?>&topic=<?= $top['topic_id'] ?>">Reserved</a>
+                            </li>
+
+                            <?php
+                        } else {
+                            ?>
+                            <li class="list-group-item list-group-item-danger">
+                                <?= $sel['user_first_name'] ?> <?= $sel['user_last_name'] ?>
+                            </li>
+                            <?php
+                        }
+                    }
+                    for ($i = 0; $i < $remain; $i++) {
+                        if ($num_select < $stu_allowed && !$alreadyChoseThisTopic) {
+                            // Can still select
+                            ?>
+                            <li class="list-group-item">
+                                <a href="actions/AddSelection.php?user_email=<?= $USER->email ?>&topic=<?= $top['topic_id'] ?>">Available</a>
+                            </li>
+                            <?php
+                        } else {
+                            ?>
+                            <li class="list-group-item">
+                                Empty
+                            </li>
+                            <?php
+                        }
+                    }
+                    ?>
+                </ul>
+            </div>
+        </div>
+        <?php
+    }
+} else {
+    echo '<h3><em>No topics have been created.</em></h3>';
 }
 
 echo '</div>';// end container
