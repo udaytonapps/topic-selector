@@ -14,8 +14,9 @@ $TS_DAO = new TS_DAO($PDOX, $p);
 $topics = $TS_DAO->getTopics($LINK->id);
 
 $title = $LAUNCH->link->settingsGet("title", false);
-$stu_allowed = $LAUNCH->link->settingsGet("stu_allowed", false);
-$stu_topics = $LAUNCH->link->settingsGet("stu_topics", false);
+$stu_allowed = $LAUNCH->link->settingsGet("stu_allowed", true);
+$see_others = $LAUNCH->link->settingsGet("see_others", true);
+$stu_topics = $LAUNCH->link->settingsGet("stu_topics", 1);
 
 if (SettingsForm::isSettingsPost()) {
     if (!isset($_POST["stu_allowed"])) {
@@ -42,6 +43,10 @@ if ($stu_allowed == NULL) {
     $LAUNCH->link->settingsSet("stu_allowed", "1");
 }
 
+if ($see_others == NULL) {
+    $LAUNCH->link->settingsSet("see_others", "1");
+}
+
 if ($stu_topics == NULL) {
     $LAUNCH->link->settingsSet("stu_topics", 1);
 }
@@ -50,6 +55,7 @@ SettingsForm::start();
 SettingsForm::text('title', __('Tool Title'));
 SettingsForm::text('stu_topics', __('Number of Topics Each Student Can be Assigned To'));
 SettingsForm::checkbox('stu_allowed', __('Students Can Select Topics'));
+SettingsForm::checkbox('see_others', __('Students Can See Other Students\' Selections'));
 SettingsForm::end();
 
 include("menu.php");

@@ -13,8 +13,10 @@ $topics = $TS_DAO->getTopics($LINK->id);
 
 $title = $LAUNCH->link->settingsGet("title", $LAUNCH->link->title);
 
-$stu_allowed = $LAUNCH->link->settingsGet("stu_allowed", false);
-$stu_topics = $LAUNCH->link->settingsGet("stu_topics", false);
+$stu_allowed = $LAUNCH->link->settingsGet("stu_allowed", true);
+$stu_topics = $LAUNCH->link->settingsGet("stu_topics", 1);
+
+$see_others = $LAUNCH->link->settingsGet("see_others", true);
 
 $assignST = $PDOX->prepare("SELECT * FROM {$p}ts_selection WHERE user_email = :userEmail");
 $assignST->execute(array(":userEmail" => $USER->email));
@@ -83,14 +85,20 @@ if ($topics) {
                             $alreadyChoseThisTopic = true;
                             ?>
                             <li class="list-group-item list-group-item-success">
-                                <a href="actions/RemoveSelection.php?user_email=<?= $USER->email ?>&topic=<?= $top['topic_id'] ?>">Reserved</a>
+                                <a href="actions/RemoveSelection.php?user_email=<?= $USER->email ?>&topic=<?= $top['topic_id'] ?>">Selected</a>
                             </li>
 
                             <?php
                         } else {
                             ?>
                             <li class="list-group-item list-group-item-danger">
-                                <?= $sel['user_first_name'] ?> <?= $sel['user_last_name'] ?>
+                                <?php
+                                if ($see_others) {
+                                    echo ($sel['user_first_name'].' '.$sel['user_last_name']);
+                                } else {
+                                    echo 'Reserved';
+                                }
+                                ?>
                             </li>
                             <?php
                         }
@@ -100,7 +108,7 @@ if ($topics) {
                             // Can still select
                             ?>
                             <li class="list-group-item">
-                                <a href="actions/AddSelection.php?user_email=<?= $USER->email ?>&topic=<?= $top['topic_id'] ?>">Available</a>
+                                <a href="actions/AddSelection.php?user_email=<?= $USER->email ?>&topic=<?= $top['topic_id'] ?>">Select Topic</a>
                             </li>
                             <?php
                         } else {
