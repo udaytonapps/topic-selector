@@ -58,6 +58,15 @@ SettingsForm::checkbox('stu_allowed', __('Students Can Select Topics'));
 SettingsForm::checkbox('see_others', __('Students Can See Other Students\' Selections'));
 SettingsForm::end();
 
+// Remove instructor selection
+$instructors = $TS_DAO->findInstructors($CONTEXT->id);
+foreach($instructors as $instructor) {
+    $email = $TS_DAO->findEmail($instructor["user_id"]);
+    $clearQry = "DELETE FROM {$p}ts_selection WHERE user_email = :userEmail AND topic_id in (SELECT topic_id from {$p}ts_topic WHERE link_id = :linkId)";
+    $arr = array('userEmail' => $email, ':linkId' => $LINK->id);
+    $PDOX->queryDie($clearQry, $arr);
+}
+
 include("menu.php");
 
 $OUTPUT->header();

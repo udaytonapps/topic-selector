@@ -53,15 +53,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
         ":dateSelected" => $currentTime,
     ));
 
-    $numReserved = $topic['num_reserved'];
-    $numReserved++;
-
-    $updateTopic = $PDOX->prepare("UPDATE {$p}ts_topic SET num_reserved=:numReserved WHERE topic_id = :topicId");
-    $updateTopic->execute(array(
-        ":topicId" => $_GET['top'],
-        ":numReserved" => $numReserved,
-    ));
-
     $_SESSION['success'] = 'Student assigned successfully.';
     header('Location: ' . addSession('index.php?top=true'));
 }

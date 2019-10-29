@@ -39,17 +39,8 @@ if ($hasRosters) {
         ":dateSelected" => $currentTime,
     ));
 
-    $numReserved = $topic['num_reserved'];
-    $numReserved++;
-
-    $newTopic = $PDOX->prepare("UPDATE {$p}ts_topic SET num_reserved=:numReserved WHERE topic_id = :topicId");
-    $newTopic->execute(array(
-        ":topicId" => $_GET['topic'],
-        ":numReserved" => $numReserved,
-    ));
-
-    $_SESSION['success'] = 'Student assigned successfully.';
-    header('Location: ' . addSession('../index.php'));
+    $_SESSION['success'] = 'Topic selection saved successfully.';
+    header('Location: ' . addSession('../student-home.php'));
 } else {
     $_SESSION['error'] = 'Topic not assigned: Unable to load class roster';
     header('Location: ' . addSession('../index.php'));

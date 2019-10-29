@@ -13,7 +13,6 @@ $DATABASE_INSTALL = array(
     topic_num         INTEGER NOT NULL,
     topic_text        TEXT NULL,
     num_allowed       INTEGER NOT NULL,
-    num_reserved      INTEGER NOT NULL,
 
     PRIMARY KEY(topic_id)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8"),

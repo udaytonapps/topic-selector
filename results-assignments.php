@@ -28,7 +28,7 @@ $OUTPUT->flashMessages();
 $OUTPUT->pageTitle("Results <small>Topic Assignments</small>");
 if ($USER->instructor) {
     foreach ($topics as $top) {
-        $remain = $top['num_allowed'] - $top['num_reserved'];
+        $remain = $top['num_allowed'] - intval($TS_DAO->getNumberReservedForTopic($top["topic_id"]));
         ?>
         <div class="row" style="border-top:1px solid #ddd;padding-top:1rem;padding-bottom:1rem;margin-bottom:1rem;margin-top:1rem;">
             <div class="col-sm-8">
@@ -59,7 +59,7 @@ if ($USER->instructor) {
                         <strong class="flx-grow-all text-left"><?= $sel['user_first_name'] ?> <?= $sel['user_last_name'] ?></strong> <span class="fas fa-angle-down" aria-hidden="true"></span><span class="sr-only">Actions</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a href="actions/RemoveSelection.php?user_email=<?= $sel['user_email'] ?>&topic=<?= $top['topic_id'] ?>">Remove</a></li>
+                        <li><a href="actions/RemoveSelection.php?assign=true&user_email=<?= $sel['user_email'] ?>&topic=<?= $top['topic_id'] ?>">Remove</a></li>
                     </ul>
                 </div>
                 <?php

@@ -53,7 +53,7 @@ if ($stu_allowed == "1") {
 }
 if ($topics) {
     foreach ($topics as $top) {
-        $remain = $top['num_allowed'] - $top['num_reserved'];
+        $remain = $top['num_allowed'] - intval($TS_DAO->getNumberReservedForTopic($top["topic_id"]))
         ?>
         <div class="row"
              style="border-top:1px solid #ddd;padding-top:1rem;padding-bottom:1rem;margin-bottom:1rem;margin-top:1rem;">
