@@ -1,7 +1,7 @@
 <?php
 require_once "../config.php";
 
-use \Tsugi\Core\LTIX;
+use Tsugi\Core\LTIX;
 
 $LAUNCH = LTIX::requireData();
 $p = $CFG->dbprefix;
@@ -14,11 +14,11 @@ $stuTops = $LAUNCH->link->settingsGet("stu_topics", "1");
 $currentTime = new DateTime('now', new DateTimeZone($CFG->timezone));
 $currentTime = $currentTime->format("Y-m-d H:i:s");
 
-$topicST  = $PDOX->prepare("SELECT * FROM {$p}ts_topic WHERE topic_id = :topicId");
+$topicST = $PDOX->prepare("SELECT * FROM {$p}ts_topic WHERE topic_id = :topicId");
 $topicST->execute(array(":topicId" => $_GET['top']));
 $topic = $topicST->fetch(PDO::FETCH_ASSOC);
 
-if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
     $userEmail = isset($_POST["stuReserve"]) ? $_POST["stuReserve"] : "";
 
     if (trim($userEmail) === '') {
@@ -32,8 +32,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
         $x = 0;
         if ($hasRosters) {
             $rosterData = $GLOBALS['ROSTER']->data;
-            foreach ($rosterData as $roster){
-                if($rosterData[$x]['person_contact_email_primary'] == $userEmail){
+            foreach ($rosterData as $roster) {
+                if ($rosterData[$x]['person_contact_email_primary'] == $userEmail) {
                     $userFirstName = $rosterData[$x]['person_name_given'];
                     $userLastName = $rosterData[$x]['person_name_family'];
                     break;
@@ -56,11 +56,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
     }
 } else {
     $OUTPUT->header();
-    ?>
-    <!-- Our main css file that overrides default Tsugi styling -->
-    <link rel="stylesheet" type="text/css" href="style/topicselector.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <?php
+
     $OUTPUT->bodyStart();
 
     $OUTPUT->topNav($menu);
@@ -69,108 +65,97 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
 
     $OUTPUT->flashMessages();
 
-    $OUTPUT->pageTitle("Results <small>Assign Student to Topic</small>");
-
-    echo '</div>';// end container
-    ?>
-    <div id="main">
-        <?php
-        if($USER->instructor) {
-            $name = '';
-            ?>
-            <div class="container mainBody">
-                <p class="instructions">Which student would you like to assign to the topic, "<?=$topic['topic_text']?>?"</p>
-                <p class="instructions2"><i>Students assigned to the maximum number of topics are not available to be selected.
-                        You must first unassign students from already selected topics.</i></p>
-                <div class="container">
-                    <form method="post">
-                        <div class="dropdown assignDrop">
-                            <select class="dropdown assignStu" id="stuReserve" name="stuReserve">
-                                <?php
-                                $selectionST  = $PDOX->prepare("SELECT * FROM {$p}ts_selection");
-                                $selectionST->execute(array());
-                                $selections = $selectionST->fetchAll(PDO::FETCH_ASSOC);
-
-                                $top_num=0;
-                                foreach($topic as $top) {
-                                    $top_num++;
-                                }
-                                $hasRosters = LTIX::populateRoster(false);
-                                $x = 0;
-                                $z = 0;
-                                if ($hasRosters) {
-                                    $rosterData = $GLOBALS['ROSTER']->data;
-                                    sort($rosterData['person_name_family']);
-                                    foreach ($rosterData as $roster) {
-                                        $y = 0;
-                                        $z = 0;
-                                        $w = 0;
-                                        foreach($selections as $select) {
-                                            if($rosterData[$x]['person_contact_email_primary'] == $select['user_email']) {
-                                                $y++;
-                                                if($select['topic_id'] == $_GET['top']) {
-                                                    $w++;
-                                                }
-                                            }
-                                            if($select['topic_id'] == $_GET['top']) {
-                                                $z++;
-                                            }
-                                        }
-                                        if($roster["roles"] == "Learner" && $y < $top_num && $w == 0 && $y < $stuTops){
-                                            $name1 = $rosterData[$x]["person_name_given"];
-                                            $name2 = $rosterData[$x]["person_name_family"];
-                                            ?>
-                                            <option value="<?=$rosterData[$x]['person_contact_email_primary']?>"><?=$name1?> <?=$name2?></option>
-                                            <?php
-                                        }
-                                        $y=0;
-                                        $x++;
-                                    }
-                                } else {
-                                    $name = "No roster found";
-                                    ?>
-                                    <option><?=$name?></option>
-                                    <?php
-                                }
-                                ?>
-                            </select>
-                        </div>
-                        <input class="topicInput" id="topicInput" type="hidden" value="<?=$_GET['top']?>">
-                        <div class="container assignButtons">
-                            <div class="col-sm-1">
-                                <?php
-                                if($z >= $topic['num_allowed'] || $name == "No roster found") {
-                                    ?>
-                                    <button class="btn btn-success" type="submit" disabled>Save</button>
-                                    <?php
-                                } else {
-                                    ?>
-                                    <button class="btn btn-success" type="submit">Save</button>
-                                    <?php
-                                }
-                                ?>
-                            </div>
-                            <div class="col-sm-1">
-                                <a class="btn btn-danger" href="index.php">Cancel</a>
-                            </div>
-                        </div>
-                        <?php
-                        if($z >= $topic['num_allowed']) {
-                            ?>
-                            <div class="container assignButtons">
-                                <p><i>The maximum number of students have been assigned to this topic.</i></p>
-                            </div>
+    if ($USER->instructor) {
+        $name = '';
+        ?>
+        <a href="results-assignments.php"><span class="fas fa-chevron-left" aria-hidden="true"></span> Back to Topic
+            Selections</a>
+        <h3 class="small-hdr"><small>Topic Title</small></h3>
+        <h3 class="sub-hdr"><?= $topic["topic_text"] ?></h3>
+        <form method="post">
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label for="stuReserve">Assign Student</label>
+                        <select class="form-control" id="stuReserve" name="stuReserve">
                             <?php
-                        }
-                        ?>
-                    </form>
+                            $selectionST = $PDOX->prepare("SELECT * FROM {$p}ts_selection");
+                            $selectionST->execute(array());
+                            $selections = $selectionST->fetchAll(PDO::FETCH_ASSOC);
+
+                            $top_num = 0;
+                            foreach ($topic as $top) {
+                                $top_num++;
+                            }
+                            $hasRosters = LTIX::populateRoster(false);
+                            $x = 0;
+                            $z = 0;
+                            if ($hasRosters) {
+                                $rosterData = $GLOBALS['ROSTER']->data;
+                                usort($rosterData, "sortByName");
+                                foreach ($rosterData as $roster) {
+                                    $y = 0;
+                                    $z = 0;
+                                    $w = 0;
+                                    foreach ($selections as $select) {
+                                        if ($rosterData[$x]['person_contact_email_primary'] == $select['user_email']) {
+                                            $y++;
+                                            if ($select['topic_id'] == $_GET['top']) {
+                                                $w++;
+                                            }
+                                        }
+                                        if ($select['topic_id'] == $_GET['top']) {
+                                            $z++;
+                                        }
+                                    }
+                                    if ($roster["roles"] == "Learner" && $y < $top_num && $w == 0 && $y < $stuTops) {
+                                        $name1 = $rosterData[$x]["person_name_given"];
+                                        $name2 = $rosterData[$x]["person_name_family"];
+                                        ?>
+                                        <option value="<?= $rosterData[$x]['person_contact_email_primary'] ?>"><?= $name1 ?> <?= $name2 ?></option>
+                                        <?php
+                                    }
+                                    $y = 0;
+                                    $x++;
+                                }
+                            } else {
+                                $name = "No roster found";
+                                ?>
+                                <option><?= $name ?></option>
+                                <?php
+                            }
+                            ?>
+                        </select>
+                    </div>
                 </div>
             </div>
+            <input class="topicInput" id="topicInput" type="hidden" value="<?= $_GET['top'] ?>">
             <?php
-        }
-        ?>
-    </div>
-    <?php
+            if ($z >= $topic['num_allowed'] || $name == "No roster found") {
+                ?>
+                <button class="btn btn-primary btn-disabled" type="submit" disabled>Save</button>
+                <?php
+            } else {
+                ?>
+                <button class="btn btn-primary" type="submit">Save</button>
+                <?php
+            }
+            if ($z >= $topic['num_allowed']) {
+                ?>
+                <p class="alert alert-warning">The maximum number of students have been assigned to this topic.</p>
+                <?php
+            }
+            ?>
+        </form>
+        <?php
+    }
+
+    echo '</div>';// end container
+
     $OUTPUT->footerStart();
     $OUTPUT->footerEnd();
+}
+function sortByName($a, $b)
+{
+    return strcmp($a["person_name_family"], $b["person_name_family"]);
 }

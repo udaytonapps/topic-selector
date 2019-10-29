@@ -25,8 +25,11 @@ echo '<div class="container-fluid col-lg-8 col-md-10 col-sm-12">';
 
 $OUTPUT->flashMessages();
 
-$OUTPUT->pageTitle("Results <small>Topic Assignments</small>");
+$OUTPUT->pageTitle("Topic Selections");
 if ($USER->instructor) {
+    ?>
+    <p class="lead">Use the table below to view and edit topic selections.</p>
+    <?php
     foreach ($topics as $top) {
         $remain = $top['num_allowed'] - intval($TS_DAO->getNumberReservedForTopic($top["topic_id"]));
         ?>
