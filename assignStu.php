@@ -9,14 +9,7 @@ $displayname = $USER->displayname;
 
 include("menu.php");
 
-$title = $LAUNCH->link->settingsGet("title", false);
-
-if (!$title) {
-    $LAUNCH->link->settingsSet("title", $LAUNCH->link->title);
-    $title = $LAUNCH->link->title;
-}
-
-$stuTops = $LAUNCH->link->settingsGet("stu_topics", false);
+$stuTops = $LAUNCH->link->settingsGet("stu_topics", "1");
 
 $currentTime = new DateTime('now', new DateTimeZone($CFG->timezone));
 $currentTime = $currentTime->format("Y-m-d H:i:s");

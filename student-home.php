@@ -13,10 +13,10 @@ $topics = $TS_DAO->getTopics($LINK->id);
 
 $title = $LAUNCH->link->settingsGet("title", $LAUNCH->link->title);
 
-$stu_allowed = $LAUNCH->link->settingsGet("stu_allowed", true);
-$stu_topics = $LAUNCH->link->settingsGet("stu_topics", 1);
+$stu_locked = $LAUNCH->link->settingsGet("stu_locked", false);
+$stu_topics = intval($LAUNCH->link->settingsGet("stu_topics", "1"));
 
-$see_others = $LAUNCH->link->settingsGet("see_others", true);
+$see_locked = $LAUNCH->link->settingsGet("see_locked", false);
 
 $assignST = $PDOX->prepare("SELECT * FROM {$p}ts_selection WHERE user_email = :userEmail");
 $assignST->execute(array(":userEmail" => $USER->email));
@@ -40,15 +40,15 @@ $OUTPUT->flashMessages();
 
 $OUTPUT->pageTitle($title, true, false);
 
-if ($stu_allowed == "1") {
-    ?>
-    <p class="lead">Select the topic<?= $stu_topics > 1 ? 's' : '' ?> you would like to sign up for. Your instructor has
-        allowed each student to sign up for <?= $stu_topics ?> topics.</p>
-    <?php
-} else {
+if ($stu_locked == "1") {
     ?>
     <p class="lead">These are the topics created by your instructor. Your name will be listed under the topic(s) your
         instructor has assigned you to.</p>
+    <?php
+} else {
+    ?>
+    <p class="lead">Select the topic<?= $stu_topics > 1 ? 's' : '' ?> you would like to sign up for. Your instructor has
+        allowed each student to sign up for <?= $stu_topics ?> topics.</p>
     <?php
 }
 if ($topics) {
@@ -83,20 +83,27 @@ if ($topics) {
                     foreach ($select as $sel) {
                         if ($sel["user_email"] == $USER->email) {
                             $alreadyChoseThisTopic = true;
-                            ?>
-                            <li class="list-group-item list-group-item-success">
-                                <a href="actions/RemoveSelection.php?user_email=<?= $USER->email ?>&topic=<?= $top['topic_id'] ?>">Selected</a>
-                            </li>
-
-                            <?php
+                            if ($stu_locked == "1") {
+                                ?>
+                                <li class="list-group-item list-group-item-success">
+                                    Selected
+                                </li>
+                                <?php
+                            } else {
+                                ?>
+                                <li class="list-group-item list-group-item-success">
+                                    <a href="actions/RemoveSelection.php?user_email=<?= $USER->email ?>&topic=<?= $top['topic_id'] ?>">Selected</a>
+                                </li>
+                                <?php
+                            }
                         } else {
                             ?>
                             <li class="list-group-item list-group-item-danger">
                                 <?php
-                                if ($see_others) {
-                                    echo ($sel['user_first_name'].' '.$sel['user_last_name']);
-                                } else {
+                                if ($see_locked) {
                                     echo 'Reserved';
+                                } else {
+                                    echo ($sel['user_first_name'].' '.$sel['user_last_name']);
                                 }
                                 ?>
                             </li>
@@ -104,7 +111,7 @@ if ($topics) {
                         }
                     }
                     for ($i = 0; $i < $remain; $i++) {
-                        if ($num_select < $stu_allowed && !$alreadyChoseThisTopic) {
+                        if ($num_select < $stu_topics && !$alreadyChoseThisTopic && $stu_locked !== "1") {
                             // Can still select
                             ?>
                             <li class="list-group-item">
