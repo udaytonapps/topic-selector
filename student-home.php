@@ -34,7 +34,7 @@ $OUTPUT->bodyStart();
 
 $OUTPUT->topNav($menu);
 
-echo '<div class="container-fluid">';
+echo '<div class="container-fluid col-lg-8 col-md-10 col-sm-12">';
 
 $OUTPUT->flashMessages();
 
