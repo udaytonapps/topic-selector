@@ -19,55 +19,60 @@ $topicST->execute(array(":topicId" => $_GET['top']));
 $topic = $topicST->fetch(PDO::FETCH_ASSOC);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
-    $userEmail = isset($_POST["stuReserve"]) ? $_POST["stuReserve"] : "johndoe@aol.com";
-    $userFirstName = " ";
-    $userLastName = " ";
+    $userEmail = isset($_POST["stuReserve"]) ? $_POST["stuReserve"] : "";
 
-    $hasRosters = LTIX::populateRoster(false);
-    $x = 0;
-    if ($hasRosters) {
-        $rosterData = $GLOBALS['ROSTER']->data;
-        foreach ($rosterData as $roster){
-            if($rosterData[$x]['person_contact_email_primary'] == $userEmail){
-                $userFirstName = $rosterData[$x]['person_name_given'];
-                $userLastName = $rosterData[$x]['person_name_family'];
-                break;
+    if (trim($userEmail) === '') {
+        $_SESSION['error'] = 'You are unable to select this user because their email address is blank.';
+        header('Location: ' . addSession('index.php?top=true'));
+    } else {
+        $userFirstName = " ";
+        $userLastName = " ";
+
+        $hasRosters = LTIX::populateRoster(false);
+        $x = 0;
+        if ($hasRosters) {
+            $rosterData = $GLOBALS['ROSTER']->data;
+            foreach ($rosterData as $roster){
+                if($rosterData[$x]['person_contact_email_primary'] == $userEmail){
+                    $userFirstName = $rosterData[$x]['person_name_given'];
+                    $userLastName = $rosterData[$x]['person_name_family'];
+                    break;
+                }
+                $x++;
             }
-            $x++;
         }
-    }
-    $newSelect = $PDOX->prepare("INSERT INTO {$p}ts_selection (topic_id, user_email, user_first_name, user_last_name, date_selected) 
+        $newSelect = $PDOX->prepare("INSERT INTO {$p}ts_selection (topic_id, user_email, user_first_name, user_last_name, date_selected) 
                                         values (:topicId, :userEmail, :userFirstName, :userLastName, :dateSelected)");
-    $newSelect->execute(array(
-        ":topicId" => $_GET['top'],
-        ":userEmail" => $userEmail,
-        ":userFirstName" => $userFirstName,
-        ":userLastName" => $userLastName,
-        ":dateSelected" => $currentTime,
-    ));
+        $newSelect->execute(array(
+            ":topicId" => $_GET['top'],
+            ":userEmail" => $userEmail,
+            ":userFirstName" => $userFirstName,
+            ":userLastName" => $userLastName,
+            ":dateSelected" => $currentTime,
+        ));
 
-    $_SESSION['success'] = 'Student assigned successfully.';
-    header('Location: ' . addSession('index.php?top=true'));
-}
-
-$OUTPUT->header();
-?>
+        $_SESSION['success'] = 'Student assigned successfully.';
+        header('Location: ' . addSession('index.php?top=true'));
+    }
+} else {
+    $OUTPUT->header();
+    ?>
     <!-- Our main css file that overrides default Tsugi styling -->
     <link rel="stylesheet" type="text/css" href="style/topicselector.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-<?php
-$OUTPUT->bodyStart();
+    <?php
+    $OUTPUT->bodyStart();
 
-$OUTPUT->topNav($menu);
+    $OUTPUT->topNav($menu);
 
-echo '<div class="container-fluid">';
+    echo '<div class="container-fluid">';
 
-$OUTPUT->flashMessages();
+    $OUTPUT->flashMessages();
 
-$OUTPUT->pageTitle("Results <small>Assign Student to Topic</small>");
+    $OUTPUT->pageTitle("Results <small>Assign Student to Topic</small>");
 
-echo '</div>';// end container
-?>
+    echo '</div>';// end container
+    ?>
     <div id="main">
         <?php
         if($USER->instructor) {
@@ -165,6 +170,7 @@ echo '</div>';// end container
         }
         ?>
     </div>
-<?php
-$OUTPUT->footerStart();
-$OUTPUT->footerEnd();
+    <?php
+    $OUTPUT->footerStart();
+    $OUTPUT->footerEnd();
+}
