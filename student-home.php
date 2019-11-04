@@ -7,6 +7,7 @@ use Tsugi\Core\LTIX;
 
 $LAUNCH = LTIX::requireData();
 $p = $CFG->dbprefix;
+
 $TS_DAO = new TS_DAO($PDOX, $p);
 
 $topics = $TS_DAO->getTopics($LINK->id);
@@ -24,6 +25,8 @@ $assign = $assignST->fetchAll(PDO::FETCH_ASSOC);
 
 $num_select = $assign ? count($assign) : 0;
 
+$num_select_remaining = $stu_topics - $num_select;
+
 include("menu.php");
 
 $OUTPUT->header();
@@ -34,7 +37,7 @@ $OUTPUT->bodyStart();
 
 $OUTPUT->topNav($menu);
 
-echo '<div class="container-fluid col-lg-8 col-md-10 col-sm-12">';
+echo '<div class="container-fluid">';
 
 $OUTPUT->flashMessages();
 
@@ -47,91 +50,104 @@ if ($stu_locked == "1") {
     <?php
 } else {
     ?>
-    <p class="lead">Select the topic<?= $stu_topics > 1 ? 's' : '' ?> you would like to sign up for. Your instructor has
-        allowed each student to sign up for <?= $stu_topics ?> topics.</p>
+    <p class="lead">
+        Use the links to the right of the list below to sign up for <?= $stu_topics > 1 ? $stu_topics.' topics' : 'a topic' ?>.
+        You have <span class="label label-warning" style="vertical-align: middle;"><?= $num_select_remaining ?></span> <?= $stu_topics > 1 ? 'selections' : 'selection' ?> remaining.</p>
     <?php
 }
 if ($topics) {
-    foreach ($topics as $top) {
-        $remain = $top['num_allowed'] - intval($TS_DAO->getNumberReservedForTopic($top["topic_id"]))
-        ?>
-        <div class="row"
-             style="border-top:1px solid #ddd;padding-top:1rem;padding-bottom:1rem;margin-bottom:1rem;margin-top:1rem;">
-            <div class="col-sm-8">
-                <div style="display:flex;">
-                    <h4 style="flex:2;"><?= $top['topic_text'] ?></h4>
-                    <?php
-                    if ($remain > 0) {
-                        ?>
-                        <div style="flex:1;" class="text-right h5 text-muted"><?= $remain ?> remaining</div>
-                        <?php
-                    } else {
-                        ?>
-                        <div style="flex:1;" class="text-right h5 text-danger">FULL</div>
-                        <?php
-                    }
-                    ?>
-                </div>
-            </div>
-            <div class="col-sm-4">
-                <ul class="list-group">
-                    <?php
-                    $selectST = $PDOX->prepare("SELECT * FROM {$p}ts_selection WHERE topic_id = :topicId");
-                    $selectST->execute(array(":topicId" => $top['topic_id']));
-                    $select = $selectST->fetchAll(PDO::FETCH_ASSOC);
-                    $alreadyChoseThisTopic = false;
-                    foreach ($select as $sel) {
-                        if ($sel["user_email"] == $USER->email) {
-                            $alreadyChoseThisTopic = true;
-                            if ($stu_locked == "1") {
+    ?>
+    <div class="row">
+        <div class="col-sm-12">
+            <?php
+            foreach ($topics as $top) {
+                $remain = $top['num_allowed'] - intval($TS_DAO->getNumberReservedForTopic($top["topic_id"]))
+                ?>
+                <div class="row"
+                     style="border-top:1px solid #ddd;padding-top:1rem;padding-bottom:1rem;margin-bottom:1rem;margin-top:1rem;">
+                    <div class="col-sm-8">
+                        <div style="display:flex;">
+                            <div style="flex:2;">
+                                <h4><?= $top['topic_text'] ?></h4>
+                                <p><?= $top["description"]?></p>
+                            </div>
+                            <?php
+                            if ($remain > 0) {
                                 ?>
-                                <li class="list-group-item list-group-item-success">
-                                    Selected
-                                </li>
+                                <div style="flex:1;" class="text-right h5 text-muted"><?= $remain ?> remaining</div>
                                 <?php
                             } else {
                                 ?>
-                                <li class="list-group-item list-group-item-success">
-                                    <a href="actions/RemoveSelection.php?user_email=<?= $USER->email ?>&topic=<?= $top['topic_id'] ?>">Selected</a>
-                                </li>
+                                <div style="flex:1;" class="text-right h5 text-danger">FULL</div>
                                 <?php
                             }
-                        } else {
                             ?>
-                            <li class="list-group-item list-group-item-danger">
-                                <?php
-                                if ($see_locked) {
-                                    echo 'Reserved';
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <ul class="list-group">
+                            <?php
+                            $selectST = $PDOX->prepare("SELECT * FROM {$p}ts_selection WHERE topic_id = :topicId");
+                            $selectST->execute(array(":topicId" => $top['topic_id']));
+                            $select = $selectST->fetchAll(PDO::FETCH_ASSOC);
+                            $alreadyChoseThisTopic = false;
+                            foreach ($select as $sel) {
+                                if ($sel["user_email"] == $USER->email) {
+                                    $alreadyChoseThisTopic = true;
+                                    if ($stu_locked == "1") {
+                                        ?>
+                                        <li class="list-group-item list-group-item-success">
+                                            My Selection
+                                        </li>
+                                        <?php
+                                    } else {
+                                        ?>
+                                        <li class="list-group-item list-group-item-success">
+                                            <a href="actions/RemoveSelection.php?user_email=<?= $USER->email ?>&topic=<?= $top['topic_id'] ?>">My Selection</a>
+                                        </li>
+                                        <?php
+                                    }
                                 } else {
-                                    echo ($sel['user_first_name'].' '.$sel['user_last_name']);
+                                    ?>
+                                    <li class="list-group-item list-group-item-danger">
+                                        <?php
+                                        if ($see_locked) {
+                                            echo 'Reserved';
+                                        } else {
+                                            echo($sel['user_first_name'] . ' ' . $sel['user_last_name']);
+                                        }
+                                        ?>
+                                    </li>
+                                    <?php
                                 }
-                                ?>
-                            </li>
-                            <?php
-                        }
-                    }
-                    for ($i = 0; $i < $remain; $i++) {
-                        if ($num_select < $stu_topics && !$alreadyChoseThisTopic && $stu_locked !== "1") {
-                            // Can still select
+                            }
+                            for ($i = 0; $i < $remain; $i++) {
+                                if ($num_select < $stu_topics && !$alreadyChoseThisTopic && $stu_locked !== "1") {
+                                    // Can still select
+                                    ?>
+                                    <li class="list-group-item">
+                                        <a href="actions/AddSelection.php?user_email=<?= $USER->email ?>&topic=<?= $top['topic_id'] ?>">Select
+                                            Topic</a>
+                                    </li>
+                                    <?php
+                                } else {
+                                    ?>
+                                    <li class="list-group-item">
+                                        Empty
+                                    </li>
+                                    <?php
+                                }
+                            }
                             ?>
-                            <li class="list-group-item">
-                                <a href="actions/AddSelection.php?user_email=<?= $USER->email ?>&topic=<?= $top['topic_id'] ?>">Select Topic</a>
-                            </li>
-                            <?php
-                        } else {
-                            ?>
-                            <li class="list-group-item">
-                                Empty
-                            </li>
-                            <?php
-                        }
-                    }
-                    ?>
-                </ul>
-            </div>
+                        </ul>
+                    </div>
+                </div>
+                <?php
+            }
+            ?>
         </div>
-        <?php
-    }
+    </div>
+    <?php
 } else {
     echo '<h3><em>No topics have been created.</em></h3>';
 }

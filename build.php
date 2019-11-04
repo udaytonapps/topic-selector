@@ -2,9 +2,9 @@
 require_once "../config.php";
 require_once('dao/TS_DAO.php');
 
-use \Tsugi\Core\LTIX;
-use \Tsugi\UI\SettingsForm;
-use \TS\DAO\TS_DAO;
+use TS\DAO\TS_DAO;
+use Tsugi\Core\LTIX;
+use Tsugi\UI\SettingsForm;
 
 $LAUNCH = LTIX::requireData();
 $p = $CFG->dbprefix;
@@ -48,7 +48,7 @@ SettingsForm::end();
 
 // Remove instructor selection
 $instructors = $TS_DAO->findInstructors($CONTEXT->id);
-foreach($instructors as $instructor) {
+foreach ($instructors as $instructor) {
     $email = $TS_DAO->findEmail($instructor["user_id"]);
     $clearQry = "DELETE FROM {$p}ts_selection WHERE user_email = :userEmail AND topic_id in (SELECT topic_id from {$p}ts_topic WHERE link_id = :linkId)";
     $arr = array('userEmail' => $email, ':linkId' => $LINK->id);
@@ -72,22 +72,24 @@ $OUTPUT->topNav($menu);
         $OUTPUT->pageTitle($title, true, true);
 
         ?>
-        <p class="lead">Create topics for students to select.</p>
-        <p>You can choose the number of students that may sign up for a topic. The number of topics that a student may
-            sign
-            up for defaults to 1, and students are allowed to select a topic by default. These options can be changed in
-            Settings.</p>
+        <p class="lead">Create topics for students to select. Use the Settings link to adjust options.</p>
         <section id="theTopics">
             <div class="h3 inline flx-cntnr flx-row flx-nowrap flx-start">
-                <div class="flx-grow-all topic-text">
+                <div class="flx-basis-0 topic-text" style="flex:5;">
                     <div class="flx-cntnr">
-                        <div class="flx-basis-0" style="flex:3">
+                        <div class="flx-basis-0" style="flex:2">
                             <h3 class="small-hdr"><small>Topic Title</small></h3>
                         </div>
-                        <div class="flx-basis-0" style="flex:3">
-                            <h3 class="small-hdr"><small>Maximum Slots Available</small></h3>
+                        <div class="flx-basis-0" style="flex:1">
+                            <h3 class="small-hdr"><small>Slots</small></h3>
                         </div>
+                        <div class="flx-basis-0" style="flex:2">
+                            <h3 class="small-hdr"><small>Description</small></h3>
+                        </div>
+                        <div class="flx-grow-"
                     </div>
+                </div>
+                <div class="flx-basis-0 flx-grow-1 text-right">
                 </div>
             </div>
             <?php
@@ -97,13 +99,17 @@ $OUTPUT->topNav($menu);
                      class="h3 inline flx-cntnr flx-row flx-nowrap flx-start topic-row"
                      data-topic-number="<?= $topic['topic_num'] ?>">
                     <div class="topic-text flx-basis-0" style="flex:5">
-                        <div class="flx-cntnr topic-text-span" onclick="editTopicText(<?= $topic["topic_id"] ?>)"
+                        <div class="flx-cntnr topic-text-span" style="align-items: center;"
+                             onclick="editTopicText(<?= $topic["topic_id"] ?>)"
                              id="topicText<?= $topic["topic_id"] ?>" tabindex="0">
-                            <div class="flx-basis-0" style="flex:3">
+                            <div class="flx-basis-0" style="flex:2">
                                 <p class="topic-title"><?= $topic["topic_text"] ?></p>
                             </div>
-                            <div class="flx-basis-0" style="flex:2">
+                            <div class="flx-basis-0" style="flex:1">
                                 <p class="topic-slots"><?= $topic["num_allowed"] ?></p>
+                            </div>
+                            <div class="flx-basis-0" style="flex:2">
+                                <p class="topic-description h5 inline" style="margin-bottom:0.5rem;"><?= $topic["description"] ?></p>
                             </div>
                         </div>
                         <form id="topicTextForm<?= $topic["topic_id"] ?>"
@@ -111,19 +117,25 @@ $OUTPUT->topNav($menu);
                               action="actions/AddOrEditTopic.php" method="post" style="display:none;">
                             <input type="hidden" name="topicId" value="<?= $topic["topic_id"] ?>">
                             <div class="flx-cntnr">
-                                <div class="flx-basis-0" style="flex:3">
+                                <div class="flx-basis-0" style="flex:2">
                                     <label for="topicTextInput<?= $topic["topic_id"] ?>" class="sr-only">Topic
                                         Text</label>
-                                    <input class="form-control" style="width: 95%;"
+                                    <input class="form-control" style="width: 90%;"
                                            id="topicTextInput<?= $topic["topic_id"] ?>"
                                            name="topicText" value="<?= $topic["topic_text"] ?>" required>
                                 </div>
-                                <div class="flx-basis-0" style="flex:2">
+                                <div class="flx-basis-0" style="flex:1">
                                     <label for="topicStuAllowed<?= $topic["topic_id"] ?>" class="sr-only">Slots
                                         Available</label>
-                                    <input class="form-control" type="number"
+                                    <input class="form-control" type="number" style="width: 80%;min-width:84px;"
                                            id="topicStuAllowed<?= $topic["topic_id"] ?>"
                                            name="num_allowed" value="<?= $topic["num_allowed"] ?>">
+                                </div>
+                                <div class="flx-basis-0" style="flex:2">
+                                    <label for="topicDescription<?= $topic["topic_id"] ?>" class="sr-only">Topic
+                                        Description</label>
+                                    <textarea class="form-control" id="topicDescription<?= $topic["topic_id"] ?>"
+                                              name="topicDescription" rows="2"><?= $topic["description"] ?></textarea>
                                 </div>
                             </div>
                         </form>
@@ -167,17 +179,23 @@ $OUTPUT->topNav($menu);
                           action="actions/AddOrEditTopic.php" method="post">
                         <input type="hidden" name="topicId" value="-1">
                         <div class="flx-cntnr">
-                            <div class="flx-basis-0" style="flex:3">
+                            <div class="flx-basis-0" style="flex:2">
                                 <label for="topicTextInput-1" class="sr-only">Topic Text</label>
-                                <input class="form-control" type="text" style="width: 95%;"
+                                <input class="form-control" type="text" style="width: 90%;"
                                        id="topicTextInput-1"
                                        name="topicText" placeholder="Topic Title" required>
                             </div>
-                            <div class="flx-basis-0" style="flex:2">
+                            <div class="flx-basis-0" style="flex:1">
                                 <label for="topicStuAllowed-1" class="sr-only">Slots Available</label>
-                                <input class="form-control" type="number"
+                                <input class="form-control" type="number" style="width: 80%;min-width:84px;"
                                        id="topicStuAllowed-1"
                                        name="num_allowed" value="1">
+                            </div>
+                            <div class="flx-basis-0" style="flex:2">
+                                <label for="topicDescription-1" class="sr-only">Topic
+                                    Description</label>
+                                <textarea class="form-control" id="topicDescription-1"
+                                          name="topicDescription" rows="2"></textarea>
                             </div>
                         </div>
                     </form>

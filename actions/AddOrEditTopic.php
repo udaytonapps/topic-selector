@@ -17,14 +17,15 @@ if ($USER->instructor) {
     $topicId = $_POST["topicId"];
     $topicText = $_POST["topicText"];
     $numAllowed = $_POST["num_allowed"];
+    $topicDescription = isset($_POST["topicDescription"]) ? $_POST["topicDescription"] : '';
 
     if (isset($topicText) && trim($topicText) != '') {
         if ($topicId > -1) {
             // Existing topic
-            $TS_DAO->updateTopic($topicId, $topicText, $numAllowed);
+            $TS_DAO->updateTopic($topicId, $topicText, $numAllowed, $topicDescription);
         } else {
             // New topic
-            $topicId = $TS_DAO->createTopic($LINK->id, $topicText, $numAllowed);
+            $topicId = $TS_DAO->createTopic($LINK->id, $topicText, $numAllowed, $topicDescription);
 
             $topic = $TS_DAO->getTopicById($topicId);
 
@@ -35,13 +36,17 @@ if ($USER->instructor) {
                  class="h3 inline flx-cntnr flx-row flx-nowrap flx-start topic-row"
                  data-topic-number="<?= $topic['topic_num'] ?>">
                 <div class="topic-text flx-basis-0" style="flex:5">
-                    <div class="flx-cntnr topic-text-span" onclick="editTopicText(<?= $topic["topic_id"] ?>)"
+                    <div class="flx-cntnr topic-text-span" style="align-items: center;"
+                         onclick="editTopicText(<?= $topic["topic_id"] ?>)"
                          id="topicText<?= $topic["topic_id"] ?>" tabindex="0">
-                        <div class="flx-basis-0" style="flex:3">
+                        <div class="flx-basis-0" style="flex:2">
                             <p class="topic-title"><?= $topic["topic_text"] ?></p>
                         </div>
-                        <div class="flx-basis-0" style="flex:2">
+                        <div class="flx-basis-0" style="flex:1">
                             <p class="topic-slots"><?= $topic["num_allowed"] ?></p>
+                        </div>
+                        <div class="flx-basis-0" style="flex:2">
+                            <p class="topic-description h5 inline" style="margin-bottom:0.5rem;"><?= $topic["description"] ?></p>
                         </div>
                     </div>
                     <form id="topicTextForm<?= $topic["topic_id"] ?>"
@@ -49,19 +54,25 @@ if ($USER->instructor) {
                           action="AddOrEditTopic.php" method="post" style="display:none;">
                         <input type="hidden" name="topicId" value="<?= $topic["topic_id"] ?>">
                         <div class="flx-cntnr">
-                            <div class="flx-basis-0" style="flex:3">
+                            <div class="flx-basis-0" style="flex:2">
                                 <label for="topicTextInput<?= $topic["topic_id"] ?>" class="sr-only">Topic
                                     Text</label>
-                                <input class="form-control" style="width: 95%;"
+                                <input class="form-control" style="width: 90%;"
                                        id="topicTextInput<?= $topic["topic_id"] ?>"
                                        name="topicText" value="<?= $topic["topic_text"] ?>" required>
                             </div>
-                            <div class="flx-basis-0" style="flex:2">
+                            <div class="flx-basis-0" style="flex:1">
                                 <label for="topicStuAllowed<?= $topic["topic_id"] ?>" class="sr-only">Slots
                                     Available</label>
-                                <input class="form-control" type="number"
+                                <input class="form-control" type="number" style="width: 80%;min-width:84px;"
                                        id="topicStuAllowed<?= $topic["topic_id"] ?>"
                                        name="num_allowed" value="<?= $topic["num_allowed"] ?>">
+                            </div>
+                            <div class="flx-basis-0" style="flex:2">
+                                <label for="topicDescription<?= $topic["topic_id"] ?>" class="sr-only">Topic
+                                    Description</label>
+                                <textarea class="form-control" id="topicDescription<?= $topic["topic_id"] ?>"
+                                          name="topicDescription" rows="2"><?= $topic["description"] ?></textarea>
                             </div>
                         </div>
                     </form>

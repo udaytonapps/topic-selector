@@ -23,17 +23,17 @@ class TS_DAO {
         return $this->PDOX->rowDie($query, $arr);
     }
 
-    function createTopic($link_id, $topic_text, $num_allowed) {
+    function createTopic($link_id, $topic_text, $num_allowed, $description) {
         $nextNumber = $this->getNexttopicNumber($link_id);
-        $query = "INSERT INTO {$this->p}ts_topic (link_id, topic_num, topic_text, num_allowed) VALUES (:linkId, :topicNum, :topicText, :numAllowed);";
-        $arr = array(':linkId' => $link_id, ':topicNum' => $nextNumber, ':topicText' => $topic_text, ':numAllowed'=>$num_allowed);
+        $query = "INSERT INTO {$this->p}ts_topic (link_id, topic_num, topic_text, num_allowed, description) VALUES (:linkId, :topicNum, :topicText, :numAllowed, :description);";
+        $arr = array(':linkId' => $link_id, ':topicNum' => $nextNumber, ':topicText' => $topic_text, ':numAllowed'=>$num_allowed, ":description"=>$description);
         $this->PDOX->queryDie($query, $arr);
         return $this->PDOX->lastInsertId();
     }
 
-    function updateTopic($topic_id, $topic_text, $num_allowed) {
-        $query = "UPDATE {$this->p}ts_topic set topic_text = :topicText, num_allowed = :numAllowed WHERE topic_id = :topicId;";
-        $arr = array(':topicId' => $topic_id, ':topicText' => $topic_text, ':numAllowed'=>$num_allowed);
+    function updateTopic($topic_id, $topic_text, $num_allowed, $description) {
+        $query = "UPDATE {$this->p}ts_topic set topic_text = :topicText, num_allowed = :numAllowed, description = :description WHERE topic_id = :topicId;";
+        $arr = array(':topicId' => $topic_id, ':topicText' => $topic_text, ':numAllowed'=>$num_allowed, ":description"=>$description);
         $this->PDOX->queryDie($query, $arr);
     }
 
@@ -65,6 +65,13 @@ class TS_DAO {
     function getNumberReservedForTopic($topic_id) {
         $query = "SELECT COUNT(*) as num_reserved FROM {$this->p}ts_selection WHERE topic_id = :topicId";
         $arr = array(':topicId' => $topic_id);
+        return $this->PDOX->rowDie($query, $arr)["num_reserved"];
+    }
+
+    function getTotalReserved($link_id) {
+        $query = "SELECT COUNT(*) as num_reserved FROM {$this->p}ts_selection WHERE topic_id in 
+                    (SELECT topic_id FROM {$this->p}ts_topic where link_id = :linkId)";
+        $arr = array(':linkId' => $link_id);
         return $this->PDOX->rowDie($query, $arr)["num_reserved"];
     }
 

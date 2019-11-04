@@ -97,7 +97,7 @@ p.response-text {
     }
 }
 .h3.inline .topic-text-span {
-    line-height: 2.28rem;
+    line-height: calc(2.28rem + 10px);
 }
 .topic-text-span p {
     margin-bottom: 0;

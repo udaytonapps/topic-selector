@@ -1,10 +1,15 @@
 <?php
 require_once "../config.php";
+require_once('dao/TS_DAO.php');
 
 use Tsugi\Core\LTIX;
+use \TS\DAO\TS_DAO;
 
 $LAUNCH = LTIX::requireData();
+
 $p = $CFG->dbprefix;
+$TS_DAO = new TS_DAO($PDOX, $p);
+
 $displayname = $USER->displayname;
 
 include("menu.php");

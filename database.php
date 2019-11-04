@@ -12,6 +12,7 @@ $DATABASE_INSTALL = array(
     link_id           INTEGER NOT NULL,
     topic_num         INTEGER NOT NULL,
     topic_text        TEXT NULL,
+    description       TEXT NULL,
     num_allowed       INTEGER NOT NULL,
 
     PRIMARY KEY(topic_id)
