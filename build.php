@@ -195,7 +195,7 @@ $OUTPUT->topNav($menu);
                                 <label for="topicDescription-1" class="sr-only">Topic
                                     Description</label>
                                 <textarea class="form-control" id="topicDescription-1"
-                                          name="topicDescription" rows="2"></textarea>
+                                          name="topicDescription" rows="2" placeholder="Topic Description"></textarea>
                             </div>
                         </div>
                     </form>
