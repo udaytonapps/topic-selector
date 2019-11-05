@@ -44,6 +44,8 @@ function showNewTopicRow() {
                     success: function(data) {
                         $("#newTopicRow").before(data.new_topic);
                         $("#topicTextInput-1").val('');
+                        $("#topicDescription-1").val('');
+                        $("#topicStuAllowed-1").val(1);
                         let nextNumber = $(".topic-number").last().parent().data("topic-number") + 1;
                         topicRow.data("topic-number", nextNumber);
                         $("#flashmessages").html(data.flashmessage);
@@ -65,6 +67,8 @@ function showNewTopicRow() {
                 success: function(data) {
                     $("#newTopicRow").before(data.new_topic);
                     $("#topicTextInput-1").val('');
+                    $("#topicDescription-1").val('');
+                    $("#topicStuAllowed-1").val(1);
                     let nextNumber = $(".topic-number").last().parent().data("topic-number") + 1;
                     topicRow.data("topic-number", nextNumber);
                     $("#flashmessages").html(data.flashmessage);
@@ -86,6 +90,8 @@ function showNewTopicRow() {
                 success: function(data) {
                     $("#newTopicRow").before(data.new_topic);
                     $("#topicTextInput-1").val('');
+                    $("#topicDescription-1").val('');
+                    $("#topicStuAllowed-1").val(1);
                     let nextNumber = $(".topic-number").last().parent().data("topic-number") + 1;
                     topicRow.data("topic-number", nextNumber);
                     $("#flashmessages").html(data.flashmessage);
@@ -105,6 +111,8 @@ function showNewTopicRow() {
             success: function(data) {
                 $("#newTopicRow").before(data.new_topic);
                 $("#topicTextInput-1").val('');
+                $("#topicDescription-1").val('');
+                $("#topicStuAllowed-1").val(1);
                 let nextNumber = $(".topic-number").last().parent().data("topic-number") + 1;
                 topicRow.data("topic-number", nextNumber);
                 $("#flashmessages").html(data.flashmessage);
@@ -116,6 +124,8 @@ function showNewTopicRow() {
     });
     $("#topicCancelAction-1").off("click").on("click", function(e) {
         $("#topicTextInput-1").val('');
+        $("#topicDescription-1").val('');
+        $("#topicStuAllowed-1").val(1);
         topicRow.hide();
         addTopicsSection.show();
     });
@@ -265,6 +275,7 @@ function editTopicText(topicId) {
         theForm.hide();
         $("#topicTextInput"+topicId).val(topicText.find(".topic-title").text());
         $("#topicStuAllowed"+topicId).val(topicText.find(".topic-slots").text());
+        $("#topicDescription"+topicId).val(topicText.find(".topic-description").text());
         $("#topicDeleteAction"+topicId).show();
         $("#topicEditAction"+topicId).show();
         $("#topicReorderAction"+topicId).show();

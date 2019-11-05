@@ -64,7 +64,7 @@ if ($topics) {
                 $remain = $top['num_allowed'] - intval($TS_DAO->getNumberReservedForTopic($top["topic_id"]))
                 ?>
                 <div class="row"
-                     style="border-top:1px solid #ddd;padding-top:1rem;padding-bottom:1rem;margin-bottom:1rem;margin-top:1rem;">
+                     style="border-top:1px solid #ddd;padding-top:1rem;padding-bottom:1rem;">
                     <div class="col-sm-8">
                         <div style="display:flex;">
                             <div style="flex:2;">
