@@ -72,11 +72,11 @@ $OUTPUT->topNav($menu);
         $OUTPUT->pageTitle($title, true, true);
 
         ?>
-        <p class="lead">Create topics for students to select. Use the Settings link to adjust options.</p>
+        <p class="lead">Create topics for students to select. Use the Settings link to adjust options, such as how many topics students can select.</p>
         <section id="theTopics">
             <div class="h3 inline flx-cntnr flx-row flx-nowrap flx-start">
                 <div class="flx-basis-0 topic-text" style="flex:5;">
-                    <div class="flx-cntnr">
+                    <div class="flx-cntnr" style="margin-bottom:1rem;">
                         <div class="flx-basis-0" style="flex:2">
                             <h3 class="small-hdr"><small>Topic Title</small></h3>
                         </div>
