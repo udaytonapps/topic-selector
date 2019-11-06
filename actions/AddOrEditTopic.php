@@ -51,7 +51,7 @@ if ($USER->instructor) {
                     </div>
                     <form id="topicTextForm<?= $topic["topic_id"] ?>"
                           onsubmit="return confirmDeleteTopicBlank(<?= $topic["topic_id"] ?>)"
-                          action="actions/AddOrEditTopic.php" method="post" style="display:none;">
+                          action="actions/AddOrEditTopic.php?PHPSESSID=<?=$_POST["PHPSESSID"]?>" method="post" style="display:none;">
                         <input type="hidden" name="topicId" value="<?= $topic["topic_id"] ?>">
                         <div class="flx-cntnr">
                             <div class="flx-basis-0" style="flex:2">
