@@ -97,13 +97,15 @@ if ($topics) {
                                     if ($stu_locked == "1") {
                                         ?>
                                         <li class="list-group-item list-group-item-success">
-                                            My Selection
+                                            <?=$sel['user_first_name'] . ' ' . $sel['user_last_name']?> (My Selection)
                                         </li>
                                         <?php
                                     } else {
                                         ?>
                                         <li class="list-group-item list-group-item-success">
-                                            <a href="actions/RemoveSelection.php?user_email=<?= $USER->email ?>&topic=<?= $top['topic_id'] ?>">My Selection</a>
+                                            <a href="actions/RemoveSelection.php?user_email=<?= $sel["user_email"] ?>&topic=<?= $top['topic_id'] ?>">
+                                                <?=$sel['user_first_name'] . ' ' . $sel['user_last_name']?> (Remove Selection)
+                                            </a>
                                         </li>
                                         <?php
                                     }
