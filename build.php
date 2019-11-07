@@ -222,9 +222,29 @@ $OUTPUT->topNav($menu);
     <input type="hidden" id="sess" value="<?php echo($_GET["PHPSESSID"]) ?>">
 <?php
 
-$OUTPUT->helpModal("Example Help Modal", __('
-                        <h4>Help Content</h4>
-                        <p>Use this modal to add help to the current page.</p>'));
+$OUTPUT->helpModal("Topic Selector Help", __('
+                        <h4>Topics</h4>
+                        <p>Use this page to add topics, the maximum number of slots for each topic, and an optional description that your students can select. Once you add a topic it is immediately available to students. Additional topics or other changes can be made once student selections have already been made but deleting a topic will also remove the selections.</p>
+                        <h5>Settings</h5>
+                        <p>Click the "Settings" link at the top of the page to adjust overall tool specific settings. Click the "Save Changes" button if any changes are made.</p>
+                        <p style="padding-left:4rem;"><strong>Tool Title</strong> - The name of the heading that is shown at the top of the tool. [Default = Topic Selector]</p>
+                        <p style="padding-left:4rem;"><strong>Number of Topics Each Student Can Be Assigned To</strong> - How many slots each student can select in the tool. [Default = 1]</p>
+                        <p style="padding-left:4rem;"><strong>Prevent students from selecting topics</strong> - If enabled, students will not be able to make selections. Instructors may want to use when they’re ready to stop taking selections from students or if they plan to assign specific students to each slot under the ‘Selections’ page. [Default = Off]</p>
+                        <p style="padding-left:4rem;"><strong>Prevent students from seeing other student’s selections</strong> - If enabled, students will not be able to see the names of the students that have selected specific topics. They will simply see the topic/slot as ‘Reserved’.  [Default = Off]</p>
+                        <h5>Adding a Topic</h5>
+                        <ol>
+                        <li>Click "Add Topic".</li>
+                        <li>Enter the Topic Title.</li>
+                        <li>Enter the maximum number of slots that can be selected for that topic.</li>
+                        <li>Add a description of the topic. (Optional)</li>
+                        <li>Click the save icon or press "Enter" on your keyboard.</li>
+                        </ol>
+                        <h5>Editing Topics</h5>
+                        <p>Use the pencil icon to the right of an added topic to edit its title, maximum number of slots, and/or description.</p>
+                        <h5>Reordering Topics</h5>
+                        <p>Use the arrow icon to the right of an added topic to move it up in the list. Using the up arrow icon next to the topic at the top of the list will push that topic to the bottom of the list.</p>
+                        <h5>Deleting Topics</h5>
+                        <p>Use the trash can icon to the right of an added topic to remove it from the list. Removing topics will also remove any selections that have been made for that topic.</p>'));
 
 $OUTPUT->footerStart();
 ?>

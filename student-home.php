@@ -158,11 +158,14 @@ if ($topics) {
 echo '</div>';// end container
 
 if ($USER->instructor) {
-    $OUTPUT->helpModal("Instructor Help", '
-                            <p>This help will show when an instructor is previewing student view.</p>');
+    $OUTPUT->helpModal("Topic Selector Help", '
+                            <h4>Student View</h4>
+                            <p>You are seeing what a student will see when they access this tool. However, your selection(s) will be cleared once you leave student view.</p>
+                            <p>Your selection(s) will not show up in any of the results.</p>');
 } else {
-    $OUTPUT->helpModal("Student Help", '
-                            <p>This is the help that students will see.</p>');
+    $OUTPUT->helpModal("Topic Selector Help", '
+                            <h4>What do I do?</h4>
+                            <p>Click on an open topic to reserve it for yourself. You selection is saved immediately. Click the "Remove Selection" link next to a topic you\'ve selected if you want to change your selection. You are shown the number of selections you can make at the top of the page.</p>');
 }
 $OUTPUT->footerStart();
 

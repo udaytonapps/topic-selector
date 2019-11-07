@@ -25,7 +25,7 @@ echo '<div class="container-fluid">';
 
 $OUTPUT->flashMessages();
 
-$OUTPUT->pageTitle("Topic Selections");
+$OUTPUT->pageTitle("Topic Selections", true);
 if ($USER->instructor) {
     $totalRemaining = 0;
     $totalSlots = 0;
@@ -112,6 +112,23 @@ if ($USER->instructor) {
     header('Location: ' . addSession('student-home.php'));
 }
 echo '</div>';// end container
+
+$OUTPUT->helpModal("Topic Selector Help", __('
+                        <h4>Selections</h4>
+                        <p>Use this page to view topic selections, remove student selections, or manually assign students to topics. The counter at the top of the page shows the number of reserved slots along with the number of open slots still remaining.</p>
+                        <h5>Removing a Selection</h5>
+                        <ol>
+                        <li>Click the drop-down arrow to the right of a topic that has been selected by a student.</li>
+                        <li>Click the "Remove" link on the menu that appears.</li>
+                        </ol>
+                        <h5>Assign Students Manually</h5>
+                        <ol>
+                        <li>Click the drop-down arrow to the right of a topic that is currently listed as (empty).</li>
+                        <li>Click the "Assign Student" link on the menu that appears.</li>
+                        <li>Select the student that you wish to assign to the topic from the drop-down list on the next page.</li>
+                        <li>Click the "Save" button.</li>
+                        </ol>
+                        '));
 
 $OUTPUT->footerStart();
 
