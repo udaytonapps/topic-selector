@@ -19,8 +19,9 @@ $stu_topics = intval($LAUNCH->link->settingsGet("stu_topics", "1"));
 
 $see_locked = $LAUNCH->link->settingsGet("see_locked", false);
 
-$assignST = $PDOX->prepare("SELECT * FROM {$p}ts_selection WHERE user_email = :userEmail");
-$assignST->execute(array(":userEmail" => $USER->email));
+$assignST = $PDOX->prepare("SELECT * FROM {$p}ts_selection WHERE user_email = :userEmail AND topic_id in 
+                    (SELECT topic_id FROM {$p}ts_topic where link_id = :linkId)");
+$assignST->execute(array(":userEmail" => $USER->email, ":linkId" => $LINK->id));
 $assign = $assignST->fetchAll(PDO::FETCH_ASSOC);
 
 $num_select = $assign ? count($assign) : 0;
