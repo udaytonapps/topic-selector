@@ -1,10 +1,20 @@
 <?php
 
 $REGISTER_LTI2 = array(
-    "name" => "Topic Selector", // Name of the tool
-    "FontAwesome" => "fa-hand-o-left", // Icon for the tool
+    "name" => "Topic Selector",
+    "FontAwesome" => "fa-hand-o-left",
     "short_name" => "Topic Selector",
-    "description" => "This tool allows the instructor to create a number of topics that students can then select.", // Tool description
+    "description" => "This tool allows the instructor to create a number of topics that students can then select.",
     "messages" => array("launch", "launch_grade"),
-    "hide_from_store" => false
+    "privacy_level" => "anonymous",  // anonymous, name_only, public
+    "license" => "Apache",
+    "languages" => array(
+        "English"
+    ),
+    "analytics" => array(
+        "internal"
+    ),
+    "screen_shots" => array(
+    )
 );
+

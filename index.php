@@ -3,22 +3,26 @@ require_once "../config.php";
 
 use \Tsugi\Core\LTIX;
 
-// Retrieve the launch data if present
-$LTI = LTIX::requireData();
-$p = $CFG->dbprefix;
-$displayname = $USER->displayname;
+$LAUNCH = LTIX::requireData();
 
-// Start of the output
-$OUTPUT->header();
-?>
-    <!-- Our main css file that overrides default Tsugi styling -->
-    <link rel="stylesheet" type="text/css" href="styles/main.css">
-<?php
-$OUTPUT->bodyStart();
+$has_seen = $LAUNCH->link->settingsGet("has_seen", false);
 
-$OUTPUT->footerStart();
-?>
-    <!-- Our main javascript file for tool functions -->
-    <script src="scripts/main.js" type="text/javascript"></script>
-<?php
-$OUTPUT->footerEnd();
+if ($has_seen == NULL) {
+    $LAUNCH->link->settingsSet("has_seen", false);
+    $has_seen = $LAUNCH->link->has_seen;
+}
+
+if ( $USER->instructor ) {
+    if($has_seen == true) {
+        if(isset($_GET['top'])) {
+            header('Location: ' . addSession('results-assignments.php'));
+        } else {
+            header('Location: ' . addSession('build.php'));
+        }
+    } else {
+        header('Location: ' . addSession('splash.php'));
+    }
+
+} else { // student
+    header( 'Location: '.addSession('student-home.php') ) ;
+}
