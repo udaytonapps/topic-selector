@@ -10,6 +10,17 @@ $p = $CFG->dbprefix;
 
 $TS_DAO = new TS_DAO($PDOX, $p);
 
+if (!$USER->instructor) {
+    // Remove instructor selections if not an instructor so that selections are not blocked
+    $instructors = $TS_DAO->findInstructors($CONTEXT->id);
+    foreach ($instructors as $instructor) {
+        $email = $TS_DAO->findEmail($instructor["user_id"]);
+        $clearQry = "DELETE FROM {$p}ts_selection WHERE user_email = :userEmail AND topic_id in (SELECT topic_id from {$p}ts_topic WHERE link_id = :linkId)";
+        $arr = array('userEmail' => $email, ':linkId' => $LINK->id);
+        $PDOX->queryDie($clearQry, $arr);
+    }
+}
+
 $topics = $TS_DAO->getTopics($LINK->id);
 
 $title = $LAUNCH->link->settingsGet("title", $LAUNCH->link->title);
@@ -44,19 +55,19 @@ $OUTPUT->flashMessages();
 
 $OUTPUT->pageTitle($title, true, false);
 
-if ($stu_locked == "1") {
-    ?>
-    <p class="lead">These are the topics created by your instructor. Your name will be listed under the topic(s) your
-        instructor has assigned you to.</p>
-    <?php
-} else {
-    ?>
-    <p class="lead">
-        Use the links to the right of the list below to sign up for <?= $stu_topics > 1 ? $stu_topics.' topics' : 'a topic' ?>.
-        You have <span class="label label-warning" style="vertical-align: middle;"><?= $num_select_remaining ?></span> <?= $stu_topics > 1 ? 'selections' : 'selection' ?> remaining.</p>
-    <?php
-}
 if ($topics) {
+    if ($stu_locked == "1") {
+        ?>
+        <p class="lead">These are the topics created by your instructor. Your name will be listed under the topic(s) your
+            instructor has assigned you to.</p>
+        <?php
+    } else {
+        ?>
+        <p class="lead">
+            Use the links to the right of the list below to sign up for <?= $stu_topics > 1 ? $stu_topics.' topics' : 'a topic' ?>.
+            You have <span class="label label-warning" style="vertical-align: middle;"><?= $num_select_remaining ?></span> <?= $stu_topics > 1 ? 'selections' : 'selection' ?> remaining.</p>
+        <?php
+    }
     ?>
     <div class="row">
         <div class="col-sm-12">
