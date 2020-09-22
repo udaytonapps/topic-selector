@@ -7,11 +7,6 @@ $LAUNCH = LTIX::requireData();
 
 $has_seen = $LAUNCH->link->settingsGet("has_seen", false);
 
-if ($has_seen == NULL) {
-    $LAUNCH->link->settingsSet("has_seen", false);
-    $has_seen = $LAUNCH->link->has_seen;
-}
-
 if ( $USER->instructor ) {
     if($has_seen == true) {
         if(isset($_GET['top'])) {
