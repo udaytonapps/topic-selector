@@ -26,7 +26,7 @@ if (!isset($_GET['user_email']) || trim($_GET['user_email']) === '') {
     if ($hasRosters) {
         $rosterData = $GLOBALS['ROSTER']->data;
         foreach ($rosterData as $roster){
-            if($rosterData[$x]['person_contact_email_primary'] == $_GET['user_email']){
+            if(isset($rosterData[$x]['person_contact_email_primary']) && $rosterData[$x]['person_contact_email_primary'] == $_GET['user_email']){
                 $userFirstName = $rosterData[$x]['person_name_given'];
                 $userLastName = $rosterData[$x]['person_name_family'];
                 break;

@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
         if ($hasRosters) {
             $rosterData = $GLOBALS['ROSTER']->data;
             foreach ($rosterData as $roster) {
-                if ($rosterData[$x]['person_contact_email_primary'] == $userEmail) {
+                if (isset($rosterData[$x]['person_contact_email_primary']) && $rosterData[$x]['person_contact_email_primary'] == $userEmail) {
                     $userFirstName = $rosterData[$x]['person_name_given'];
                     $userLastName = $rosterData[$x]['person_name_family'];
                     break;
@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
                                     $z = 0;
                                     $w = 0;
                                     foreach ($selections as $select) {
-                                        if ($rosterData[$x]['person_contact_email_primary'] == $select['user_email']) {
+                                        if (isset($rosterData[$x]['person_contact_email_primary']) && $rosterData[$x]['person_contact_email_primary'] == $select['user_email']) {
                                             $y++;
                                             if ($select['topic_id'] == $_GET['top']) {
                                                 $w++;
@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $USER->instructor) {
                                             $z++;
                                         }
                                     }
-                                    if ($roster["roles"] == "Learner" && $y < $top_num && $w == 0 && $y < $stuTops) {
+                                    if (isset($rosterData[$x]['person_contact_email_primary']) && $roster["roles"] == "Learner" && $y < $top_num && $w == 0 && $y < $stuTops) {
                                         $name1 = $rosterData[$x]["person_name_given"];
                                         $name2 = $rosterData[$x]["person_name_family"];
                                         ?>
